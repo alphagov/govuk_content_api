@@ -46,6 +46,11 @@ $:.unshift  locate_gem('govuk_content_models') + '/app/repositories'
 Dir.glob(locate_gem('govuk_content_models') + '/app/models/*.rb').each do |f|
   require f
 end
+
+class Artefact
+  attr_accessor :edition
+end
+
 # Render RABL
 get "/search.json" do
   @results = solr.search(params[:q])
@@ -64,18 +69,14 @@ end
 
 get "/with_tag.json" do
   @tag = Tag.where(tag_id: params[:tag]).first
-  @results = Artefact.any_in(tag_ids: [@tag.tag_id])
-  @results.map! { |r|
-    if Edition.where(panopticon_id: r.id).any?
-      r.edition = Edition.where(panopticon_id: r.id).first.published_edition
-      if r.edition
-        r
-      else
-        nil
-      end
-    else
-      r
+  artefacts = Artefact.any_in(tag_ids: [@tag.tag_id])
+  @results = artefacts.map { |r|
+    if r.owning_app == 'publisher'
+      r.edition = Edition.where(slug: r.slug, state: 'published').first
+      return nil unless r.edition
     end
+
+    r
   }
   @results.compact!
   render :rabl, :with_tag, format: "json"
