@@ -14,7 +14,7 @@ node :response do
 
   if @artefact.edition.is_a?(AnswerEdition)
     basic[:result][:fields][:overview] = @artefact.edition.overview
-    basic[:result][:fields][:body] = @artefact.edition.body
+    basic[:result][:fields][:body] = Govspeak::Document.new(@artefact.edition.body, auto_ids: false).to_html
     basic[:result][:fields][:alternative_title] = @artefact.edition.alternative_title
   end
 

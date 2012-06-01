@@ -7,10 +7,7 @@ require 'sinatra'
 require 'rabl'
 require 'solr_wrapper'
 require 'mongoid'
-
-# require 'active_support/core_ext'
-# require 'active_support/inflector'
-# require 'builder'
+require 'govspeak'
 
 # Register RABL
 Rabl.register!
