@@ -84,7 +84,11 @@ end
 
 get "/:id.json" do
   @artefact = Artefact.where(slug: params[:id]).first
-  @edition = Edition.where(panopticon_id: @artefact.id).first.published_edition
+
+  if @artefact.owning_app == 'publisher'
+    @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+    halt 404 unless @artefact.edition
+  end
   # TODO: 404 if requesting something that is a publisher item but isn't published
   # TODO: 410 if requesting something that is a publisher item but is only archived
   render :rabl, :artefact, format: "json"
