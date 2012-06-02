@@ -8,3 +8,4 @@
 * Include related items
 * Include curated lists
 * Handle tag combinations
+* Can we decouple gds_content_models from gds-sso so we don't need to pull in rails?
