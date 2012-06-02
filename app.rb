@@ -51,16 +51,19 @@ end
 # Render RABL
 get "/search.json" do
   @results = solr.search(params[:q])
+  content_type :json
   render :rabl, :search, format: "json"
 end
 
 get "/tags.json" do
   @tags = Tag.all
+  content_type :json
   render :rabl, :tags, format: "json"
 end
 
 get "/tag/:id.json" do
   @tag = Tag.where(tag_id: params[:id]).first
+  content_type :json
   render :rabl, :tag, format: "json"
 end
 
@@ -76,6 +79,7 @@ get "/with_tag.json" do
     r
   }
   @results.compact!
+  content_type :json
   render :rabl, :with_tag, format: "json"
 end
 
@@ -88,5 +92,6 @@ get "/:id.json" do
   end
   # TODO: 404 if requesting something that is a publisher item but isn't published
   # TODO: 410 if requesting something that is a publisher item but is only archived
+  content_type :json
   render :rabl, :artefact, format: "json"
 end
