@@ -37,6 +37,10 @@ def locate_gem(name)
   spec.full_gem_path
 end
 
+def custom_404
+  halt 404, render(:rabl, :not_found, format: "json")
+end
+
 $:.unshift  locate_gem('govuk_content_models') + '/app/models'
 $:.unshift  locate_gem('govuk_content_models') + '/app/validators'
 $:.unshift  locate_gem('govuk_content_models') + '/app/repositories'
@@ -86,9 +90,11 @@ end
 get "/:id.json" do
   @artefact = Artefact.where(slug: params[:id]).first
 
+  custom_404 unless @artefact
+
   if @artefact.owning_app == 'publisher'
     @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
-    halt 404 unless @artefact.edition
+    custom_404 unless @artefact.edition
   end
   # TODO: 404 if requesting something that is a publisher item but isn't published
   # TODO: 410 if requesting something that is a publisher item but is only archived
