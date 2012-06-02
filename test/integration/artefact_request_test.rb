@@ -23,6 +23,7 @@ class ArtefactRequestTest < Test::Unit::TestCase
     stub_artefact = Artefact.new(slug: 'unpublished-artefact', owning_app: 'publisher')
     Artefact.stubs(:where).with(slug: 'unpublished-artefact').returns([stub_artefact])
     Edition.stubs(:where).with(slug: 'unpublished-artefact', state: 'published').returns([])
+    Edition.stubs(:where).with(slug: 'unpublished-artefact', state: 'archived').returns([])
 
     get '/unpublished-artefact.json'
 
@@ -34,6 +35,7 @@ class ArtefactRequestTest < Test::Unit::TestCase
     stub_artefact = Artefact.new(slug: 'archived-artefact', owning_app: 'publisher')
     Artefact.stubs(:where).with(slug: 'archived-artefact').returns([stub_artefact])
     Edition.stubs(:where).with(slug: 'archived-artefact', state: 'published').returns([])
+    Edition.stubs(:where).with(slug: 'archived-artefact', state: 'archived').returns(['not empty'])
 
     get '/archived-artefact.json'
 
