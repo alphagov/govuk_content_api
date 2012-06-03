@@ -1,12 +1,6 @@
 require 'test_helper'
 
-class SearchRequestTest < Test::Unit::TestCase
-  include Rack::Test::Methods
-
-  def app
-    Sinatra::Application
-  end
-
+class SearchRequestTest < GovUkContentApiTest
   def test_it_returns_an_array_of_results
     SolrWrapper.any_instance.stubs(:search).returns([
       Document.from_hash(title: 'Result 1', link: 'http://example.com/', description: '1', format: 'answer'),

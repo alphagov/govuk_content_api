@@ -1,12 +1,6 @@
 require 'test_helper'
 
-class ArtefactRequestTest < Test::Unit::TestCase
-  include Rack::Test::Methods
-
-  def app
-    Sinatra::Application
-  end
-
+class ArtefactRequestTest < GovUkContentApiTest
   def test_returns_404_if_artefact_not_found
     Artefact.expects(:where).with(slug: 'bad-artefact').returns([])
     get '/bad-artefact.json'
