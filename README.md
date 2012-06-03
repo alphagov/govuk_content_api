@@ -10,7 +10,7 @@
   * imminence: /places/{service_id}?max_distance=?&limit=?&version=?
   * contact-o-tron
 
-* Error handling
+* Database error handling
 * See if the solr code can be simplified
 * Include details of publications other than answers
 * Clean way to add more publication types
