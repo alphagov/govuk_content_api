@@ -38,9 +38,9 @@ def custom_410
   halt 410, render(:rabl, :gone, format: "json")
 end
 
-$:.unshift  locate_gem('govuk_content_models') + '/app/models'
-$:.unshift  locate_gem('govuk_content_models') + '/app/validators'
-$:.unshift  locate_gem('govuk_content_models') + '/app/repositories'
+$:.unshift locate_gem('govuk_content_models') + '/app/models'
+$:.unshift locate_gem('govuk_content_models') + '/app/validators'
+$:.unshift locate_gem('govuk_content_models') + '/app/repositories'
 Dir.glob(locate_gem('govuk_content_models') + '/app/models/*.rb').each do |f|
   require f
 end
