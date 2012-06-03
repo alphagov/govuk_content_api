@@ -1,9 +1,4 @@
-require 'govuk_content_api'
-require 'test/unit'
-require 'rack/test'
-require 'mocha'
-
-ENV['RACK_ENV'] = 'test'
+require 'test_helper'
 
 class SearchRequestTest < Test::Unit::TestCase
   include Rack::Test::Methods
