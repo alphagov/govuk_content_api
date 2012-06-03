@@ -1,6 +1,6 @@
 ## TODO
 
-* Tests for tag related stuff
+* Filter tags by type
 * Allow client to optionally request a single search index
 * Handle tag combinations
 * Document missing API methods from across GDS apps

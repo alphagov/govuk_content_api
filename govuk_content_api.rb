@@ -48,6 +48,7 @@ end
 
 class Artefact
   attr_accessor :edition
+  field :description, type: String
 end
 
 # Render RABL
@@ -69,10 +70,15 @@ get "/tags.json" do
   render :rabl, :tags, format: "json"
 end
 
-get "/tag/:id.json" do
+get "/tags/:id.json" do
   @tag = Tag.where(tag_id: params[:id]).first
   content_type :json
-  render :rabl, :tag, format: "json"
+
+  if @tag
+    render :rabl, :tag, format: "json"
+  else
+    custom_404
+  end
 end
 
 get "/with_tag.json" do
@@ -106,6 +112,7 @@ get "/:id.json" do
       end
     end
   end
+
   content_type :json
   render :rabl, :artefact, format: "json"
 end
