@@ -51,10 +51,14 @@ end
 
 # Render RABL
 get "/search.json" do
-  solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
-  @results = solr.search(params[:q])
-  content_type :json
-  render :rabl, :search, format: "json"
+  begin
+    solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
+    @results = solr.search(params[:q])
+    content_type :json
+    render :rabl, :search, format: "json"
+  rescue Errno::ECONNREFUSED
+    halt 503, render(:rabl, :unavailable, format: "json")
+  end
 end
 
 get "/tags.json" do
