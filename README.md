@@ -1,6 +1,14 @@
 ## TODO
 
-* Document missing API methods from across GDS apps
+* Rest of content API methods from across GDS apps:
+  * publisher: /local_transactions/verify_snac
+  * publisher: /licenses
+  * publisher: /publications/local-transaction.json?snac={snac}
+  * publisher: /publications/local-transaction.json?all=1
+  * imminence: /data_sets/public_bodies.json
+  * imminence: /data_sets/writing_teams.json
+  * imminence: /places/{service_id}?max_distance=?&limit=?&version=?
+  * contact-o-tron
 
 * Error handling
 * See if the solr code can be simplified
