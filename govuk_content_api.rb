@@ -54,9 +54,17 @@ end
 # Render RABL
 get "/search.json" do
   begin
-    mainstream_solr = SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
-    inside_solr = SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
-    @results = mainstream_solr.search(params[:q]) + inside_solr.search(params[:q])
+    indices = []
+    if params[:index].nil? || params[:index] == 'mainstream'
+      indices << SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
+    end
+
+    if params[:index].nil? || params[:index] == 'inside'
+      indices << SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
+    end
+
+    @results = indices.map { |i| i.search(params[:q]) }.flatten
+
     content_type :json
     render :rabl, :search, format: "json"
   rescue Errno::ECONNREFUSED
