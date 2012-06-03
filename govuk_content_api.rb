@@ -105,12 +105,19 @@ get "/with_tag.json" do
   @results = artefacts.map { |r|
     if r.owning_app == 'publisher'
       r.edition = Edition.where(slug: r.slug, state: 'published').first
-      return nil unless r.edition
+      if r.edition
+        r
+      else
+        nil
+      end
+    else
+      r
     end
-
-    r
   }
+
   @results.compact!
+
+
   content_type :json
   render :rabl, :with_tag, format: "json"
 end
