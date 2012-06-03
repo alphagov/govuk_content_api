@@ -22,4 +22,19 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     assert_equal 1, JSON.parse(last_response.body)["response"]["results"].count
   end
+
+  def test_it_allows_filtering_by_multiple_tags
+    farmers = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
+    business = Tag.new(tag_id: 'business', name: 'Business', tag_type: 'Audience')
+
+    Tag.stubs(:where).with(tag_id: 'farmers').returns([farmers])
+    Tag.expects(:where).with(tag_id: 'business').returns([business])
+
+    smart_answer = Artefact.new(owning_app: 'smart-answers')
+    Artefact.expects(:any_in).with(tag_ids: ['farmers', 'business']).returns([smart_answer])
+
+    get "/with_tag.json?tag=farmers,business"
+    assert last_response.ok?
+    assert_equal 1, JSON.parse(last_response.body)["response"]["results"].count
+  end
 end

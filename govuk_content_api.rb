@@ -87,10 +87,12 @@ get "/tags/:id.json" do
 end
 
 get "/with_tag.json" do
-  @tag = Tag.where(tag_id: params[:tag]).first
-  custom_404 unless @tag
+  tag_ids = params[:tag].split(',')
+  tags = tag_ids.map { |ti| Tag.where(tag_id: ti).first }.compact
 
-  artefacts = Artefact.any_in(tag_ids: [@tag.tag_id])
+  custom_404 unless tags.length == tag_ids.length
+
+  artefacts = Artefact.any_in(tag_ids: tag_ids)
 
   @results = artefacts.map { |r|
     if r.owning_app == 'publisher'

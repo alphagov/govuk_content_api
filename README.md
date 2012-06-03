@@ -1,7 +1,5 @@
 ## TODO
 
-* Filter tags by type
-* Handle tag combinations
 * Allow client to optionally request a single search index
 * Document missing API methods from across GDS apps
 
