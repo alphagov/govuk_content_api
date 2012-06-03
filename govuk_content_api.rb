@@ -12,7 +12,8 @@ require 'govspeak'
 # Register RABL
 Rabl.register!
 
-set :solr, { server: 'localhost', path: '/solr/rummager', port: 8983}
+set :mainstream_solr, { server: 'localhost', path: '/solr/rummager', port: 8983}
+set :inside_solr,  { server: 'localhost', path: '/solr/whitehall-rummager', port: 8983}
 set :recommended_format, "recommended-link"
 
 configure do
@@ -52,8 +53,9 @@ end
 # Render RABL
 get "/search.json" do
   begin
-    solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
-    @results = solr.search(params[:q])
+    mainstream_solr = SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
+    inside_solr = SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
+    @results = mainstream_solr.search(params[:q]) + inside_solr.search(params[:q])
     content_type :json
     render :rabl, :search, format: "json"
   rescue Errno::ECONNREFUSED
