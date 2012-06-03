@@ -13,7 +13,6 @@ class SearchRequestTest < Test::Unit::TestCase
   end
 
   def test_it_returns_an_array_of_results
-    solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
     SolrWrapper.any_instance.stubs(:search).returns([
       Document.from_hash(title: 'Result 1', link: 'http://example.com/', description: '1', format: 'answer'),
       Document.from_hash(title: 'Result 2', link: 'http://example2.com/', description: '2', format: 'answer')
@@ -30,7 +29,6 @@ class SearchRequestTest < Test::Unit::TestCase
   end
 
   def test_it_returns_the_standard_response_even_if_zero_results
-    solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
     SolrWrapper.any_instance.stubs(:search).returns([])
 
     get "/search.json?q=empty+result+set"
