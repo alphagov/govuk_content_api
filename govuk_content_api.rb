@@ -24,10 +24,6 @@ configure do
   end
 end
 
-def solr
-  @solr ||= SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
-end
-
 def locate_gem(name)
   spec = Bundler.load.specs.find{|s| s.name == name }
   raise GemNotFound, "Could not find gem '#{name}' in the current bundle." unless spec
@@ -55,6 +51,7 @@ end
 
 # Render RABL
 get "/search.json" do
+  solr = SolrWrapper.new(DelSolr::Client.new(settings.solr), settings.recommended_format)
   @results = solr.search(params[:q])
   content_type :json
   render :rabl, :search, format: "json"
