@@ -1,3 +1,8 @@
+## Work In Progress
+
+This is a sketch of the content API for GOV.UK. At the moment it's designed to foster
+internal discussion of how it should look and function.
+
 ## TODO
 
 * Rest of content API methods from across GDS apps:
