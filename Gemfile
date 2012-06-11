@@ -9,4 +9,5 @@ gem 'govspeak'
 
 group :test do
   gem 'mocha'
+  gem 'simplecov'
 end

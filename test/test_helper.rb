@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'govuk_content_api'
 require 'test/unit'
 require 'rack/test'
