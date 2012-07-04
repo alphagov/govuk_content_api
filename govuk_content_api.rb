@@ -55,6 +55,7 @@ end
 get "/search.json" do
   begin
     indices = []
+
     if params[:index].nil? || params[:index] == 'mainstream'
       indices << SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
     end
@@ -63,7 +64,7 @@ get "/search.json" do
       indices << SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
     end
 
-    @results = indices.map { |i| i.search(params[:q]) }.flatten
+    @results = indices.compact.map { |i| i.search(params[:q]) }.flatten
 
     content_type :json
     render :rabl, :search, format: "json"
