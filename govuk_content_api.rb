@@ -17,11 +17,9 @@ set :inside_solr,  { server: 'localhost', path: '/solr/whitehall-rummager', port
 set :recommended_format, "recommended-link"
 
 configure do
-   Mongoid.configure do |config|
-    name = "govuk_content_development"
-    host = "localhost"
-    config.master = Mongo::Connection.new.db(name)
-    config.persist_in_safe_mode = false
+  mongoid_config_file = File.expand_path("mongoid.yml", File.dirname(__FILE__))
+  if File.exists?(mongoid_config_file)
+    ::Mongoid.load!(mongoid_config_file)
   end
 end
 
