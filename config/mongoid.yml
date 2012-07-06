@@ -1,0 +1,8 @@
+development:
+  host: localhost
+  database: govuk_content_development
+  logger: true
+test:
+  host: localhost
+  database: govuk_content_shared_test
+  logger: false
