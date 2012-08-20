@@ -13,6 +13,8 @@ else
 end
 
 gem 'govspeak', '0.8.15'
+gem 'factory_girl', '3.3.0'
+gem 'database_cleaner', '0.7.2'
 
 group :test do
   gem 'mocha', '0.11.4'

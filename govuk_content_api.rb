@@ -10,6 +10,10 @@ require 'mongoid'
 require 'govspeak'
 
 # Register RABL
+Rabl.configure do |config|
+  config.view_paths = [File.expand_path('views', __FILE__)]
+end
+
 Rabl.register!
 
 set :mainstream_solr, { server: 'localhost', path: '/solr/rummager', port: 8983}

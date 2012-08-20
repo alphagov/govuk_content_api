@@ -44,8 +44,11 @@ GEM
     builder (3.0.0)
     ci_reporter (1.7.0)
       builder (>= 2.1.2)
+    database_cleaner (0.7.2)
     differ (0.1.2)
     erubis (2.7.0)
+    factory_girl (3.3.0)
+      activesupport (>= 3.0.0)
     faraday (0.8.1)
       multipart-post (~> 1.1)
     gds-api-adapters (0.1.1)
@@ -175,7 +178,9 @@ PLATFORMS
 
 DEPENDENCIES
   ci_reporter (= 1.7.0)
+  database_cleaner (= 0.7.2)
   delsolr!
+  factory_girl (= 3.3.0)
   govspeak (= 0.8.15)
   govuk_content_models (= 0.1.10)
   mocha (= 0.11.4)
