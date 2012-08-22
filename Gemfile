@@ -17,7 +17,7 @@ gem 'factory_girl', '3.3.0'
 gem 'database_cleaner', '0.7.2'
 
 group :test do
-  gem 'mocha', '0.11.4'
+  gem 'mocha', '0.12.3', require: false
   gem 'simplecov', '0.6.4'
   gem 'test-unit', '2.5.0'
   gem 'ci_reporter', '1.7.0'
