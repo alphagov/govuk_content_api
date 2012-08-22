@@ -12,8 +12,8 @@ class SearchRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
     assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal 4, parsed_response["response"]["total"]
-    assert_equal 4, parsed_response["response"]["results"].count
+    assert_equal 2, parsed_response["response"]["total"]
+    assert_equal 2, parsed_response["response"]["results"].count
     assert_equal 'Result 1', parsed_response["response"]["results"].first['title']
   end
 
