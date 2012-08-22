@@ -25,16 +25,12 @@ class GovUkContentApiTest < Test::Unit::TestCase
     Sinatra::Application
   end
 
-  def clean_db
-  	DatabaseCleaner.clean
-  end
-
   def setup
-  	self.clean_db
+  	DatabaseCleaner.start
   end
 
   def teardown
-  	self.clean_db
+    DatabaseCleaner.clean
   end
 
 end
