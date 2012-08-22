@@ -28,26 +28,6 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["response"]["total"]
   end
 
-  def test_it_allows_just_searching_mainstream
-    SolrWrapper.expects(:new).times(1)
-    SolrWrapper.any_instance.stubs(:search).returns([
-      Document.from_hash(title: 'Result 1', link: 'http://example.com/', description: '1', format: 'answer'),
-      Document.from_hash(title: 'Result 2', link: 'http://example2.com/', description: '2', format: 'answer')
-    ])
-
-    get "/search.json?q=empty+result+set&index=mainstream"
-  end
-
-  def test_it_allows_just_searching_inside_government
-    SolrWrapper.expects(:new).times(1)
-    SolrWrapper.any_instance.stubs(:search).returns([
-      Document.from_hash(title: 'Result 1', link: 'http://example.com/', description: '1', format: 'answer'),
-      Document.from_hash(title: 'Result 2', link: 'http://example2.com/', description: '2', format: 'answer')
-    ])
-
-    get "/search.json?q=empty+result+set&index=inside"
-  end
-
   def test_it_returns_503_if_no_solr_connection
     SolrWrapper.any_instance.stubs(:search).raises(Errno::ECONNREFUSED)
     get "/search.json?q=government"
