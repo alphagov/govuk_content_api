@@ -6,6 +6,7 @@ node :response do
     result: {
       id: @artefact.slug,
       title: @artefact.name,
+      tag_ids: @artefact.tag_ids,
       fields: {}
     }
   }

@@ -12,6 +12,7 @@ class FormatsRequestTest < GovUkContentApiTest
 		assert_equal 'ok', parsed_response["response"]["status"]
 		assert parsed_response["response"]["result"].has_key?('title')
 		assert parsed_response["response"]["result"].has_key?('id')
+    assert parsed_response["response"]["result"].has_key?('tag_ids')
 	end
 
 	def _assert_has_expected_fields(parsed_response, fields)
@@ -32,7 +33,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
 		fields = parsed_response["response"]["result"]["fields"]
 
-		expected_fields = ['tag_ids', 'alternative_title', 'overview', 'body', 'section']
+		expected_fields = ['alternative_title', 'overview', 'body', 'section']
 
 		_assert_has_expected_fields(fields, expected_fields)		
 		assert_equal "Important batman information", fields["body"]
@@ -53,12 +54,34 @@ class FormatsRequestTest < GovUkContentApiTest
 		_assert_base_response_info(parsed_response)
 
 		fields = parsed_response["response"]["result"]["fields"]
-		expected_fields = ['tag_ids', 'alternative_title', 'overview', 'section', 
+		expected_fields = ['alternative_title', 'overview', 'section', 
 												'short_description', 'min_value', 'max_value', 'parts']
+		_assert_has_expected_fields(fields, expected_fields)
+		assert_false fields.has_key?('body')
+		assert_equal "No policeman's going to give the Batmobile a ticket", fields['short_description']
+		assert_equal "Lalalala", fields['parts'][0]["body"]
+	end
+
+	def test_guide_edition
+		artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
+		guide_edition = FactoryGirl.create(:guide_edition_with_two_govspeak_parts, slug: artefact.slug, 
+																panopticon_id: artefact.id, state: 'published')
+		guide_edition.save!
+
+		get '/batman.json'
+		parsed_response = JSON.parse(last_response.body)
+
+		assert last_response.ok?
+		_assert_base_response_info(parsed_response)
+
+		fields = parsed_response["response"]["result"]["fields"]
+		expected_fields = ['alternative_title', 'overview', 'section', 'parts']
 
 		_assert_has_expected_fields(fields, expected_fields)
 		assert_false fields.has_key?('body')
-		assert_equal "Lalalala", fields['parts'][0]["body"]
-
+		puts fields
+		assert_equal "Some Part Title!", fields['parts'][0]['title']
+		assert_equal "This is some **version** text.", fields['parts'][0]['body']
+		assert_equal "part-one", fields['parts'][0]['slug']
 	end
 end
