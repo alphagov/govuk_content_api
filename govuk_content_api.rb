@@ -12,8 +12,12 @@ require 'govspeak'
 # Register RABL
 Rabl.register!
 
-set :mainstream_solr, { server: 'localhost', path: '/solr/rummager', port: 8983}
-set :inside_solr,  { server: 'localhost', path: '/solr/whitehall-rummager', port: 8983}
+def config_for(kind)
+  YAML.load_file(File.expand_path("../#{kind}.yml", __FILE__))
+end
+
+set :mainstream_solr, config_for(:mainstream_solr)[ENV["RACK_ENV"]]
+set :inside_solr, config_for(:inside_solr)[ENV["RACK_ENV"]]
 set :recommended_format, "recommended-link"
 
 configure do
