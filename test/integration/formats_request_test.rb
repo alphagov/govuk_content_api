@@ -79,9 +79,8 @@ class FormatsRequestTest < GovUkContentApiTest
 
 		_assert_has_expected_fields(fields, expected_fields)
 		assert_false fields.has_key?('body')
-		puts fields
 		assert_equal "Some Part Title!", fields['parts'][0]['title']
 		assert_equal "This is some **version** text.", fields['parts'][0]['body']
-		assert_equal "part-one", fields['parts'][0]['slug']
+		assert_equal "part-one", fields['parts'][0]['id']
 	end
 end
