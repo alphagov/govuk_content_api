@@ -8,24 +8,10 @@ require 'rabl'
 require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
+require_relative "config"
 
 # Register RABL
 Rabl.register!
-
-def config_for(kind)
-  YAML.load_file(File.expand_path("../#{kind}.yml", __FILE__))
-end
-
-set :mainstream_solr, config_for(:mainstream_solr)[ENV["RACK_ENV"]]
-set :inside_solr, config_for(:inside_solr)[ENV["RACK_ENV"]]
-set :recommended_format, "recommended-link"
-
-configure do
-  mongoid_config_file = File.expand_path("mongoid.yml", File.dirname(__FILE__))
-  if File.exists?(mongoid_config_file)
-    ::Mongoid.load!(mongoid_config_file)
-  end
-end
 
 def locate_gem(name)
   spec = Bundler.load.specs.find{|s| s.name == name }
