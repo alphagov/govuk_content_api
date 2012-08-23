@@ -9,11 +9,11 @@ gem 'delsolr', git: 'git://github.com/alphagov/delsolr.git'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '0.1.10'
+  gem 'govuk_content_models', '1.4.1'
 end
 
 gem 'govspeak', '0.8.15'
-gem 'factory_girl', '3.3.0'
+gem 'factory_girl', '3.6.1'
 gem 'database_cleaner', '0.7.2'
 
 group :test do
