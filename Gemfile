@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 source 'https://gems.gemfury.com/vo6ZrmjBQu5szyywDszE/'
 
+gem 'unicorn', '~> 4.3.1'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
 gem 'rabl', '0.6.14'
