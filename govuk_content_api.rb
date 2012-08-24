@@ -10,6 +10,8 @@ require 'mongoid'
 require 'govspeak'
 require_relative "config"
 
+set :views, File.expand_path('views', File.dirname(__FILE__))
+
 # Register RABL
 Rabl.register!
 
@@ -42,17 +44,17 @@ end
 # Render RABL
 get "/search.json" do
   begin
-    indices = []
+    params[:index] ||= 'mainstream'
 
-    if params[:index].nil? || params[:index] == 'mainstream'
-      indices << SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
+    if params[:index] == 'mainstream'
+      index = SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
+    elsif params[:index] == 'whitehall'
+      index = SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
+    else
+      raise "What do you want?"
     end
 
-    if params[:index].nil? || params[:index] == 'inside'
-      indices << SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
-    end
-
-    @results = indices.compact.map { |i| i.search(params[:q]) }.flatten
+    @results = index.search(params[:q])
 
     content_type :json
     render :rabl, :search, format: "json"

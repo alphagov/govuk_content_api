@@ -1,11 +1,22 @@
+ENV['RACK_ENV'] = 'test'
+
+require "bundler"
+Bundler.require(:default, ENV['RACK_ENV'])
+
 require 'simplecov'
 SimpleCov.start
 
-require 'govuk_content_api'
+require_relative '../govuk_content_api'
 require 'test/unit'
 require 'rack/test'
+require 'database_cleaner'
 require 'mocha'
-ENV['RACK_ENV'] = 'test'
+require 'factory_girl'
+require 'govuk_content_models/test_helpers/factories'
+
+DatabaseCleaner.strategy = :truncation
+# initial clean
+DatabaseCleaner.clean
 
 class GovUkContentApiTest < Test::Unit::TestCase
   include Rack::Test::Methods
@@ -13,4 +24,13 @@ class GovUkContentApiTest < Test::Unit::TestCase
   def app
     Sinatra::Application
   end
+
+  def setup
+    DatabaseCleaner.start
+  end
+
+  def teardown
+    DatabaseCleaner.clean
+  end
+
 end
