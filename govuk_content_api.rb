@@ -8,22 +8,12 @@ require 'rabl'
 require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
+require_relative "config"
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 
 # Register RABL
 Rabl.register!
-
-set :mainstream_solr, { server: 'localhost', path: '/solr/rummager', port: 8983}
-set :inside_solr,  { server: 'localhost', path: '/solr/whitehall-rummager', port: 8983}
-set :recommended_format, "recommended-link"
-
-configure do
-  mongoid_config_file = File.expand_path("mongoid.yml", File.dirname(__FILE__))
-  if File.exists?(mongoid_config_file)
-    ::Mongoid.load!(mongoid_config_file)
-  end
-end
 
 def locate_gem(name)
   spec = Bundler.load.specs.find{|s| s.name == name }
