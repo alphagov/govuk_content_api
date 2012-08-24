@@ -10,13 +10,15 @@ gem 'delsolr', git: 'https://github.com/alphagov/delsolr.git'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '0.1.10'
+  gem 'govuk_content_models', '1.5.0'
 end
 
 gem 'govspeak', '0.8.15'
+gem 'factory_girl', '3.6.1'
+gem 'database_cleaner', '0.7.2'
 
 group :test do
-  gem 'mocha', '0.11.4'
+  gem 'mocha', '0.12.3', require: false
   gem 'simplecov', '0.6.4'
   gem 'test-unit', '2.5.0'
   gem 'ci_reporter', '1.7.0'
