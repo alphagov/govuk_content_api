@@ -45,7 +45,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
     
     assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal "<p>Important information</p>\n", parsed_response["response"]["result"]["fields"]["body"]
+    assert_equal "Important information", parsed_response["response"]["result"]["fields"]["body"]
   end
 
   def test_doesnt_look_for_edition_if_publisher_not_owner
