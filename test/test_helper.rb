@@ -26,7 +26,7 @@ class GovUkContentApiTest < Test::Unit::TestCase
   end
 
   def setup
-  	DatabaseCleaner.start
+    DatabaseCleaner.start
   end
 
   def teardown
