@@ -21,7 +21,7 @@ class FormatsRequestTest < GovUkContentApiTest
     end
   end
 
-  def test_answer_edition
+  should "answer_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
     answer = FactoryGirl.create(:edition, slug: artefact.slug, body: 'Important batman information', panopticon_id: artefact.id, state: 'published')
 
@@ -39,7 +39,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "Important batman information", fields["body"]
   end
 
-  def test_business_support_edition
+  should "business_support_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
     business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug, 
                                 short_description: "No policeman's going to give the Batmobile a ticket", min_value: 100, 
@@ -62,7 +62,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "Lalalala", fields['parts'][0]["body"]
   end
 
-  def test_guide_edition
+  should "guide_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
     guide_edition = FactoryGirl.create(:guide_edition_with_two_govspeak_parts, slug: artefact.slug, 
                                 panopticon_id: artefact.id, state: 'published')
@@ -84,7 +84,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "part-one", fields['parts'][0]['id']
   end
 
-  def test_programme_edition
+  should "programme_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
     programme_edition = FactoryGirl.create(:programme_edition, slug: artefact.slug, 
                                 panopticon_id: artefact.id, state: 'published')
@@ -105,7 +105,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "overview", fields['parts'][0]['id']
   end
 
-  def test_video_edition
+  should "video_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
     video_edition = VideoEdition.create!(slug: artefact.slug, title: 'Video killed the radio star', body: 'Important batman information',
                                 video_summary: 'I am a video summary', video_url: 'http://somevideourl.com', panopticon_id: artefact.id, state: 'published')
@@ -125,7 +125,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "http://somevideourl.com", fields["video_url"]
   end
 
-  def test_licence_edition
+  should "licence_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', sections: [@tag1.tag_id])
     licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence', 
                                 licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published')
@@ -143,7 +143,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "Batman licence", fields["licence_short_description"]
   end
 
-  def test_local_transaction_edition
+  should "local_transaction_edition" do
     service = FactoryGirl.create(:local_service)
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id])
@@ -163,7 +163,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_has_expected_fields(fields, expected_fields)
   end
 
-  def test_transaction_edition
+  should "transaction_edition" do
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id])
     transaction_edition = FactoryGirl.create(:transaction_edition, slug: artefact.slug, 
@@ -182,7 +182,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_has_expected_fields(fields, expected_fields)
   end
 
-  def test_place_edition
+  should "place_edition" do
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', sections: [@tag1.tag_id])
     place_edition = FactoryGirl.create(:place_edition, slug: artefact.slug, expectation_ids: [expectation.id],

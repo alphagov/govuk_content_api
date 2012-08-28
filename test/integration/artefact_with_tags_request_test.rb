@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ArtefactWithTagsRequestTest < GovUkContentApiTest
-  def test_it_returns_404_if_tag_not_found
+  should "return 404 if tag not found" do
     Tag.expects(:where).with(tag_id: 'farmers').returns([])
 
     get "/with_tag.json?tag=farmers"
@@ -10,7 +10,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 'not found', JSON.parse(last_response.body)["response"]["status"]
   end
 
-  def test_it_returns_the_standard_response_even_if_zero_results
+  should "return the standard response even if zero results" do
     t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
 
@@ -25,7 +25,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   end
 
 
-  def test_it_returns_an_array_of_results
+  should "return an array of results" do
     t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
 
@@ -38,7 +38,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 1, JSON.parse(last_response.body)["response"]["results"].count
   end
 
-  def test_it_excludes_unpublished_publisher_items
+  should "exclude unpublished publisher items" do
     t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
 
@@ -56,7 +56,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 2, JSON.parse(last_response.body)["response"]["results"].count
   end
 
-  def test_it_allows_filtering_by_multiple_tags
+  should "allow filtering by multiple tags" do
     farmers = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     business = Tag.new(tag_id: 'business', name: 'Business', tag_type: 'Audience')
 
