@@ -1,4 +1,4 @@
-require 'env'
+require_relative 'env'
 
 def config_for(kind)
   if ! File.exists?(File.expand_path("../#{kind}.yml", __FILE__))
