@@ -34,7 +34,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   should "return publication data if published" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
-    stub_answer = AnswerEdition.new(body: 'Important information')
+    stub_answer = AnswerEdition.new(body: '# Important information')
 
     Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
     Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
@@ -45,7 +45,26 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
     
     assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal "Important information", parsed_response["response"]["result"]["fields"]["body"]
+    assert_equal "<h1>Important information</h1>\n", parsed_response["response"]["result"]["fields"]["body"]
+  end
+
+  should "convert artefact body and part bodies to html" do
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
+    stub_answer = GuideEdition.new(body: '# Important information', parts: [Part.new(title: "Part One", body: "## Header 2", slug: "part-one")])
+
+    Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
+
+    get '/published-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+
+    assert_equal "<h1>Important information</h1>\n", parsed_response["response"]["result"]["fields"]["body"]
+    assert_equal "<h2>Header 2</h2>\n", parsed_response["response"]["result"]["fields"]["parts"][0]["body"]
+  end
+
+  should_eventually "return govspeak in artefact body and part bodies if requested" do
   end
 
   should "not look for edition if publisher not owner" do

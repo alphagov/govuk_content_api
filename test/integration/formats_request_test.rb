@@ -36,7 +36,7 @@ class FormatsRequestTest < GovUkContentApiTest
     expected_fields = ['alternative_title', 'overview', 'body', 'section']
 
     _assert_has_expected_fields(fields, expected_fields)    
-    assert_equal "Important batman information", fields["body"]
+    assert_equal "<p>Important batman information</p>\n", fields["body"]
   end
 
   should "business_support_edition" do
@@ -59,7 +59,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_has_expected_fields(fields, expected_fields)
     assert_false fields.has_key?('body')
     assert_equal "No policeman's going to give the Batmobile a ticket", fields['short_description']
-    assert_equal "Lalalala", fields['parts'][0]["body"]
+    assert_equal "<p>Lalalala</p>\n", fields['parts'][0]["body"]
   end
 
   should "guide_edition" do
@@ -80,7 +80,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_has_expected_fields(fields, expected_fields)
     assert_false fields.has_key?('body')
     assert_equal "Some Part Title!", fields['parts'][0]['title']
-    assert_equal "This is some **version** text.", fields['parts'][0]['body']
+    assert_equal "<p>This is some <strong>version</strong> text.</p>\n", fields['parts'][0]['body']
     assert_equal "part-one", fields['parts'][0]['id']
   end
 
@@ -120,7 +120,7 @@ class FormatsRequestTest < GovUkContentApiTest
     expected_fields = ['alternative_title', 'overview', 'body', 'section', 'video_url', 'video_summary']
 
     _assert_has_expected_fields(fields, expected_fields)
-    assert_equal "Important batman information", fields["body"]
+    assert_equal "<p>Important batman information</p>\n", fields["body"]
     assert_equal "I am a video summary", fields["video_summary"]
     assert_equal "http://somevideourl.com", fields["video_url"]
   end

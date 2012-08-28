@@ -7,7 +7,7 @@ fields = {}
 end
 
 if @artefact.edition.respond_to?(:body)
-  fields[:body] = @artefact.edition.body
+  fields[:body] = Govspeak::Document.new(@artefact.edition.body, auto_ids: false).to_html
 end
 
 if @artefact.edition.respond_to?(:parts)
