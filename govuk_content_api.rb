@@ -30,6 +30,14 @@ class Artefact
   field :description, type: String
 end
 
+def format_content(string)
+  if @content_format == "html"
+    Govspeak::Document.new(string, auto_ids: false).to_html
+  else
+    string
+  end
+end
+
 # Render RABL
 get "/search.json" do
   begin
@@ -106,6 +114,8 @@ get "/:id.json" do
   @artefact = Artefact.where(slug: params[:id]).first
 
   custom_404 unless @artefact
+
+  @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
     @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first

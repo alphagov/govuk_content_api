@@ -5,7 +5,7 @@ node do
               id: p.slug,
               order: p.order,
               title: p.title,
-              body: Govspeak::Document.new(p.body, auto_ids: false).to_html
+              body: format_content(p.body)
             }
     list_parts.push(part)
   end

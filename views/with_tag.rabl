@@ -20,7 +20,7 @@ node :response do
 
       if r.edition and r.edition.is_a?(AnswerEdition)
         basic[:fields][:overview] = r.edition.overview
-        basic[:fields][:body] = Govspeak::Document.new(r.edition.body, auto_ids: false).to_html
+        basic[:fields][:body] = format_content(r.edition.body)
         basic[:fields][:alternative_title] = r.edition.alternative_title
       end
 
