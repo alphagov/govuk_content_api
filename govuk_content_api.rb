@@ -2,7 +2,6 @@
   $:.unshift path unless $:.include?(path)
 end
 
-require 'rubygems' 
 require 'sinatra'
 require 'rabl'
 require 'solr_wrapper'
@@ -15,11 +14,8 @@ set :views, File.expand_path('views', File.dirname(__FILE__))
 # Register RABL
 Rabl.register!
 
-def locate_gem(name)
-  spec = Bundler.load.specs.find{|s| s.name == name }
-  raise GemNotFound, "Could not find gem '#{name}' in the current bundle." unless spec
-  spec.full_gem_path
-end
+require "govuk_content_models"
+require "govuk_content_models/require_all"
 
 def custom_404
   halt 404, render(:rabl, :not_found, format: "json")
@@ -27,13 +23,6 @@ end
 
 def custom_410
   halt 410, render(:rabl, :gone, format: "json")
-end
-
-$:.unshift locate_gem('govuk_content_models') + '/app/models'
-$:.unshift locate_gem('govuk_content_models') + '/app/validators'
-$:.unshift locate_gem('govuk_content_models') + '/app/repositories'
-Dir.glob(locate_gem('govuk_content_models') + '/app/models/*.rb').each do |f|
-  require f
 end
 
 class Artefact
