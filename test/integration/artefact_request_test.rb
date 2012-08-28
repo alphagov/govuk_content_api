@@ -80,6 +80,26 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "## Header 2", parsed_response["response"]["result"]["fields"]["parts"][0]["body"]
   end
 
+  should "return related artefact slugs in related_artefact_ids" do
+    related_artefacts = [
+      FactoryGirl.build(:artefact, slug: "related-artefact-1"),
+      FactoryGirl.build(:artefact, slug: "related-artefact-2")
+    ]
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher', related_artefacts: related_artefacts)
+    stub_answer = AnswerEdition.new(body: '# Important information')
+
+    Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
+
+    get '/published-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    
+    assert_equal 'ok', parsed_response["response"]["status"]
+    assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["response"]["result"]["related_artefact_ids"]
+  end
+
   should "not look for edition if publisher not owner" do
     stub_artefact = Artefact.new(slug: 'smart-answer', owning_app: 'smart-answers')
     Artefact.stubs(:where).with(slug: 'smart-answer').returns([stub_artefact])

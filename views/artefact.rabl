@@ -7,6 +7,7 @@ node :response do
       id: @artefact.slug,
       title: @artefact.name,
       tag_ids: @artefact.tag_ids,
+      related_artefact_ids: @artefact.related_artefacts.map(&:slug),
       fields: {}
     }
   }
