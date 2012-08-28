@@ -13,9 +13,9 @@ node :response do
         id: r.tag_id,
         title: r.title,
         fields: {
-	  type: r.tag_type,
-	  description: 'tbd', #r.description,
-	  parent: 'tbd' #r.parent_id
+          type: r.tag_type,
+          description: 'tbd', #r.description,
+          parent: 'tbd' #r.parent_id
         }
       }
     }

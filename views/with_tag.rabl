@@ -13,7 +13,7 @@ node :response do
         id: r.slug,
         title: r.name,
         fields: {
-	        tags: r.tag_ids,
+          tags: r.tag_ids,
           format: r.kind,
         }
       }

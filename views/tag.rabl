@@ -12,9 +12,9 @@ node :response do
       id: @tag.tag_id,
       title: @tag.title,
       fields: {
-	      type: @tag.tag_type,
-	      description: @tag.description,
-	      parent: 'tbd' #@tag.parent_id
+        type: @tag.tag_type,
+        description: @tag.description,
+        parent: 'tbd' #@tag.parent_id
       }
     }
   }
