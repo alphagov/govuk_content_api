@@ -60,6 +60,13 @@ get "/search.json" do
   end
 end
 
+get "/sections.json" do
+  @tags = Tag.where(tag_type: "section")
+
+  content_type :json
+  render :rabl, :tags, format: "json"
+end
+
 get "/tags.json" do
   if params[:type]
     @tags = Tag.where(tag_type: params[:type])
