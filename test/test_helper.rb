@@ -1,19 +1,23 @@
-ENV['RACK_ENV'] = 'test'
-
-require "bundler"
-Bundler.require(:default, ENV['RACK_ENV'])
-
-require 'simplecov'
-SimpleCov.start do
-  add_filter "/test/"
+if ENV["USE_SIMPLECOV"]
+  require "simplecov"
+  require "simplecov-rcov"
+  SimpleCov.start 'test_frameworks'
+  SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
 end
 
-require_relative '../govuk_content_api'
+ENV['RACK_ENV'] = 'test'
+
+$LOAD_PATH << File.expand_path('../../', __FILE__)
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+
 require 'test/unit'
 require 'rack/test'
+
 require 'database_cleaner'
 require 'mocha'
+require 'shoulda'
 require 'factory_girl'
+require 'govuk_content_api'
 require 'govuk_content_models/test_helpers/factories'
 
 DatabaseCleaner.strategy = :truncation
@@ -34,5 +38,4 @@ class GovUkContentApiTest < Test::Unit::TestCase
   def teardown
     DatabaseCleaner.clean
   end
-
 end
