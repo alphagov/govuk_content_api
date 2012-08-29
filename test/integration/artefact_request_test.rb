@@ -109,5 +109,6 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
     assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
+    assert_false JSON.parse(last_response.body)["response"]["result"].has_key?('format')
   end
 end

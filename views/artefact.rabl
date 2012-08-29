@@ -11,7 +11,9 @@ node :response do
       fields: {}
     }
   }
-
+  if @artefact.edition
+    basic[:result][:format] = @artefact.edition.format
+  end
   basic[:result][:fields] = partial("fields", :object => @artefact)
 
   basic

@@ -13,6 +13,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert parsed_response["response"]["result"].has_key?('title')
     assert parsed_response["response"]["result"].has_key?('id')
     assert parsed_response["response"]["result"].has_key?('tag_ids')
+    assert parsed_response["response"]["result"].has_key?('format')
   end
 
   def _assert_has_expected_fields(parsed_response, fields)
