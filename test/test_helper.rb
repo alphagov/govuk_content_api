@@ -4,7 +4,9 @@ require "bundler"
 Bundler.require(:default, ENV['RACK_ENV'])
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/test/"
+end
 
 require_relative '../govuk_content_api'
 require 'test/unit'
