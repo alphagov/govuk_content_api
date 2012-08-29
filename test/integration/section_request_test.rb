@@ -8,9 +8,10 @@ class SectionRequestTest < GovUkContentApiTest
 
     get "/sections.json"
     assert last_response.ok?
-    assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
+    assert_equal 'ok', JSON.parse(last_response.body)['response']['status']
     assert_equal 2, JSON.parse(last_response.body)['response']['results'].count
   end
+
   should "load a section" do
     tag1 = FactoryGirl.create(:tag, tag_id: 'batman', tag_type: 'section')
 
