@@ -67,6 +67,15 @@ get "/sections.json" do
   render :rabl, :tags, format: "json"
 end
 
+get "/sections/:id.json" do
+  @tag = Tag.where(tag_id: params[:id], tag_type: "section").first
+  if @tag
+    render :rabl, :tag, format: "json"
+  else
+    custom_404
+  end
+end
+
 get "/tags.json" do
   if params[:type]
     @tags = Tag.where(tag_type: params[:type])
