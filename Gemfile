@@ -17,10 +17,11 @@ gem 'govspeak', '0.8.15'
 gem 'factory_girl', '3.6.1'
 gem 'database_cleaner', '0.7.2'
 
-group :test do
+group :development, :test do
   gem 'mocha', '0.12.3', require: false
   gem 'shoulda', '3.1.1'
   gem 'simplecov', '0.6.4'
+  gem 'simplecov-rcov', '0.2.3'
   gem 'test-unit', '2.5.0'
   gem 'ci_reporter', '1.7.0'
 end
