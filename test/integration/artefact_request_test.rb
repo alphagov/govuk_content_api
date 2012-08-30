@@ -47,7 +47,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    
+
     assert_status_field "ok", last_response
     assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
   end
@@ -99,7 +99,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    
+
     assert_status_field "ok", last_response
     assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["related_artefact_ids"]
   end
