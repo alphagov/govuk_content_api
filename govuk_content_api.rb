@@ -7,6 +7,7 @@ require 'rabl'
 require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
+require 'plek'
 require_relative "config"
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
@@ -36,6 +37,10 @@ def format_content(string)
   else
     string
   end
+end
+
+before do
+  @base_url = Plek.current.find('contentapi')
 end
 
 # Render RABL
