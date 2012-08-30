@@ -1,7 +1,2 @@
 object false
-node :response do
-  {
-    status: 'not found'
-  }
-end
-
+node(:status) { "not found" }

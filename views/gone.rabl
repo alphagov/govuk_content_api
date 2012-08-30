@@ -1,8 +1,3 @@
 object false
-node :response do
-  {
-    status: 'gone',
-    status_message: 'This item is no longer available'
-  }
-end
-
+node(:status) { "gone" }
+node(:status_message) { "This item is no longer available" }

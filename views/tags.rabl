@@ -1,14 +1,13 @@
 object false
-node :response do
-  {
-    status: 'ok',
-    description: "Tags!",
-    total: @tags.count,
-    startIndex: 1,
-    pageSize: @tags.count,
-    currentPage: 1,
-    pages: 1,
-    results: @tags.map { |r|
+node(:status) { "ok" }
+node(:description) { "Tags!" }
+node(:total) { @tags.count }
+node(:startIndex) { 1 }
+node(:pageSize) { @tags.count }
+node(:currentPage) { 1 }
+node(:pages) { 1 }
+node(:results) do
+    @tags.map { |r|
       {
         id: r.tag_id,
         title: r.title,
@@ -19,6 +18,4 @@ node :response do
         }
       }
     }
-  }
 end
-
