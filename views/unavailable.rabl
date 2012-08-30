@@ -1,5 +1,7 @@
 object false
-node(:status) { "unavailable" }
-node(:status_message) {
-  "a necessary backend process was unavailable. Please try again soon."
-}
+node :_response_info do
+  {
+    status: "unavailable",
+    status_message: "A necessary backend process was unavailable. Please try again soon."
+  }
+end

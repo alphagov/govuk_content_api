@@ -7,7 +7,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     get "/with_tag.json?tag=farmers"
 
     assert last_response.not_found?
-    assert_equal 'not found', JSON.parse(last_response.body)["status"]
+    assert_status_field "not found", last_response
   end
 
   should "return the standard response even if zero results" do
@@ -20,7 +20,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert_equal 'ok', parsed_response["status"]
+    assert_status_field "ok", last_response
     assert_equal 0, parsed_response["total"]
   end
 

@@ -1,2 +1,4 @@
 object false
-node(:status) { "not found" }
+node :_response_info do
+  { status: "not found" }
+end

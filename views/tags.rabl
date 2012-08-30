@@ -1,5 +1,9 @@
 object false
-node(:status) { "ok" }
+
+node :_response_info do
+  { status: "ok" }
+end
+
 node(:description) { "Tags!" }
 node(:total) { @tags.count }
 node(:startIndex) { 1 }
