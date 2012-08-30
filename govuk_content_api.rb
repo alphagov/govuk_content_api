@@ -8,7 +8,10 @@ require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
+require 'escaping_helper'
 require_relative "config"
+
+helpers EscapingHelper
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 

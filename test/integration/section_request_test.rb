@@ -18,7 +18,7 @@ class SectionRequestTest < GovUkContentApiTest
     get "/sections/batman.json"
     assert last_response.ok?
     assert_equal 'ok', JSON.parse(last_response.body)['response']['status']
-    assert_equal 'batman', JSON.parse(last_response.body)['response']['result']['id']
+    assert_equal 'http://contentapi.test.gov.uk/tags/batman.json', JSON.parse(last_response.body)['response']['result']['id']
   end
 
   should "load a section that includes a slash" do
@@ -28,7 +28,7 @@ class SectionRequestTest < GovUkContentApiTest
     get "/sections/crime%2Fbatman.json"
     assert last_response.ok?
     assert_equal 'ok', JSON.parse(last_response.body)['response']['status']
-    assert_equal 'crime/batman', JSON.parse(last_response.body)['response']['result']['id']
+    assert_equal 'http://contentapi.test.gov.uk/tags/crime%2Fbatman.json', JSON.parse(last_response.body)['response']['result']['id']
   end
 
 end

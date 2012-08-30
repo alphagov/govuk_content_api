@@ -37,4 +37,12 @@ class TagRequestTest < GovUkContentApiTest
     assert last_response.not_found?
     assert_equal 'not found', JSON.parse(last_response.body)["response"]["status"]
   end
+
+  should "have full uri in id field" do
+    tag = FactoryGirl.create(:tag, tag_id: 'crime')
+    get "/tags/crime.json"
+    full_url = "http://contentapi.test.gov.uk/tags/crime.json"
+    found_id = JSON.parse(last_response.body)['response']['result']['id']
+    assert_equal full_url, found_id
+  end
 end

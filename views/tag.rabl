@@ -9,7 +9,7 @@ node :response do
     currentPage: 1,
     pages: 1,
     result: {
-      id: @tag.tag_id,
+      id: "#{@base_url}/tags/#{escape(@tag.tag_id)}.json",
       title: @tag.title,
       fields: {
         type: @tag.tag_type,
