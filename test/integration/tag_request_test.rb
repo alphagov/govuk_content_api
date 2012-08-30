@@ -28,7 +28,7 @@ class TagRequestTest < GovUkContentApiTest
     get '/tags/good-tag.json'
     assert last_response.ok?
     assert_status_field "ok", last_response
-    assert_equal 'Lots to say for myself', JSON.parse(last_response.body)['fields']['description']
+    assert_equal "Lots to say for myself", JSON.parse(last_response.body)["details"]["description"]
   end
 
   should "return 404 if specific tag not found" do

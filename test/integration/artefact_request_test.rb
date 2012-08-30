@@ -49,7 +49,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
     
     assert_status_field "ok", last_response
-    assert_equal "<h1>Important information</h1>\n", parsed_response["fields"]["body"]
+    assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
   end
 
   should "convert artefact body and part bodies to html" do
@@ -64,8 +64,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
 
-    assert_equal "<h1>Important information</h1>\n", parsed_response["fields"]["body"]
-    assert_equal "<h2>Header 2</h2>\n", parsed_response["fields"]["parts"][0]["body"]
+    assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
+    assert_equal "<h2>Header 2</h2>\n", parsed_response["details"]["parts"][0]["body"]
   end
 
   should "return govspeak in artefact body and part bodies if requested" do
@@ -80,8 +80,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
 
-    assert_equal "# Important information", parsed_response["fields"]["body"]
-    assert_equal "## Header 2", parsed_response["fields"]["parts"][0]["body"]
+    assert_equal "# Important information", parsed_response["details"]["body"]
+    assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
   end
 
   should "return related artefact slugs in related_artefact_ids" do

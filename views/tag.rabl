@@ -8,7 +8,7 @@ end
 glue @tag do
   attribute :tag_id => :id
   attribute :title
-  node :fields do
+  node :details do
     {
       type: @tag.tag_type,
       description: @tag.description,

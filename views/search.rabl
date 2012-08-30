@@ -11,7 +11,7 @@ node(:results) do
     {
       id: r.link,
       title: r.title,
-      fields: {
+      details: {
         description: r.description,
         additional_links: (r.additional_links || []).map { |al|
           {

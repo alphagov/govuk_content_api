@@ -9,5 +9,5 @@ glue @artefact do
   attribute :name => :title
   attribute :tag_ids
   node(:related_artefact_ids){ @artefact.related_artefacts.map(&:slug) }
-  node(:fields) { partial("fields", object: @artefact) }
+  node(:details) { partial("fields", object: @artefact) }
 end

@@ -15,7 +15,7 @@ node(:results) do
       {
         id: r.tag_id,
         title: r.title,
-        fields: {
+        details: {
           type: r.tag_type,
           description: 'tbd', #r.description,
           parent: 'tbd' #r.parent_id
