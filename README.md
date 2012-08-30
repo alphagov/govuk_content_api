@@ -17,7 +17,6 @@ internal discussion of how it should look and function.
 
 * Database error handling
 * See if the solr code can be simplified
-* Include details of publications other than answers
 * Clean way to add more publication types
 * Include related items
 * Include curated lists
