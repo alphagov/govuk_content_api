@@ -10,7 +10,7 @@ node :response do
     pages: 1,
     results: @tags.map { |r|
       {
-        id: r.tag_id,
+        id: "#{@base_url}/tags/#{escape(r.tag_id)}.json",
         title: r.title,
         fields: {
           type: r.tag_type,

@@ -45,4 +45,12 @@ class TagRequestTest < GovUkContentApiTest
     found_id = JSON.parse(last_response.body)['response']['result']['id']
     assert_equal full_url, found_id
   end
+
+  should "have full uri in id field in index action" do
+    tag = FactoryGirl.create(:tag, tag_id: 'crime')
+    get "/tags.json"
+    full_url = "http://contentapi.test.gov.uk/tags/crime.json"
+    found_id = JSON.parse(last_response.body)['response']['results'][0]['id']
+    assert_equal full_url, found_id
+  end
 end
