@@ -19,14 +19,11 @@ end
 
 enable :dump_errors, :raise_errors
 
-if in_development
-  log = STDOUT
-  log.sync = true
-else
+unless in_development
   log = File.new("log/sinatra.log", "a")
+  STDOUT.reopen(log)
+  STDERR.reopen(log)
 end
-STDOUT.reopen(log)
-STDERR.reopen(log)
 
 require 'govuk_content_api'
 run Sinatra::Application
