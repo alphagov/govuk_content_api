@@ -11,7 +11,7 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert_equal 'ok', parsed_response["status"]
+    assert_status_field "ok", last_response
     assert_equal 2, parsed_response["total"]
     assert_equal 2, parsed_response["results"].count
     assert_equal 'Result 1', parsed_response["results"].first['title']
@@ -24,7 +24,7 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert_equal 'ok', parsed_response["status"]
+    assert_status_field "ok", last_response
     assert_equal 0, parsed_response["total"]
   end
 

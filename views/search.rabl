@@ -1,5 +1,9 @@
 object false
-node(:status) { 'ok' }
+
+node :_response_info do
+  { status: "ok" }
+end
+
 node(:total) { @results.count }
 node(:startIndex) { 1 }
 node(:pageSize) { @results.count }
