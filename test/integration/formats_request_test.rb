@@ -9,10 +9,10 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   def _assert_base_response_info(parsed_response)
-    assert_equal 'ok', parsed_response["response"]["status"]
-    assert parsed_response["response"]["result"].has_key?('title')
-    assert parsed_response["response"]["result"].has_key?('id')
-    assert parsed_response["response"]["result"].has_key?('tag_ids')
+    assert_equal 'ok', parsed_response["_response_info"]["status"]
+    assert parsed_response.has_key?('title')
+    assert parsed_response.has_key?('id')
+    assert parsed_response.has_key?('tag_ids')
   end
 
   def _assert_has_expected_fields(parsed_response, fields)
@@ -31,18 +31,18 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
 
     expected_fields = ['alternative_title', 'overview', 'body', 'section']
 
-    _assert_has_expected_fields(fields, expected_fields)    
+    _assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Important batman information</p>\n", fields["body"]
   end
 
   should "business_support_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
-    business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug, 
-                                short_description: "No policeman's going to give the Batmobile a ticket", min_value: 100, 
+    business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug,
+                                short_description: "No policeman's going to give the Batmobile a ticket", min_value: 100,
                                 max_value: 1000, panopticon_id: artefact.id, state: 'published')
     business_support.parts[0].body = "Lalalala"
     business_support.save!
@@ -53,8 +53,8 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
-    expected_fields = ['alternative_title', 'overview', 'section', 
+    fields = parsed_response["details"]
+    expected_fields = ['alternative_title', 'overview', 'section',
                         'short_description', 'min_value', 'max_value', 'parts']
     _assert_has_expected_fields(fields, expected_fields)
     assert_false fields.has_key?('body')
@@ -64,7 +64,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
   should "guide_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
-    guide_edition = FactoryGirl.create(:guide_edition_with_two_govspeak_parts, slug: artefact.slug, 
+    guide_edition = FactoryGirl.create(:guide_edition_with_two_govspeak_parts, slug: artefact.slug,
                                 panopticon_id: artefact.id, state: 'published')
     guide_edition.save!
 
@@ -74,7 +74,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'overview', 'section', 'parts']
 
     _assert_has_expected_fields(fields, expected_fields)
@@ -86,7 +86,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
   should "programme_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
-    programme_edition = FactoryGirl.create(:programme_edition, slug: artefact.slug, 
+    programme_edition = FactoryGirl.create(:programme_edition, slug: artefact.slug,
                                 panopticon_id: artefact.id, state: 'published')
     programme_edition.save!
 
@@ -96,7 +96,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'overview', 'section', 'parts']
 
     _assert_has_expected_fields(fields, expected_fields)
@@ -115,7 +115,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
 
     expected_fields = ['alternative_title', 'overview', 'body', 'section', 'video_url', 'video_summary']
 
@@ -127,7 +127,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
   should "licence_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', sections: [@tag1.tag_id])
-    licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence', 
+    licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence',
                                 licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published')
     get '/batman-licence.json'
     parsed_response = JSON.parse(last_response.body)
@@ -135,7 +135,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'section', 'licence_overview', 'licence_short_description', 'licence_identifier']
 
     _assert_has_expected_fields(fields, expected_fields)
@@ -156,8 +156,8 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
-    expected_fields = ['alternative_title', 'section', 'lgsl_code', 'lgil_override', 'introduction', 'more_information', 
+    fields = parsed_response["details"]
+    expected_fields = ['alternative_title', 'section', 'lgsl_code', 'lgil_override', 'introduction', 'more_information',
                         'minutes_to_complete', 'expectation_ids']
 
     _assert_has_expected_fields(fields, expected_fields)
@@ -166,7 +166,7 @@ class FormatsRequestTest < GovUkContentApiTest
   should "transaction_edition" do
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id])
-    transaction_edition = FactoryGirl.create(:transaction_edition, slug: artefact.slug, 
+    transaction_edition = FactoryGirl.create(:transaction_edition, slug: artefact.slug,
                                 expectation_ids: [expectation.id], minutes_to_complete: 3,
                                 panopticon_id: artefact.id, state: 'published')
     get '/batman-transaction.json'
@@ -175,8 +175,8 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
-    expected_fields = ['alternate_methods', 'section', 'will_continue_on', 'link', 'introduction', 'more_information', 
+    fields = parsed_response["details"]
+    expected_fields = ['alternate_methods', 'section', 'will_continue_on', 'link', 'introduction', 'more_information',
                         'expectation_ids']
 
     _assert_has_expected_fields(fields, expected_fields)
@@ -193,7 +193,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     _assert_base_response_info(parsed_response)
 
-    fields = parsed_response["response"]["result"]["fields"]
+    fields = parsed_response["details"]
     expected_fields = ['section', 'introduction', 'more_information', 'place_type', 'expectation_ids']
 
     _assert_has_expected_fields(fields, expected_fields)
