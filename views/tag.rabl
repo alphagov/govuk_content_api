@@ -1,5 +1,4 @@
 object false
-object false
 
 node :_response_info do
   { status: "ok" }
