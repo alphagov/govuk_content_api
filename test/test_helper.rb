@@ -24,8 +24,15 @@ DatabaseCleaner.strategy = :truncation
 # initial clean
 DatabaseCleaner.clean
 
+module ResponseTestMethods
+  def assert_status_field(expected, response)
+    assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
+  end
+end
+
 class GovUkContentApiTest < Test::Unit::TestCase
   include Rack::Test::Methods
+  include ResponseTestMethods
 
   def app
     Sinatra::Application
