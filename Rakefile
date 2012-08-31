@@ -13,4 +13,4 @@ end
 
 task :default => :test
 
-require "ci/reporter/rake/test_unit" if ENV["RACK_ENV"] == "test"
+require "ci/reporter/rake/minitest" if ENV["RACK_ENV"] == "test"

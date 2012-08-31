@@ -22,6 +22,6 @@ group :development, :test do
   gem 'shoulda', '3.1.1'
   gem 'simplecov', '0.6.4'
   gem 'simplecov-rcov', '0.2.3'
-  gem 'test-unit', '2.5.0'
+  gem 'minitest', '3.3.0'
   gem 'ci_reporter', '1.7.0'
 end
