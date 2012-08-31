@@ -1,20 +1,16 @@
 object false
-node :response do
-  basic = {
-    status: 'ok',
-    total: 1,
-    result: {
-      id: @artefact.slug,
-      title: @artefact.name,
-      tag_ids: @artefact.tag_ids,
-      related_artefact_ids: @artefact.related_artefacts.map(&:slug),
-      fields: {}
-    }
-  }
-  if @artefact.edition
-    basic[:result][:format] = @artefact.edition.format
-  end
-  basic[:result][:fields] = partial("fields", :object => @artefact)
 
-  basic
+node :_response_info do
+  { status: "ok" }
+end
+
+glue @artefact do
+  attribute :slug => :id
+  attribute :name => :title
+  attribute :tag_ids
+  node(:related_artefact_ids){ @artefact.related_artefacts.map(&:slug) }
+  node(:details) { partial("fields", object: @artefact) }
+  if @artefact.edition
+    node(:format) { @artefact.edition.format }
+  end
 end

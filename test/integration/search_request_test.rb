@@ -11,10 +11,10 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal 2, parsed_response["response"]["total"]
-    assert_equal 2, parsed_response["response"]["results"].count
-    assert_equal 'Result 1', parsed_response["response"]["results"].first['title']
+    assert_status_field "ok", last_response
+    assert_equal 2, parsed_response["total"]
+    assert_equal 2, parsed_response["results"].count
+    assert_equal 'Result 1', parsed_response["results"].first['title']
   end
 
   should "return the standard response even if zero results" do
@@ -24,8 +24,8 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal 0, parsed_response["response"]["total"]
+    assert_status_field "ok", last_response
+    assert_equal 0, parsed_response["total"]
   end
 
   should "return 503 if no solr connection" do

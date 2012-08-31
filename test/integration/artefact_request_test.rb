@@ -1,11 +1,15 @@
 require 'test_helper'
 
 class ArtefactRequestTest < GovUkContentApiTest
+  def assert_status_field(expected, response)
+    assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
+  end
+
   should "return 404 if artefact not found" do
     Artefact.expects(:where).with(slug: 'bad-artefact').returns([])
     get '/bad-artefact.json'
     assert last_response.not_found?
-    assert_equal 'not found', JSON.parse(last_response.body)["response"]["status"]
+    assert_status_field "not found", last_response
   end
 
   should "return 404 if artefact is publication but never published" do
@@ -17,7 +21,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     get '/unpublished-artefact.json'
 
     assert last_response.not_found?
-    assert_equal 'not found', JSON.parse(last_response.body)["response"]["status"]
+    assert_status_field "not found", last_response
   end
 
   should "return 410 if artefact is publication but only archived" do
@@ -29,7 +33,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     get '/archived-artefact.json'
 
     assert_equal 410, last_response.status
-    assert_equal 'gone', JSON.parse(last_response.body)["response"]["status"]
+    assert_status_field "gone", last_response
   end
 
   should "return publication data if published" do
@@ -43,9 +47,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    
-    assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal "<h1>Important information</h1>\n", parsed_response["response"]["result"]["fields"]["body"]
+
+    assert_status_field "ok", last_response
+    assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
   end
 
   should "convert artefact body and part bodies to html" do
@@ -60,8 +64,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
 
-    assert_equal "<h1>Important information</h1>\n", parsed_response["response"]["result"]["fields"]["body"]
-    assert_equal "<h2>Header 2</h2>\n", parsed_response["response"]["result"]["fields"]["parts"][0]["body"]
+    assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
+    assert_equal "<h2>Header 2</h2>\n", parsed_response["details"]["parts"][0]["body"]
   end
 
   should "return govspeak in artefact body and part bodies if requested" do
@@ -76,8 +80,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
 
-    assert_equal "# Important information", parsed_response["response"]["result"]["fields"]["body"]
-    assert_equal "## Header 2", parsed_response["response"]["result"]["fields"]["parts"][0]["body"]
+    assert_equal "# Important information", parsed_response["details"]["body"]
+    assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
   end
 
   should "return related artefact slugs in related_artefact_ids" do
@@ -95,9 +99,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    
-    assert_equal 'ok', parsed_response["response"]["status"]
-    assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["response"]["result"]["related_artefact_ids"]
+
+    assert_status_field "ok", last_response
+    assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["related_artefact_ids"]
   end
 
   should "not look for edition if publisher not owner" do
@@ -108,7 +112,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     get '/smart-answer.json'
 
     assert last_response.ok?
-    assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
-    assert_false JSON.parse(last_response.body)["response"]["result"].has_key?('format')
+    assert_status_field "ok", last_response
+    assert_false JSON.parse(last_response.body).has_key?('format')
   end
 end

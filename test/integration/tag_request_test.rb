@@ -8,8 +8,8 @@ class TagRequestTest < GovUkContentApiTest
     ])
     get "/tags.json"
     assert last_response.ok?
-    assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
-    assert_equal 2, JSON.parse(last_response.body)['response']['results'].count
+    assert_status_field "ok", last_response
+    assert_equal 2, JSON.parse(last_response.body)['results'].count
   end
 
   should "filter all tags by type" do
@@ -18,8 +18,8 @@ class TagRequestTest < GovUkContentApiTest
     ])
     get "/tags.json?type=Section"
     assert last_response.ok?
-    assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
-    assert_equal 1, JSON.parse(last_response.body)['response']['results'].count
+    assert_status_field "ok", last_response
+    assert_equal 1, JSON.parse(last_response.body)['results'].count
   end
 
   should "load a specific tag" do
@@ -27,22 +27,22 @@ class TagRequestTest < GovUkContentApiTest
     Tag.expects(:where).with(tag_id: 'good-tag').returns([fake_tag])
     get '/tags/good-tag.json'
     assert last_response.ok?
-    assert_equal 'ok', JSON.parse(last_response.body)["response"]["status"]
-    assert_equal 'Lots to say for myself', JSON.parse(last_response.body)['response']['result']['fields']['description']
+    assert_status_field "ok", last_response
+    assert_equal "Lots to say for myself", JSON.parse(last_response.body)["details"]["description"]
   end
 
   should "return 404 if specific tag not found" do
     Tag.expects(:where).with(tag_id: 'bad-tag').returns([])
     get '/tags/bad-tag.json'
     assert last_response.not_found?
-    assert_equal 'not found', JSON.parse(last_response.body)["response"]["status"]
+    assert_status_field "not found", last_response
   end
 
   should "have full uri in id field" do
     tag = FactoryGirl.create(:tag, tag_id: 'crime')
     get "/tags/crime.json"
     full_url = "http://contentapi.test.gov.uk/tags/crime.json"
-    found_id = JSON.parse(last_response.body)['response']['result']['id']
+    found_id = JSON.parse(last_response.body)['id']
     assert_equal full_url, found_id
   end
 
@@ -50,7 +50,7 @@ class TagRequestTest < GovUkContentApiTest
     tag = FactoryGirl.create(:tag, tag_id: 'crime')
     get "/tags.json"
     full_url = "http://contentapi.test.gov.uk/tags/crime.json"
-    found_id = JSON.parse(last_response.body)['response']['results'][0]['id']
+    found_id = JSON.parse(last_response.body)['results'][0]['id']
     assert_equal full_url, found_id
   end
 end
