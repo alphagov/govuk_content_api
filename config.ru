@@ -20,12 +20,10 @@ end
 enable :dump_errors, :raise_errors
 
 if in_development
-  Dir.mkdir 'log' unless Dir.exists? 'log'
-end
-
-log = File.new("log/sinatra.log", "a")
-if in_development
+  log = STDOUT
   log.sync = true
+else
+  log = File.new("log/sinatra.log", "a")
 end
 STDOUT.reopen(log)
 STDERR.reopen(log)
