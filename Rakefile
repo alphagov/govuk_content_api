@@ -2,8 +2,10 @@ lib = File.expand_path("../lib", __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
 require "rake"
-require "rake/testtask"
 
+Dir[File.dirname(__FILE__) + '/lib/tasks/*.rake'].each { |file| load file }
+
+require "rake/testtask"
 Rake::TestTask.new do |t|
   t.libs << "test"
   # t.libs << File.dirname(__FILE__)
