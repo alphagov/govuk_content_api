@@ -13,7 +13,7 @@ node(:pages) { 1 }
 node(:results) do
     @tags.map { |r|
       {
-        id: "#{@base_url}/tags/#{escape(r.tag_id)}.json",
+        id: tag_url(r),
         title: r.title,
         details: {
           type: r.tag_type,
