@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'uri'
 
 class ArtefactRequestTest < GovUkContentApiTest
   def assert_status_field(expected, response)
@@ -115,4 +116,47 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "ok", last_response
     refute JSON.parse(last_response.body).has_key?('format')
   end
+
+  should "give an empty list of tags when there are no tags" do
+    stub_artefact = Artefact.new(slug: "fish", owning_app: "smart-answers")
+    Artefact.stubs(:where).with(slug: "fish").returns([stub_artefact])
+    stub_artefact.stubs(:tags).returns([])
+
+    get "/fish.json"
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal [], JSON.parse(last_response.body)["tags"]
+  end
+
+  should "list section information" do
+    sections = [
+      ["crime-and-justice", "Crime and justice"],
+      ["crime-and-justice/batman", "Batman"]
+    ]
+    sections.each do |tag_id, title|
+      TagRepository.put tag_id: tag_id, title: title, tag_type: "section"
+    end
+
+    stub_artefact = Artefact.new(slug: "fish", owning_app: "smart-answers")
+    Artefact.stubs(:where).with(slug: "fish").returns([stub_artefact])
+    section_tags = sections.map { |tag_id, _| TagRepository.load tag_id }
+    stub_artefact.stubs(:tags).returns(section_tags)
+
+    get "/fish.json"
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    parsed_artefact = JSON.parse(last_response.body)
+    assert_equal 2, parsed_artefact["tags"].length
+
+    # Note that this will check the ordering too
+    sections.zip(parsed_artefact["tags"]).each do |section, tag_info|
+      assert_equal section[1], tag_info["title"]
+      tag_path = "/tags/#{CGI.escape(section[0])}.json"
+      assert_equal tag_path, URI.parse(tag_info["id"]).path
+      assert_equal "section", tag_info["type"]
+    end
+  end
+
 end

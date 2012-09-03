@@ -7,10 +7,14 @@ end
 glue @artefact do
   attribute :slug => :id
   attribute :name => :title
-  attribute :tag_ids
   node(:related_artefact_ids){ @artefact.related_artefacts.map(&:slug) }
   node(:details) { partial("fields", object: @artefact) }
   if @artefact.edition
     node(:format) { @artefact.edition.format }
+  end
+  child :tags do
+    node(:id) { |tag| tag_url(tag) }
+    attribute :tag_type => :type
+    attribute :title
   end
 end
