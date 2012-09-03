@@ -26,3 +26,7 @@ group :development, :test do
   gem 'minitest', '3.3.0'
   gem 'ci_reporter', '1.7.0'
 end
+
+group :development do
+  gem "shotgun"
+end

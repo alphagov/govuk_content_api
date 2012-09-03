@@ -162,6 +162,8 @@ GEM
       null_logger
     sanitize (2.0.3)
       nokogiri (>= 1.4.4, < 1.6)
+    shotgun (0.9)
+      rack (>= 1.0)
     shoulda (3.1.1)
       shoulda-context (~> 1.0)
       shoulda-matchers (~> 1.2)
@@ -211,6 +213,7 @@ DEPENDENCIES
   rabl (= 0.6.14)
   rake (= 0.9.2.2)
   router-client (= 3.1.0)
+  shotgun
   shoulda (= 3.1.1)
   simplecov (= 0.6.4)
   simplecov-rcov (= 0.2.3)
