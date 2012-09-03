@@ -9,9 +9,10 @@ require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'escaping_helper'
+require 'url_helpers'
 require_relative "config"
 
-helpers EscapingHelper
+helpers EscapingHelper, URLHelpers
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 

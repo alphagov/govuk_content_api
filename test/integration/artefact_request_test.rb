@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'uri'
 
 class ArtefactRequestTest < GovUkContentApiTest
   def assert_status_field(expected, response)
@@ -84,10 +85,10 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
   end
 
-  should "return related artefact slugs in related_artefact_ids" do
+  should "return related artefacts" do
     related_artefacts = [
-      FactoryGirl.build(:artefact, slug: "related-artefact-1"),
-      FactoryGirl.build(:artefact, slug: "related-artefact-2")
+      FactoryGirl.build(:artefact, slug: "related-artefact-1", name: "Pies"),
+      FactoryGirl.build(:artefact, slug: "related-artefact-2", name: "Cake")
     ]
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher', related_artefacts: related_artefacts)
     stub_answer = AnswerEdition.new(body: '# Important information')
@@ -101,7 +102,29 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
-    assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["related_artefact_ids"]
+    assert_equal 2, parsed_response["related_artefacts"].length
+
+    related_artefacts.zip(parsed_response["related_artefacts"]).each do |artefact, related_info|
+      assert_equal artefact.name, related_info["title"]
+      artefact_path = "/#{CGI.escape(artefact.slug)}.json"
+      assert_equal artefact_path, URI.parse(related_info["id"]).path
+    end
+  end
+
+  should "return an empty list if there are no related artefacts" do
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
+    stub_answer = AnswerEdition.new(body: '# Important information')
+
+    Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
+
+    get '/published-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+
+    assert_status_field "ok", last_response
+    assert_equal [], parsed_response["related_artefacts"]
   end
 
   should "not look for edition if publisher not owner" do
@@ -115,4 +138,47 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "ok", last_response
     refute JSON.parse(last_response.body).has_key?('format')
   end
+
+  should "give an empty list of tags when there are no tags" do
+    stub_artefact = Artefact.new(slug: "fish", owning_app: "smart-answers")
+    Artefact.stubs(:where).with(slug: "fish").returns([stub_artefact])
+    stub_artefact.stubs(:tags).returns([])
+
+    get "/fish.json"
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal [], JSON.parse(last_response.body)["tags"]
+  end
+
+  should "list section information" do
+    sections = [
+      ["crime-and-justice", "Crime and justice"],
+      ["crime-and-justice/batman", "Batman"]
+    ]
+    sections.each do |tag_id, title|
+      TagRepository.put tag_id: tag_id, title: title, tag_type: "section"
+    end
+
+    stub_artefact = Artefact.new(slug: "fish", owning_app: "smart-answers")
+    Artefact.stubs(:where).with(slug: "fish").returns([stub_artefact])
+    section_tags = sections.map { |tag_id, _| TagRepository.load tag_id }
+    stub_artefact.stubs(:tags).returns(section_tags)
+
+    get "/fish.json"
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    parsed_artefact = JSON.parse(last_response.body)
+    assert_equal 2, parsed_artefact["tags"].length
+
+    # Note that this will check the ordering too
+    sections.zip(parsed_artefact["tags"]).each do |section, tag_info|
+      assert_equal section[1], tag_info["title"]
+      tag_path = "/tags/#{CGI.escape(section[0])}.json"
+      assert_equal tag_path, URI.parse(tag_info["id"]).path
+      assert_equal "section", tag_info["type"]
+    end
+  end
+
 end

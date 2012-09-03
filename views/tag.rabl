@@ -5,7 +5,7 @@ node :_response_info do
 end
 
 glue @tag do
-  node(:id) { "#{@base_url}/tags/#{escape(@tag.tag_id)}.json" }
+  node(:id) { tag_url(@tag) }
   attribute :title
   node :details do
     {
