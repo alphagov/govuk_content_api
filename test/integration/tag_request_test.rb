@@ -53,4 +53,30 @@ class TagRequestTest < GovUkContentApiTest
     found_id = JSON.parse(last_response.body)['results'][0]['id']
     assert_equal full_url, found_id
   end
+
+  should "include nil for the parent tag" do
+    tag = FactoryGirl.create(:tag, tag_id: 'crime')
+    get "/tags/crime.json"
+    response = JSON.parse(last_response.body)
+    assert_includes response['details'].keys, 'parent'
+    assert_equal nil, response['details']['parent']
+  end
+
+  context "has a parent tag" do
+    setup do
+      @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')
+    end
+
+    should "include the parent tag" do
+      tag = FactoryGirl.create(:tag, tag_id: 'crime', parent_id: @parent.tag_id)
+      get "/tags/crime.json"
+      response = JSON.parse(last_response.body)
+      expected = {
+        "id" => "http://contentapi.test.gov.uk/tags/crime-and-prison.json",
+        "title" => @parent.title
+      }
+      assert_includes response['details'].keys, 'parent'
+      assert_equal expected, response['details']['parent']
+    end
+  end
 end
