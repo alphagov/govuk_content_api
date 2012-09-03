@@ -6,6 +6,7 @@ end
 
 glue @artefact do
   attribute :slug => :id
+  node(:web_url) { artefact_web_url(@artefact) }
   attribute :name => :title
   node(:details) { partial("fields", object: @artefact) }
   if @artefact.edition
@@ -20,6 +21,7 @@ glue @artefact do
   end
   child :related_artefacts => :related_artefacts do
     node(:id) { |a| artefact_url(a) }
+    node(:web_url) { |a| artefact_web_url(a) }
     attribute :name => :title
   end
 end

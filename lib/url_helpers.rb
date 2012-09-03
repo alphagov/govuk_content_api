@@ -25,4 +25,12 @@ module URLHelpers
       nil
     end
   end
+
+  def artefact_web_url(artefact)
+    if artefact
+      "#{@base_web_url}/#{CGI.escape(artefact.slug)}"
+    else
+      nil
+    end
+  end
 end
