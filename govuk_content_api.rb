@@ -42,21 +42,6 @@ def format_content(string)
   end
 end
 
-before do
-  @base_api_url = Plek.current.find('contentapi')
-  
-  # Fudge.
-  # in preview/live, search/browse and all content are found on www. 
-  # In development search/browse they are found on search or frontend.
-  if ["production", "test"].include?(ENV["RACK_ENV"])
-    @base_web_url = Plek.current.find('www')
-    @base_search_url = Plek.current.find('www')
-  else
-    @base_web_url = Plek.current.find('frontend')
-    @base_search_url = Plek.current.find('search')
-  end
-end
-
 # Render RABL
 get "/search.json" do
   begin
