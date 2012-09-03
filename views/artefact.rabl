@@ -12,7 +12,8 @@ glue @artefact do
   if @artefact.edition
     node(:format) { @artefact.edition.format }
   end
-  child :tags do
+  # Explicit naming here gives us an empty list if there are no tags
+  child :tags => :tags do
     node(:id) { |tag| tag_url(tag) }
     attribute :tag_type => :type
     attribute :title
