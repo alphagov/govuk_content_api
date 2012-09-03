@@ -14,6 +14,7 @@ glue @artefact do
   # Explicit naming here gives us an empty list if there are no tags
   child :tags => :tags do
     node(:id) { |tag| tag_url(tag) }
+    node(:web_url) { |tag| tag_web_url(tag) }
     attribute :tag_type => :type
     attribute :title
   end

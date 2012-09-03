@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class TagRequestTest < GovUkContentApiTest
+
   context "/tags.json" do
     should "load list of tags" do
       Tag.expects(:all).returns([
@@ -26,27 +27,10 @@ class TagRequestTest < GovUkContentApiTest
     should "have full uri in id field in index action" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
-      full_url = "http://contentapi.test.gov.uk/tags/crime.json"
-      found_id = JSON.parse(last_response.body)['results'][0]['id']
-      assert_equal full_url, found_id
-    end
-
-    context "has a parent tag" do
-      setup do
-        @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')
-      end
-
-      should "include the parent tag" do
-        tag = FactoryGirl.create(:tag, tag_id: 'crime', parent_id: @parent.tag_id)
-        get "/tags/crime.json"
-        response = JSON.parse(last_response.body)
-        expected = {
-          "id" => "http://contentapi.test.gov.uk/tags/crime-and-prison.json",
-          "title" => @parent.title
-        }
-        assert_includes response['details'].keys, 'parent'
-        assert_equal expected, response['details']['parent']
-      end
+      expected_id = "http://contentapi.test.gov.uk/tags/crime.json"
+      expected_url = "http://www.test.gov.uk/browse/crime"
+      assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
+      assert_equal expected_url, JSON.parse(last_response.body)['results'][0]['web_url']
     end
   end
 
@@ -57,7 +41,10 @@ class TagRequestTest < GovUkContentApiTest
       get '/tags/good-tag.json'
       assert last_response.ok?
       assert_status_field "ok", last_response
-      assert_equal "Lots to say for myself", JSON.parse(last_response.body)["details"]["description"]
+      response = JSON.parse(last_response.body)
+      assert_equal "Lots to say for myself", response["details"]["description"]
+      assert_equal "http://contentapi.test.gov.uk/tags/good-tag.json", response["id"]
+      assert_equal "http://www.test.gov.uk/browse/good-tag", response["web_url"]
     end
 
     should "return 404 if specific tag not found" do
@@ -81,6 +68,25 @@ class TagRequestTest < GovUkContentApiTest
       response = JSON.parse(last_response.body)
       assert_includes response['details'].keys, 'parent'
       assert_equal nil, response['details']['parent']
+    end
+
+    context "has a parent tag" do
+      setup do
+        @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')
+      end
+
+      should "include the parent tag" do
+        tag = FactoryGirl.create(:tag, tag_id: 'crime', parent_id: @parent.tag_id)
+        get "/tags/crime.json"
+        response = JSON.parse(last_response.body)
+        expected = {
+          "id" => "http://contentapi.test.gov.uk/tags/crime-and-prison.json",
+          "web_url" => "http://www.test.gov.uk/browse/crime-and-prison",
+          "title" => @parent.title
+        }
+        assert_includes response['details'].keys, 'parent'
+        assert_equal expected, response['details']['parent']
+      end
     end
   end
 end

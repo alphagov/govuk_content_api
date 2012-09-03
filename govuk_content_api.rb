@@ -43,7 +43,16 @@ def format_content(string)
 end
 
 before do
-  @base_url = Plek.current.find('contentapi')
+  @base_api_url = Plek.current.find('contentapi')
+  
+  # Fudge.
+  # in preview/live, search/browse are found on www. 
+  # In development search/browse they are found on search.
+  if ["production", "test"].include?(ENV["RACK_ENV"])
+    @base_search_url = Plek.current.find('www')
+  else
+    @base_search_url = Plek.current.find('search')
+  end
 end
 
 # Render RABL
