@@ -85,10 +85,10 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
   end
 
-  should "return related artefact slugs in related_artefact_ids" do
+  should "return related artefacts" do
     related_artefacts = [
-      FactoryGirl.build(:artefact, slug: "related-artefact-1"),
-      FactoryGirl.build(:artefact, slug: "related-artefact-2")
+      FactoryGirl.build(:artefact, slug: "related-artefact-1", name: "Pies"),
+      FactoryGirl.build(:artefact, slug: "related-artefact-2", name: "Cake")
     ]
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher', related_artefacts: related_artefacts)
     stub_answer = AnswerEdition.new(body: '# Important information')
@@ -102,7 +102,29 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
-    assert_equal ["related-artefact-1", "related-artefact-2"], parsed_response["related_artefact_ids"]
+    assert_equal 2, parsed_response["related_artefacts"].length
+
+    related_artefacts.zip(parsed_response["related_artefacts"]).each do |artefact, related_info|
+      assert_equal artefact.name, related_info["title"]
+      artefact_path = "/#{CGI.escape(artefact.slug)}.json"
+      assert_equal artefact_path, URI.parse(related_info["id"]).path
+    end
+  end
+
+  should "return an empty list if there are no related artefacts" do
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
+    stub_answer = AnswerEdition.new(body: '# Important information')
+
+    Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
+
+    get '/published-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+
+    assert_status_field "ok", last_response
+    assert_equal [], parsed_response["related_artefacts"]
   end
 
   should "not look for edition if publisher not owner" do
