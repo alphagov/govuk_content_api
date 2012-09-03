@@ -50,6 +50,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
+    assert_equal "http://www.test.gov.uk/#{stub_artefact.slug}", parsed_response["web_url"]
     assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
   end
 
@@ -108,6 +109,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal artefact.name, related_info["title"]
       artefact_path = "/#{CGI.escape(artefact.slug)}.json"
       assert_equal artefact_path, URI.parse(related_info["id"]).path
+      assert_equal "http://www.test.gov.uk/#{artefact.slug}", related_info["web_url"]
     end
   end
 
@@ -177,8 +179,8 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal section[1], tag_info["title"]
       tag_path = "/tags/#{CGI.escape(section[0])}.json"
       assert_equal tag_path, URI.parse(tag_info["id"]).path
+      assert_equal "http://www.test.gov.uk/browse/#{CGI.escape(section[0])}", tag_info["web_url"]
       assert_equal "section", tag_info["type"]
     end
   end
-
 end

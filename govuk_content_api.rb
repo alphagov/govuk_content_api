@@ -42,10 +42,6 @@ def format_content(string)
   end
 end
 
-before do
-  @base_url = Plek.current.find('contentapi')
-end
-
 # Render RABL
 get "/search.json" do
   begin
