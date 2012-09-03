@@ -17,8 +17,8 @@ node(:results) do
         title: r.title,
         details: {
           type: r.tag_type,
-          description: 'tbd', #r.description,
-          parent: 'tbd' #r.parent_id
+          description: r.description,
+          parent: tag_url(r.parent)
         }
       }
     }

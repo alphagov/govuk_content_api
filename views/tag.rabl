@@ -11,7 +11,7 @@ glue @tag do
     {
       type: @tag.tag_type,
       description: @tag.description,
-      parent: 'tbd' #@tag.parent_id
+      parent: tag_url(@tag.parent)
     }
   end
 end
