@@ -1,6 +1,6 @@
-node do
+node do |artefact|
   list_parts = []
-  @artefact.edition.parts.each do |p|
+  artefact.edition.parts.each do |p|
     part = {
               id: p.slug,
               order: p.order,
