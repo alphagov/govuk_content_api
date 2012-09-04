@@ -70,6 +70,15 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal nil, response['details']['parent']
     end
 
+    should "load a tag that includes a slash" do
+      FactoryGirl.create(:tag, tag_id: 'crime/batman')
+  
+      get "/tags/crime%2Fbatman.json"
+      assert last_response.ok?
+      assert_status_field "ok", last_response
+      assert_equal 'http://contentapi.test.gov.uk/tags/crime%2Fbatman.json', JSON.parse(last_response.body)['id']
+    end
+
     context "has a parent tag" do
       setup do
         @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')
