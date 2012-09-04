@@ -5,7 +5,7 @@ node :_response_info do
 end
 
 glue @artefact do
-  attribute :slug => :id
+  node(:id) { artefact_url(@artefact) }
   node(:web_url) { artefact_web_url(@artefact) }
   attribute :name => :title
   node(:details) { partial("fields", object: @artefact) }
