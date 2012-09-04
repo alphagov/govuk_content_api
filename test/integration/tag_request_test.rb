@@ -91,6 +91,11 @@ class TagRequestTest < GovUkContentApiTest
         expected = {
           "id" => "http://contentapi.test.gov.uk/tags/crime-and-prison.json",
           "web_url" => "http://www.test.gov.uk/browse/crime-and-prison",
+          "details"=>{
+            "description" => nil, 
+            "type" => "section"
+          },
+          "parent" => nil,
           "title" => @parent.title
         }
         assert_includes response.keys, 'parent'
