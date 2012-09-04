@@ -66,8 +66,8 @@ class TagRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags/crime.json"
       response = JSON.parse(last_response.body)
-      assert_includes response['details'].keys, 'parent'
-      assert_equal nil, response['details']['parent']
+      assert_includes response.keys, 'parent'
+      assert_equal nil, response['parent']
     end
 
     should "load a tag that includes a slash" do
@@ -93,8 +93,8 @@ class TagRequestTest < GovUkContentApiTest
           "web_url" => "http://www.test.gov.uk/browse/crime-and-prison",
           "title" => @parent.title
         }
-        assert_includes response['details'].keys, 'parent'
-        assert_equal expected, response['details']['parent']
+        assert_includes response.keys, 'parent'
+        assert_equal expected, response['parent']
       end
     end
   end

@@ -9,7 +9,14 @@ glue @tag do
   node(:web_url) { tag_web_url(@tag) }
   attribute :title
   node :details do
-    parent = if @tag.parent
+    {
+      type: @tag.tag_type,
+      description: @tag.description,
+      
+    }
+  end
+  node :parent do
+    if @tag.parent
       { 
         id: tag_url(@tag.parent), 
         web_url: tag_web_url(@tag.parent),
@@ -18,10 +25,5 @@ glue @tag do
     else
       nil
     end
-    {
-      type: @tag.tag_type,
-      description: @tag.description,
-      parent: parent
-    }
   end
 end

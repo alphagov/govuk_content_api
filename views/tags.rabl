@@ -28,8 +28,8 @@ node(:results) do
       details: {
         type: r.tag_type,
         description: r.description,
-        parent: parent
-      }
+      },
+      parent: parent
     }
   }
 end
