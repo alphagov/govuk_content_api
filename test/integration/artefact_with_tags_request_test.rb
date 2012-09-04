@@ -26,11 +26,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
 
 
   should "return an array of results" do
-    t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
-    Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
-
-    smart_answer = Artefact.new(owning_app: 'smart-answers')
-    Artefact.expects(:any_in).with(tag_ids: ['farmers']).returns([smart_answer])
+    farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers'])
 
     get "/with_tag.json?tag=farmers"
 
@@ -39,32 +36,21 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   end
 
   should "exclude unpublished publisher items" do
-    t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
-    Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
-
-    answer = Artefact.new(owning_app: 'publisher', slug: 'fake')
-    real_answer = Artefact.new(owning_app: 'publisher', slug: 'real')
-    Edition.expects(:where).with(slug: 'fake', state: 'published').returns([])
-    Edition.expects(:where).with(slug: 'real', state: 'published').returns([AnswerEdition.new])
-
-    smart_answer = Artefact.new(owning_app: 'smart-answers')
-    Artefact.expects(:any_in).with(tag_ids: ['farmers']).returns([answer, smart_answer, real_answer])
+    farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
+    business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+    artefact = FactoryGirl.create(:artefact, owning_app: "publisher", sections: ['farmers', 'business'])
+    FactoryGirl.create(:edition, panopticon_id: artefact.id, state: "ready")
 
     get "/with_tag.json?tag=farmers"
 
     assert last_response.ok?, "request failed: #{last_response.status}"
-    assert_equal 2, JSON.parse(last_response.body)["results"].count
+    assert_equal 0, JSON.parse(last_response.body)["results"].count
   end
 
   should "allow filtering by multiple tags" do
-    farmers = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
-    business = Tag.new(tag_id: 'business', name: 'Business', tag_type: 'Audience')
-
-    Tag.stubs(:where).with(tag_id: 'farmers').returns([farmers])
-    Tag.expects(:where).with(tag_id: 'business').returns([business])
-
-    smart_answer = Artefact.new(owning_app: 'smart-answers')
-    Artefact.expects(:any_in).with(tag_ids: ['farmers', 'business']).returns([smart_answer])
+    farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
+    business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers', 'business'])
 
     get "/with_tag.json?tag=farmers,business"
     assert last_response.ok?
