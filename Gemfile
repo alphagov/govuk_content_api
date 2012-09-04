@@ -17,6 +17,7 @@ gem 'govspeak', '0.8.15'
 gem 'factory_girl', '3.6.1'
 gem 'database_cleaner', '0.7.2'
 gem 'plek', '0.3.0'
+gem 'router-client', '3.1.0', :require => false
 
 group :development, :test do
   gem 'mocha', '0.12.3', require: false
@@ -25,4 +26,8 @@ group :development, :test do
   gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '3.3.0'
   gem 'ci_reporter', '1.7.0'
+end
+
+group :development do
+  gem "shotgun"
 end
