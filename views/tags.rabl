@@ -12,9 +12,18 @@ node(:currentPage) { 1 }
 node(:pages) { 1 }
 node(:results) do
   @tags.map { |r|
-    parent = { id: tag_url(r.parent), title: r.title } if r.parent
+    parent = if r.parent 
+      { 
+        id: tag_url(r.parent), 
+        web_url: tag_web_url(r.parent),
+        title: r.title 
+      }
+    else
+      nil
+    end
     {
       id: tag_url(r),
+      web_url: tag_web_url(r),
       title: r.title,
       details: {
         type: r.tag_type,
