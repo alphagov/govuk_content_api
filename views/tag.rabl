@@ -5,13 +5,23 @@ node :_response_info do
 end
 
 glue @tag do
-  attribute :tag_id => :id
+  node(:id) { tag_url(@tag) }
+  node(:web_url) { tag_web_url(@tag) }
   attribute :title
   node :details do
+    parent = if @tag.parent
+      { 
+        id: tag_url(@tag.parent), 
+        web_url: tag_web_url(@tag.parent),
+        title: @tag.parent.title 
+      }
+    else
+      nil
+    end
     {
       type: @tag.tag_type,
       description: @tag.description,
-      parent: 'tbd' #@tag.parent_id
+      parent: parent
     }
   end
 end

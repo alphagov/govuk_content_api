@@ -7,7 +7,11 @@ require 'rabl'
 require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
+require 'plek'
+require 'url_helpers'
 require_relative "config"
+
+helpers URLHelpers
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 

@@ -11,15 +11,25 @@ node(:pageSize) { @tags.count }
 node(:currentPage) { 1 }
 node(:pages) { 1 }
 node(:results) do
-    @tags.map { |r|
-      {
-        id: r.tag_id,
-        title: r.title,
-        details: {
-          type: r.tag_type,
-          description: 'tbd', #r.description,
-          parent: 'tbd' #r.parent_id
-        }
+  @tags.map { |r|
+    parent = if r.parent 
+      { 
+        id: tag_url(r.parent), 
+        web_url: tag_web_url(r.parent),
+        title: r.title 
+      }
+    else
+      nil
+    end
+    {
+      id: tag_url(r),
+      web_url: tag_web_url(r),
+      title: r.title,
+      details: {
+        type: r.tag_type,
+        description: r.description,
+        parent: parent
       }
     }
+  }
 end
