@@ -3,35 +3,19 @@ require "cgi"
 module URLHelpers
 
   def tag_url(tag)
-    if tag
-      "#{base_api_url}/tags/#{CGI.escape(tag.tag_id)}.json"
-    else
-      nil
-    end
+    "#{base_api_url}/tags/#{CGI.escape(tag.tag_id)}.json"
   end
 
   def tag_web_url(tag)
-    if tag
-      "#{base_web_search_url}/browse/#{CGI.escape(tag.tag_id)}"
-    else
-      nil
-    end
+    "#{base_web_search_url}/browse/#{CGI.escape(tag.tag_id)}"
   end
 
   def artefact_url(artefact)
-    if artefact
-      "#{base_api_url}/#{CGI.escape(artefact.slug)}.json"
-    else
-      nil
-    end
+    "#{base_api_url}/#{CGI.escape(artefact.slug)}.json"
   end
 
   def artefact_web_url(artefact)
-    if artefact
-      "#{base_web_url(artefact)}/#{CGI.escape(artefact.slug)}"
-    else
-      nil
-    end
+    "#{base_web_url(artefact)}/#{CGI.escape(artefact.slug)}"
   end
 
   def base_api_url
