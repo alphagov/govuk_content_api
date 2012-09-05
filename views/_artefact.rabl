@@ -8,11 +8,9 @@ end
 
 # Explicit naming here gives us an empty list if there are no tags
 child :tags => :tags do
-  node(:id) { |tag| tag_url(tag) }
-  node(:web_url) { |tag| tag_web_url(tag) }
-  attribute :tag_type => :type
-  attribute :title
+  extends "_tag"
 end
+
 child :related_artefacts => :related_artefacts do
   node(:id) { |a| artefact_url(a) }
   node(:web_url) { |a| artefact_web_url(a) }
