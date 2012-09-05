@@ -13,6 +13,6 @@ node(:pages) { 1 }
 
 node(:results) do
   @results.map { |r|
-    partial "_artefact", object: r
+    partial "_full_artefact", object: r
   }
 end
