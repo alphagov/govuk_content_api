@@ -6,7 +6,11 @@ module URLHelpers
     "#{base_api_url}/tags/#{CGI.escape(tag.tag_id)}.json"
   end
 
-  def tag_web_url(tag)
+  def with_tag_url(tag)
+    "#{base_api_url}/with_tag.json?tag=#{CGI.escape(tag.tag_id)}"
+  end
+
+  def with_tag_web_url(tag)
     "#{base_web_search_url}/browse/#{tag.tag_id}"
   end
 
