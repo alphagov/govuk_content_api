@@ -7,7 +7,7 @@ module URLHelpers
   end
 
   def tag_web_url(tag)
-    "#{base_web_search_url}/browse/#{CGI.escape(tag.tag_id)}"
+    "#{base_web_search_url}/browse/#{tag.tag_id}"
   end
 
   def artefact_url(artefact)
@@ -15,7 +15,7 @@ module URLHelpers
   end
 
   def artefact_web_url(artefact)
-    "#{base_web_url(artefact)}/#{CGI.escape(artefact.slug)}"
+    "#{base_web_url(artefact)}/#{artefact.slug}"
   end
 
   def base_api_url

@@ -180,7 +180,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal section[1], tag_info["title"]
       tag_path = "/tags/#{CGI.escape(section[0])}.json"
       assert_equal tag_path, URI.parse(tag_info["id"]).path
-      assert_equal "http://www.test.gov.uk/browse/#{CGI.escape(section[0])}", tag_info["web_url"]
+      assert_equal "http://www.test.gov.uk/browse/#{section[0]}", tag_info["web_url"]
       assert_equal "section", tag_info["type"]
     end
   end
