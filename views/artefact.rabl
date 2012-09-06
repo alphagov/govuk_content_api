@@ -5,5 +5,5 @@ node :_response_info do
 end
 
 glue @artefact do
-  extends "_artefact", object: @artefact
+  extends "_full_artefact", object: @artefact
 end
