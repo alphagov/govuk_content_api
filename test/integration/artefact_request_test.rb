@@ -185,4 +185,25 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "http://www.test.gov.uk/browse/#{section[0]}", tag_info["content_with_tag"]["web_url"]
     end
   end
+
+  should "return parts" do
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
+    stub_answer = GuideEdition.new(body: '# Important information', parts: [Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one")])
+
+    Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'published-artefact', state: 'published').returns([stub_answer])
+
+    get '/published-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+
+    expected_first_part = {
+      "id" => "part-one",
+      "order" => 1,
+      "title" => "Part One",
+      "body" => "<h2>Header 2</h2>\n"
+    }
+    assert_equal expected_first_part, parsed_response["details"]["parts"][0]
+  end
 end
