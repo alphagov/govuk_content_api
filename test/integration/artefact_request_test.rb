@@ -38,7 +38,7 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   should "return publication data if published" do
-    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
+    stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher', business_proposition: true, need_id: 1234)
     stub_answer = AnswerEdition.new(body: '# Important information')
 
     Artefact.stubs(:where).with(slug: 'published-artefact').returns([stub_artefact])
@@ -53,6 +53,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "http://contentapi.test.gov.uk/#{stub_artefact.slug}.json", parsed_response["id"]
     assert_equal "http://www.test.gov.uk/#{stub_artefact.slug}", parsed_response["web_url"]
     assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
+    assert_equal "1234", parsed_response["details"]["need_id"]
+    # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
+    assert_equal true, parsed_response["details"]["business_proposition"]
   end
 
   should "convert artefact body and part bodies to html" do
