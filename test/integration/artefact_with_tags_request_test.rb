@@ -56,4 +56,22 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert last_response.ok?
     assert_equal 1, JSON.parse(last_response.body)["results"].count
   end
+
+  should "return include children in array of results" do
+    FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+    FactoryGirl.create(:tag, tag_id: 'foo', title: 'Business', tag_type: 'section', parent_id: "business")
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['business'])
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['foo'])
+
+    get "/with_tag.json?tag=business&include_children=1"
+
+    assert last_response.ok?
+    assert_equal 2, JSON.parse(last_response.body)["results"].count
+  end
+
+  should "return 501 if more than 1 child requested" do
+    get "/with_tag.json?tag=business&include_children=2"
+
+    assert_equal 501, last_response.status
+  end
 end
