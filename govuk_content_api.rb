@@ -62,7 +62,9 @@ get "/search.json" do
     }
 
     content_type :json
-    render :rabl, :search, format: "json"
+    statsd.time("request.search.#{params[:q]}.render") {
+      render :rabl, :search, format: "json"
+    }
   rescue Errno::ECONNREFUSED
     statsd.increment('request.search.unavailable')
     halt 503, render(:rabl, :unavailable, format: "json")
@@ -125,7 +127,9 @@ get "/with_tag.json" do
   }
 
   content_type :json
-  render :rabl, :with_tag, format: "json"
+  statsd.time("request.with_tag.render") {
+    render :rabl, :with_tag, format: "json"
+  }
 end
 
 get "/:id.json" do
@@ -150,5 +154,7 @@ get "/:id.json" do
   end
 
   content_type :json
-  render :rabl, :artefact, format: "json"
+  statsd.time("request.id.#{params[:id]}.render") {
+    render :rabl, :artefact, format: "json"
+  }
 end
