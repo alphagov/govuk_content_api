@@ -107,9 +107,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
-    assert_equal 2, parsed_response["related_artefacts"].length
+    assert_equal 2, parsed_response["related"].length
 
-    related_artefacts.zip(parsed_response["related_artefacts"]).each do |artefact, related_info|
+    related_artefacts.zip(parsed_response["related"]).each do |artefact, related_info|
       assert_equal artefact.name, related_info["title"]
       artefact_path = "/#{CGI.escape(artefact.slug)}.json"
       assert_equal artefact_path, URI.parse(related_info["id"]).path
@@ -130,7 +130,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
-    assert_equal [], parsed_response["related_artefacts"]
+    assert_equal [], parsed_response["related"]
   end
 
   should "not look for edition if publisher not owner" do
