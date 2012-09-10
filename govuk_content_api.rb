@@ -70,10 +70,14 @@ end
 get "/tags.json" do
   if params[:type]
     statsd.increment("request.tags.type.#{params[:type]}")
-    @tags = Tag.where(tag_type: params[:type])
+    statsd.time("request.tags.type.#{params[:type]}") {
+      @tags = Tag.where(tag_type: params[:type])
+    }
   else
     statsd.increment('request.tags.all')
-    @tags = Tag.all
+    statsd.time('request.tags.all') {
+      @tags = Tag.all
+    }
   end
 
   content_type :json
