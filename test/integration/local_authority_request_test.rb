@@ -103,24 +103,12 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   should "not allow regex searching of snac codes" do
-    stub_result = [LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT"),
-                   LocalAuthority.new(name: "Solihull Test Council", snac: "00CF")]
-    LocalAuthority.stubs(:where).with(snac: /^0*/i).returns(stub_result)
-
-    get "/local_authorities.json?snac_code=0*"
-    parsed_response = JSON.parse(last_response.body)
-
+    get "/local_authorities.json?snac_code=*"
     assert last_response.not_found?
   end
 
   should "not allow regex searching of council" do
-    stub_result = [LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT"),
-                   LocalAuthority.new(name: "Solihull Test Council", snac: "00CF")]
-    LocalAuthority.stubs(:where).with(name: /^S*/i).returns(stub_result)
-
-    get "/local_authorities.json?council=S*"
-    parsed_response = JSON.parse(last_response.body)
-
+    get "/local_authorities.json?council=*"
     assert last_response.not_found?
   end
 end

@@ -52,15 +52,15 @@ get "/local_authorities.json" do
 
   if params[:council]
     council = params[:council].to_s.gsub(/[^0-9a-z ]/i, '')
-    statsd.time("request.local_authorities.#{council}") do
-      if not params[:council].to_s.include? "*"
+    unless council.empty?
+      statsd.time("request.local_authorities.#{council}") do
         @local_authorities = LocalAuthority.where(name: /^#{council}/i).to_a
       end
     end
   elsif params[:snac_code]
     snac_code = params[:snac_code].to_s.gsub(/[^0-9a-z ]/i, '')
-    statsd.time("request.local_authorities.#{snac_code}") do
-      if not params[:snac_code].to_s.include? "*"
+    unless snac_code.empty?
+      statsd.time("request.local_authorities.#{snac_code}") do
         @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
       end
     end
