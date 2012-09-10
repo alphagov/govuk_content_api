@@ -51,11 +51,11 @@ GEM
       activesupport (>= 3.0.0)
     faraday (0.8.4)
       multipart-post (~> 1.1)
-    gds-api-adapters (1.1.0)
+    gds-api-adapters (1.7.0)
       lrucache (~> 0.1.1)
       null_logger
       plek
-    gds-sso (1.2.1)
+    gds-sso (1.2.2)
       omniauth-gds (= 0.0.3)
       rack-accept (~> 0.4.4)
       rails (>= 3.0.0)
@@ -63,12 +63,12 @@ GEM
     govspeak (0.8.15)
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
-    govuk_content_models (1.6.2)
+    govuk_content_models (1.7.2)
       bson_ext
       differ
       gds-api-adapters
       gds-sso (>= 0.7, < 2.0)
-      govspeak (~> 0.8.15)
+      govspeak (>= 0.8.15, < 2.0.0)
       mongoid (~> 2.4.10)
       omniauth-oauth2 (~> 1.0)
       plek (>= 0.1.22, < 0.4)
@@ -208,7 +208,7 @@ DEPENDENCIES
   delsolr!
   factory_girl (= 3.6.1)
   govspeak (= 0.8.15)
-  govuk_content_models (= 1.6.2)
+  govuk_content_models (= 1.7.2)
   minitest (= 3.3.0)
   mocha (= 0.12.3)
   plek (= 0.3.0)
