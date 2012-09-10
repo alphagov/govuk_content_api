@@ -57,8 +57,9 @@ get "/search.json" do
     else
       raise "What do you want?"
     end
-
-    @results = index.search(params[:q])
+    statsd.time("request.search.q.#{params[:q]}") {
+      @results = index.search(params[:q])
+    }
 
     content_type :json
     render :rabl, :search, format: "json"
@@ -84,7 +85,9 @@ get "/tags.json" do
 end
 
 get "/tags/:id.json" do
-  @tag = Tag.where(tag_id: params[:id]).first
+  statsd.time("request.tag.#{params[:id]}") {
+    @tag = Tag.where(tag_id: params[:id]).first
+  }
   content_type :json
 
   if @tag
@@ -100,37 +103,43 @@ get "/with_tag.json" do
 
   custom_404 unless tags.length == tag_ids.length
 
-  artefacts = Artefact.any_in(tag_ids: tag_ids)
-
-  @results = artefacts.map { |r|
-    if r.owning_app == 'publisher'
-      r.edition = Edition.where(slug: r.slug, state: 'published').first
-      if r.edition
-        r
-      else
-        nil
-      end
-    else
-      r
-    end
+  statsd.time("request.with_tag.multi.#{tag_ids.length}") {
+    artefacts = Artefact.any_in(tag_ids: tag_ids)
   }
 
-  @results.compact!
+  statsd.time('request.with_tag.map_results') {
+    @results = artefacts.map { |r|
+      if r.owning_app == 'publisher'
+        r.edition = Edition.where(slug: r.slug, state: 'published').first
+        if r.edition
+          r
+        else
+          nil
+        end
+      else
+        r
+      end
+    }
 
+    @results.compact!
+  }
 
   content_type :json
   render :rabl, :with_tag, format: "json"
 end
 
 get "/:id.json" do
-  @artefact = Artefact.where(slug: params[:id]).first
-
+  statsd.time("request.id.#{params[:id]}") {
+    @artefact = Artefact.where(slug: params[:id]).first
+  }
   custom_404 unless @artefact
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
-    @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+    statsd.time("request.id.#{params[:id]}.edition") {
+      @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+    }
     unless @artefact.edition
       if Edition.where(slug: @artefact.slug, state: 'archived').any?
         custom_410
