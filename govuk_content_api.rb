@@ -18,6 +18,9 @@ set :views, File.expand_path('views', File.dirname(__FILE__))
 # Register RABL
 Rabl.register!
 
+# Initialise statsd
+statsd = Statsd.new('localhost').tap {|c| c.namespace = 'govuk.app.contentapi'}
+
 require "govuk_content_models"
 require "govuk_content_models/require_all"
 
@@ -66,8 +69,10 @@ end
 
 get "/tags.json" do
   if params[:type]
+    statsd.increment("request.tags.type.#{params[:type]}")
     @tags = Tag.where(tag_type: params[:type])
   else
+    statsd.increment('request.tags.all')
     @tags = Tag.all
   end
 
