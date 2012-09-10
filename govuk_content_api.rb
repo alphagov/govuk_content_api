@@ -20,7 +20,7 @@ set :views, File.expand_path('views', File.dirname(__FILE__))
 Rabl.register!
 
 # Initialise statsd
-statsd = Statsd.new('localhost').tap {|c| c.namespace = 'govuk.app.contentapi'}
+statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
 
 require "govuk_content_models"
 require "govuk_content_models/require_all"
