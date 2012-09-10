@@ -63,6 +63,7 @@ get "/search.json" do
     content_type :json
     render :rabl, :search, format: "json"
   rescue Errno::ECONNREFUSED
+    statsd.increment('request.search.unavailable')
     halt 503, render(:rabl, :unavailable, format: "json")
   end
 end
