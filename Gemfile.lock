@@ -185,6 +185,7 @@ GEM
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     state_machine (1.1.2)
+    statsd-ruby (1.0.0)
     thor (0.16.0)
     tilt (1.3.3)
     treetop (1.4.10)
@@ -219,4 +220,5 @@ DEPENDENCIES
   simplecov (= 0.6.4)
   simplecov-rcov (= 0.2.3)
   sinatra (= 1.3.2)
+  statsd-ruby (= 1.0.0)
   unicorn (~> 4.3.1)
