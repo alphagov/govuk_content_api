@@ -107,11 +107,11 @@ get "/with_tag.json" do
   custom_404 unless tags.length == tag_ids.length
 
   statsd.time("request.with_tag.multi.#{tag_ids.length}") {
-    artefacts = Artefact.any_in(tag_ids: tag_ids)
+    @artefacts = Artefact.any_in(tag_ids: tag_ids)
   }
 
   statsd.time('request.with_tag.map_results') {
-    @results = artefacts.map { |r|
+    @results = @artefacts.map { |r|
       if r.owning_app == 'publisher'
         r.edition = Edition.where(slug: r.slug, state: 'published').first
         if r.edition
