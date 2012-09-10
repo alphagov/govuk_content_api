@@ -66,9 +66,8 @@ get "/local_authorities.json" do
     end
   end
 
-  search_param = params[:snac_code] || params[:council]
-
   unless @local_authorities.nil? || @local_authorities.empty?
+    search_param = params[:snac_code] || params[:council]
     statsd.time("request.local_authorities.#{search_param}.render") do
       render :rabl, :local_authorities, format: "json"
     end
