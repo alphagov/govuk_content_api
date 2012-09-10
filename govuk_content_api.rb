@@ -47,6 +47,54 @@ def format_content(string)
 end
 
 # Render RABL
+get "/local_authorities.json" do
+  content_type :json
+
+  if params[:council]
+    council = params[:council].to_s.gsub(/[^0-9a-z ]/i, '')
+    statsd.time("request.local_authorities.#{council}") do
+      if not params[:council].to_s.include? "*"
+        @local_authorities = LocalAuthority.where(name: /^#{council}/i).to_a
+      end
+    end
+  elsif params[:snac_code]
+    snac_code = params[:snac_code].to_s.gsub(/[^0-9a-z ]/i, '')
+    statsd.time("request.local_authorities.#{snac_code}") do
+      if not params[:snac_code].to_s.include? "*"
+        @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
+      end
+    end
+  end
+
+  search_param = params[:snac_code] || params[:council]
+
+  if not @local_authorities.nil? and not @local_authorities.empty?
+    statsd.time("request.local_authorities.#{search_param}.render") do
+      render :rabl, :local_authorities, format: "json"
+    end
+  else
+    custom_404
+  end
+end
+
+get "/local_authority/:snac_code.json" do
+  content_type :json
+
+  if params[:snac_code]
+    statsd.time("request.local_authority.#{params[:snac_code]}") do
+      @local_authority = LocalAuthority.find_by_snac(params[:snac_code])
+    end
+  end
+
+  if not @local_authority.nil?
+    statsd.time("request.local_authority.#{params[:snac_code]}.render") do
+      render :rabl, :local_authority, format: "json"
+    end
+  else
+    custom_404
+  end
+end
+
 get "/search.json" do
   begin
     params[:index] ||= 'mainstream'
