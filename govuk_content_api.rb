@@ -10,6 +10,7 @@ require 'govspeak'
 require 'plek'
 require 'url_helpers'
 require_relative "config"
+require 'statsd'
 
 helpers URLHelpers
 

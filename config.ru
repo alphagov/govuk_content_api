@@ -7,7 +7,6 @@ ENV['RACK_ENV'] ||= 'development'
 Bundler.require(:default, ENV['RACK_ENV'])
 
 require "logger"
-require 'statsd'
 
 in_development = ENV['RACK_ENV'] == 'development'
 in_preview = ENV['FACTER_govuk_platform'] == 'preview'
