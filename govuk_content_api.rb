@@ -101,10 +101,20 @@ get "/tags/:id.json" do
 end
 
 get "/with_tag.json" do
+  if params[:include_children].to_i > 1
+    @status = "Include children only supports a depth of 1."
+    halt 501, render(:rabl, :error, format: "json")
+  end
+
   tag_ids = params[:tag].split(',')
   tags = tag_ids.map { |ti| Tag.where(tag_id: ti).first }.compact
 
   custom_404 unless tags.length == tag_ids.length
+
+  if params[:include_children]
+    tags = Tag.any_in(parent_id: tag_ids)
+    tag_ids = tag_ids + tags.map(&:tag_id)
+  end
 
   statsd.time("request.with_tag.multi.#{tag_ids.length}") {
     @artefacts = Artefact.any_in(tag_ids: tag_ids)

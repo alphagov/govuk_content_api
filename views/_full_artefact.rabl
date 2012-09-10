@@ -4,6 +4,6 @@ child :tags => :tags do
   extends "_tag"
 end
 
-child :related_artefacts => :related_artefacts do
+child :related_artefacts => :related do
   extends "_basic_artefact"
 end
