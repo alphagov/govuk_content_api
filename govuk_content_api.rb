@@ -10,6 +10,7 @@ require 'govspeak'
 require 'plek'
 require 'url_helpers'
 require_relative "config"
+require 'statsd'
 
 helpers URLHelpers
 
@@ -17,6 +18,9 @@ set :views, File.expand_path('views', File.dirname(__FILE__))
 
 # Register RABL
 Rabl.register!
+
+# Initialise statsd
+statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
 
 require "govuk_content_models"
 require "govuk_content_models/require_all"
@@ -54,21 +58,29 @@ get "/search.json" do
     else
       raise "What do you want?"
     end
-
-    @results = index.search(params[:q])
+    statsd.time("request.search.q.#{params[:q]}") do
+      @results = index.search(params[:q])
+    end
 
     content_type :json
-    render :rabl, :search, format: "json"
+    statsd.time("request.search.#{params[:q]}.render") do
+      render :rabl, :search, format: "json"
+    end
   rescue Errno::ECONNREFUSED
+    statsd.increment('request.search.unavailable')
     halt 503, render(:rabl, :unavailable, format: "json")
   end
 end
 
 get "/tags.json" do
   if params[:type]
-    @tags = Tag.where(tag_type: params[:type])
+    statsd.time("request.tags.type.#{params[:type]}") do
+      @tags = Tag.where(tag_type: params[:type])
+    end
   else
-    @tags = Tag.all
+    statsd.time('request.tags.all') do
+      @tags = Tag.all
+    end
   end
 
   content_type :json
@@ -76,7 +88,9 @@ get "/tags.json" do
 end
 
 get "/tags/:id.json" do
-  @tag = Tag.where(tag_id: params[:id]).first
+  statsd.time("request.tag.#{params[:id]}") do
+    @tag = Tag.where(tag_id: params[:id]).first
+  end
   content_type :json
 
   if @tag
@@ -102,37 +116,45 @@ get "/with_tag.json" do
     tag_ids = tag_ids + tags.map(&:tag_id)
   end
 
-  artefacts = Artefact.any_in(tag_ids: tag_ids)
+  statsd.time("request.with_tag.multi.#{tag_ids.length}") do
+    @artefacts = Artefact.any_in(tag_ids: tag_ids)
+  end
 
-  @results = artefacts.map { |r|
-    if r.owning_app == 'publisher'
-      r.edition = Edition.where(slug: r.slug, state: 'published').first
-      if r.edition
-        r
+  statsd.time('request.with_tag.map_results') do
+    @results = @artefacts.map { |r|
+      if r.owning_app == 'publisher'
+        r.edition = Edition.where(slug: r.slug, state: 'published').first
+        if r.edition
+          r
+        else
+          nil
+        end
       else
-        nil
+        r
       end
-    else
-      r
-    end
-  }
+    }
 
-  @results.compact!
-
+    @results.compact!
+  end
 
   content_type :json
-  render :rabl, :with_tag, format: "json"
+  statsd.time("request.with_tag.render") do
+    render :rabl, :with_tag, format: "json"
+  end
 end
 
 get "/:id.json" do
-  @artefact = Artefact.where(slug: params[:id]).first
-
+  statsd.time("request.id.#{params[:id]}") do
+    @artefact = Artefact.where(slug: params[:id]).first
+  end
   custom_404 unless @artefact
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
-    @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+    statsd.time("request.id.#{params[:id]}.edition") do
+      @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+    end
     unless @artefact.edition
       if Edition.where(slug: @artefact.slug, state: 'archived').any?
         custom_410
@@ -143,5 +165,7 @@ get "/:id.json" do
   end
 
   content_type :json
-  render :rabl, :artefact, format: "json"
+  statsd.time("request.id.#{params[:id]}.render") do
+    render :rabl, :artefact, format: "json"
+  end
 end
