@@ -198,6 +198,7 @@ GEM
       raindrops (~> 0.7)
     warden (1.2.1)
       rack (>= 1.0)
+    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
@@ -222,3 +223,4 @@ DEPENDENCIES
   sinatra (= 1.3.2)
   statsd-ruby (= 1.0.0)
   unicorn (~> 4.3.1)
+  yajl-ruby

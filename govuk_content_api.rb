@@ -18,6 +18,9 @@ set :views, File.expand_path('views', File.dirname(__FILE__))
 
 # Register RABL
 Rabl.register!
+Rabl.configure do |c|
+  c.json_engine = :yajl
+end
 
 # Initialise statsd
 statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
