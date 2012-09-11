@@ -8,9 +8,8 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   should "return 404 if no snac code is provided" do
-    get "/local_authority.json"
+    get "/local_authorities/"
     assert last_response.not_found?
-    assert_status_field "not found", last_response
   end
 
   should "return 404 if no name or snac code is provided" do
@@ -20,7 +19,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   should "return 404 if LocalAuthority with the provided snac code not found" do
-    get "/local_authority/gobble_de_gook.json"
+    get "/local_authorities/gobble_de_gook.json"
     assert last_response.not_found?
     assert_status_field "not found", last_response
   end
@@ -39,7 +38,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     stub_authority = LocalAuthority.new(name: "Super Nova", snac: "supernova")
     LocalAuthority.stubs(:find_by_snac).with("supernova").returns(stub_authority)
 
-    get "/local_authority/supernova.json"
+    get "/local_authorities/supernova.json"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
@@ -85,12 +84,12 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     expected = [{
                   "name" => "Solihull Metropolitan Borough Council",
                   "snac_code" => "00CT",
-                  "id" => "#{base_api_url}/local_authority/00CT.json"
+                  "id" => "#{base_api_url}/local_authorities/00CT.json"
                 },
                 {
                   "name" => "Solihull Council",
                   "snac_code" => "00VT",
-                  "id" => "#{base_api_url}/local_authority/00VT.json"
+                  "id" => "#{base_api_url}/local_authorities/00VT.json"
                 }]
 
     assert last_response.ok?
@@ -145,18 +144,18 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
     assert_status_field "ok", last_response
-    assert_equal "#{base_api_url}/local_authority/00CT.json", parsed_response["results"][0]["id"]
+    assert_equal "#{base_api_url}/local_authorities/00CT.json", parsed_response["results"][0]["id"]
   end
 
   should "have a canonical ID for the provided response when directly accessing with a snac code" do
     stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
     LocalAuthority.stubs(:find_by_snac).with("00CT").returns(stub_authority)
 
-    get "/local_authority/00CT.json"
+    get "/local_authorities/00CT.json"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
     assert_status_field "ok", last_response
-    assert_equal "#{base_api_url}/local_authority/00CT.json", parsed_response["id"]
+    assert_equal "#{base_api_url}/local_authorities/00CT.json", parsed_response["id"]
   end
 end

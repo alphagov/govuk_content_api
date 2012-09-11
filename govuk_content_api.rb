@@ -78,7 +78,7 @@ get "/local_authorities.json" do
   end
 end
 
-get "/local_authority/:snac_code.json" do
+get "/local_authorities/:snac_code.json" do
   content_type :json
 
   if params[:snac_code]
