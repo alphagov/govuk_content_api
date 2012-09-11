@@ -124,9 +124,15 @@ get "/with_tag.json" do
   end
 
   statsd.time('request.with_tag.map_results') do
+    # Preload to avoid hundreds of individual queries
+    published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
+    editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
+      result_hash[edition.slug] = edition
+    end
+
     @results = @artefacts.map { |r|
       if r.owning_app == 'publisher'
-        r.edition = Edition.where(slug: r.slug, state: 'published').first
+        r.edition = editions_by_slug[r.slug]
         if r.edition
           r
         else
