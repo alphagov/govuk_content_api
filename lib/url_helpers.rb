@@ -1,7 +1,6 @@
 require "cgi"
 
 module URLHelpers
-
   def tag_url(tag)
     "#{base_api_url}/tags/#{CGI.escape(tag.tag_id)}.json"
   end
@@ -40,5 +39,9 @@ module URLHelpers
     else
       @_base_web_search_url ||= Plek.current.find('search')
     end
+  end
+
+  def local_authority_url(authority)
+    "#{base_api_url}/local_authority/#{CGI.escape(authority.snac)}.json"
   end
 end

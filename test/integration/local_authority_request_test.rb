@@ -1,6 +1,8 @@
 require "test_helper"
 
 class LocalAuthorityRequestTest < GovUkContentApiTest
+  include URLHelpers
+
   def assert_status_field(expected, response)
     assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
   end
@@ -80,8 +82,16 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     get "/local_authorities.json?council=Solihull"
     parsed_response = JSON.parse(last_response.body)
 
-    expected = [{"name"=>"Solihull Metropolitan Borough Council", "snac_code"=>"00CT"},
-                {"name"=>"Solihull Council", "snac_code"=>"00VT"}]
+    expected = [{
+                  "name" => "Solihull Metropolitan Borough Council",
+                  "snac_code" => "00CT",
+                  "id" => "#{base_api_url}/local_authority/00CT.json"
+                },
+                {
+                  "name" => "Solihull Council",
+                  "snac_code" => "00VT",
+                  "id" => "#{base_api_url}/local_authority/00VT.json"
+                }]
 
     assert last_response.ok?
     assert_status_field "ok", last_response
@@ -124,5 +134,29 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "ok", last_response
     assert_equal 0, parsed_response["total"]
     assert_equal true, parsed_response["results"].empty?
+  end
+
+  should "have a canonical ID for each local authority result when searching" do
+    stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
+    LocalAuthority.stubs(:where).with(snac: /^00C/i).returns(stub_authority)
+
+    get "/local_authorities.json?snac_code=00C"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal "#{base_api_url}/local_authority/00CT.json", parsed_response["results"][0]["id"]
+  end
+
+  should "have a canonical ID for the provided response when directly accessing with a snac code" do
+    stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
+    LocalAuthority.stubs(:find_by_snac).with("00CT").returns(stub_authority)
+
+    get "/local_authority/00CT.json"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal "#{base_api_url}/local_authority/00CT.json", parsed_response["id"]
   end
 end
