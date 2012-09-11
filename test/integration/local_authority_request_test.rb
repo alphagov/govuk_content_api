@@ -11,7 +11,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  should "return 404 if no council name is provided" do
+  should "return 404 if no council name or snac code is provided" do
     get "/local_authorities.json"
     assert last_response.not_found?
     assert_status_field "not found", last_response
@@ -23,10 +23,14 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  should "return 404 if LocalAuthority with the provided council name not found" do
+  should "return an empty result set if LocalAuthority with the provided council name not found" do
     get "/local_authorities.json?council=Somewhere%20over%20the%20rainbow"
-    assert last_response.not_found?
-    assert_status_field "not found", last_response
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal 0, parsed_response["total"]
+    assert_equal true, parsed_response["results"].empty?
   end
 
   should "return a JSON formatted LocalAuthority when querying with a known snac code" do
@@ -104,11 +108,21 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
 
   should "not allow regex searching of snac codes" do
     get "/local_authorities.json?snac_code=*"
-    assert last_response.not_found?
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal 0, parsed_response["total"]
+    assert_equal true, parsed_response["results"].empty?
   end
 
   should "not allow regex searching of council" do
     get "/local_authorities.json?council=*"
-    assert last_response.not_found?
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert_status_field "ok", last_response
+    assert_equal 0, parsed_response["total"]
+    assert_equal true, parsed_response["results"].empty?
   end
 end

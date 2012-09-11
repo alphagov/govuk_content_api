@@ -64,15 +64,17 @@ get "/local_authorities.json" do
         @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
       end
     end
-  end
-
-  if @local_authorities && @local_authorities.any?
-    search_param = params[:snac_code] || params[:council]
-    statsd.time("request.local_authorities.#{search_param}.render") do
-      render :rabl, :local_authorities, format: "json"
-    end
   else
     custom_404
+  end
+
+  if @local_authorities.nil? or @local_authorities.empty?
+    @local_authorities = []
+  end
+
+  search_param = params[:snac_code] || params[:council]
+  statsd.time("request.local_authorities.#{search_param}.render") do
+    render :rabl, :local_authorities, format: "json"
   end
 end
 
