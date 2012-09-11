@@ -33,7 +33,7 @@ module URLHelpers
       Plek.current.find(artefact.rendering_app || artefact.owning_app)
     end
   end
-  
+
   def base_web_search_url
     if ["production", "test"].include?(ENV["RACK_ENV"])
       @_base_web_search_url ||= Plek.current.find('www')
