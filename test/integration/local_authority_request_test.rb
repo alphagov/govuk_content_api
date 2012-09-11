@@ -116,7 +116,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_equal "00CF", parsed_response["results"][1]["snac_code"]
   end
 
-  should "not allow regex searching of snac codes" do
+  should "not allow glob searching of snac codes" do
     get "/local_authorities.json?snac_code=*"
     parsed_response = JSON.parse(last_response.body)
 
@@ -126,7 +126,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_equal true, parsed_response["results"].empty?
   end
 
-  should "not allow regex searching of council" do
+  should "not allow glob searching of council" do
     get "/local_authorities.json?council=*"
     parsed_response = JSON.parse(last_response.body)
 
