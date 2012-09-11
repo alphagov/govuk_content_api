@@ -13,7 +13,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  should "return 404 if no council name or snac code is provided" do
+  should "return 404 if no name or snac code is provided" do
     get "/local_authorities.json"
     assert last_response.not_found?
     assert_status_field "not found", last_response
@@ -25,8 +25,8 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  should "return an empty result set if LocalAuthority with the provided council name not found" do
-    get "/local_authorities.json?council=Somewhere%20over%20the%20rainbow"
+  should "return an empty result set if LocalAuthority with the provided name not found" do
+    get "/local_authorities.json?name=Somewhere%20over%20the%20rainbow"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
@@ -48,11 +48,11 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_equal "supernova", parsed_response["snac_code"]
   end
 
-  should "return a JSON formatted array of LocalAuthority objects when searching by council" do
+  should "return a JSON formatted array of LocalAuthority objects when searching by name" do
     stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
     LocalAuthority.stubs(:where).with(name: /^Solihull Metro/i).returns(stub_authority)
 
-    get "/local_authorities.json?council=Solihull%20Metro"
+    get "/local_authorities.json?name=Solihull%20Metro"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
@@ -74,12 +74,12 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_equal "00CT", parsed_response["results"][0]["snac_code"]
   end
 
-  should "return a JSON formatted array of multiple LocalAuthority objects when searching by council" do
+  should "return a JSON formatted array of multiple LocalAuthority objects when searching by name" do
     stub_results = [LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT"),
                     LocalAuthority.new(name: "Solihull Council", snac: "00VT")]
     LocalAuthority.stubs(:where).with(name: /^Solihull/i).returns(stub_results)
 
-    get "/local_authorities.json?council=Solihull"
+    get "/local_authorities.json?name=Solihull"
     parsed_response = JSON.parse(last_response.body)
 
     expected = [{
@@ -126,8 +126,8 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_equal true, parsed_response["results"].empty?
   end
 
-  should "not allow glob searching of council" do
-    get "/local_authorities.json?council=*"
+  should "not allow glob searching of names" do
+    get "/local_authorities.json?name=*"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?

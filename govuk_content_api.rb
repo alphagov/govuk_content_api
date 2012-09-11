@@ -50,11 +50,11 @@ end
 get "/local_authorities.json" do
   content_type :json
 
-  if params[:council]
-    council = params[:council].to_s.gsub(/[^0-9a-z ]/i, '')
-    unless council.empty?
-      statsd.time("request.local_authorities.#{council}") do
-        @local_authorities = LocalAuthority.where(name: /^#{council}/i).to_a
+  if params[:name]
+    name = params[:name].to_s.gsub(/[^0-9a-z ]/i, '')
+    unless name.empty?
+      statsd.time("request.local_authorities.#{name}") do
+        @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
       end
     end
   elsif params[:snac_code]
