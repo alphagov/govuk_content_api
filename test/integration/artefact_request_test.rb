@@ -50,7 +50,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_status_field "ok", last_response
-    assert_equal "http://contentapi.test.gov.uk/#{stub_artefact.slug}.json", parsed_response["id"]
+    assert_equal "http://example.org/#{stub_artefact.slug}.json", parsed_response["id"]
     assert_equal "http://www.test.gov.uk/#{stub_artefact.slug}", parsed_response["web_url"]
     assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
     assert_equal "1234", parsed_response["details"]["need_id"]
