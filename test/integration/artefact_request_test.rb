@@ -51,7 +51,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert_status_field "ok", last_response
     assert_equal "http://example.org/#{stub_artefact.slug}.json", parsed_response["id"]
-    assert_equal "http://example.org/#{stub_artefact.slug}", parsed_response["web_url"]
+    assert_equal "http://www.test.gov.uk/#{stub_artefact.slug}", parsed_response["web_url"]
     assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
     assert_equal "1234", parsed_response["details"]["need_id"]
     # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
@@ -113,7 +113,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal artefact.name, related_info["title"]
       artefact_path = "/#{CGI.escape(artefact.slug)}.json"
       assert_equal artefact_path, URI.parse(related_info["id"]).path
-      assert_equal "http://example.org/#{artefact.slug}", related_info["web_url"]
+      assert_equal "http://www.test.gov.uk/#{artefact.slug}", related_info["web_url"]
     end
   end
 
@@ -185,7 +185,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal tag_path, URI.parse(tag_info["id"]).path
       assert_equal nil, tag_info["web_url"]
       assert_equal "section", tag_info["details"]["type"]
-      assert_equal "http://example.org/browse/#{section[0]}", tag_info["content_with_tag"]["web_url"]
+      assert_equal "http://www.test.gov.uk/browse/#{section[0]}", tag_info["content_with_tag"]["web_url"]
     end
   end
 

@@ -11,7 +11,7 @@ module URLHelpers
   end
 
   def with_tag_web_url(tag)
-    url("/browse/#{tag.tag_id}")
+    "#{base_web_search_url}/browse/#{tag.tag_id}"
   end
 
   def artefact_url(artefact)
@@ -19,7 +19,7 @@ module URLHelpers
   end
 
   def artefact_web_url(artefact)
-    url("/#{artefact.slug}")
+    "#{base_web_url(artefact)}/#{artefact.slug}"
   end
 
   def base_web_url(artefact)
