@@ -11,10 +11,10 @@ gem 'statsd-ruby', '1.0.0'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '1.7.2'
+  gem 'govuk_content_models', '1.8.0'
 end
 
-gem 'govspeak', '0.8.15'
+gem 'govspeak', '1.0.1'
 gem 'factory_girl', '3.6.1'
 gem 'database_cleaner', '0.7.2'
 gem 'plek', '0.3.0'
