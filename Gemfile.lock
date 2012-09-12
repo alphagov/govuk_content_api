@@ -51,7 +51,7 @@ GEM
       activesupport (>= 3.0.0)
     faraday (0.8.4)
       multipart-post (~> 1.1)
-    gds-api-adapters (1.7.0)
+    gds-api-adapters (1.8.0)
       lrucache (~> 0.1.1)
       null_logger
       plek
@@ -60,19 +60,19 @@ GEM
       rack-accept (~> 0.4.4)
       rails (>= 3.0.0)
       warden (~> 1.2)
-    govspeak (0.8.15)
+    govspeak (1.0.1)
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
-    govuk_content_models (1.7.2)
+      sanitize (= 2.0.3)
+    govuk_content_models (1.8.0)
       bson_ext
       differ
       gds-api-adapters
-      gds-sso (>= 0.7, < 2.0)
-      govspeak (>= 0.8.15, < 2.0.0)
+      gds-sso (>= 0.7, < 3.0)
+      govspeak (>= 1.0.1, < 2.0.0)
       mongoid (~> 2.4.10)
       omniauth-oauth2 (~> 1.0)
       plek (>= 0.1.22, < 0.4)
-      sanitize (= 2.0.3)
       state_machine
     hashie (1.2.0)
     hike (1.2.1)
@@ -84,7 +84,7 @@ GEM
     jwt (0.1.5)
       multi_json (>= 1.0)
     kgio (2.7.4)
-    kramdown (0.13.7)
+    kramdown (0.13.8)
     lrucache (0.1.3)
       PriorityQueue (~> 0.1.2)
     mail (2.4.4)
@@ -208,8 +208,8 @@ DEPENDENCIES
   database_cleaner (= 0.7.2)
   delsolr!
   factory_girl (= 3.6.1)
-  govspeak (= 0.8.15)
-  govuk_content_models (= 1.7.2)
+  govspeak (= 1.0.1)
+  govuk_content_models (= 1.8.0)
   minitest (= 3.3.0)
   mocha (= 0.12.3)
   plek (= 0.3.0)
