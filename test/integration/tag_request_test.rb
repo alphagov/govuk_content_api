@@ -64,6 +64,14 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal full_url, found_id
     end
 
+    should "be able to fetch tag over ssl" do
+      tag = FactoryGirl.create(:tag, tag_id: 'crime')
+      get "https://example.org/tags/crime.json"
+      full_url = "https://example.org/tags/crime.json"
+      found_id = JSON.parse(last_response.body)['id']
+      assert_equal full_url, found_id
+    end
+
     should "include nil for the parent tag" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags/crime.json"

@@ -27,7 +27,7 @@ module URLHelpers
   end
 
   def build_api_url
-    "http://#{@env['SERVER_NAME']}"
+    "http#{'s' if request.secure?}://#{@env['SERVER_NAME']}"
   end
 
   def base_web_url(artefact)
