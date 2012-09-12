@@ -27,7 +27,7 @@ class TagRequestTest < GovUkContentApiTest
     should "have full uri in id field in index action" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
-      expected_id = "http://contentapi.test.gov.uk/tags/crime.json"
+      expected_id = "http://example.org/tags/crime.json"
       expected_url = "http://www.test.gov.uk/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
       assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
@@ -44,7 +44,7 @@ class TagRequestTest < GovUkContentApiTest
       assert_status_field "ok", last_response
       response = JSON.parse(last_response.body)
       assert_equal "Lots to say for myself", response["details"]["description"]
-      assert_equal "http://contentapi.test.gov.uk/tags/good-tag.json", response["id"]
+      assert_equal "http://example.org/tags/good-tag.json", response["id"]
       assert_equal nil, response["web_url"]
       assert_equal "http://www.test.gov.uk/browse/good-tag", response["content_with_tag"]["web_url"]
     end
@@ -59,7 +59,7 @@ class TagRequestTest < GovUkContentApiTest
     should "have full uri in id field" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags/crime.json"
-      full_url = "http://contentapi.test.gov.uk/tags/crime.json"
+      full_url = "http://example.org/tags/crime.json"
       found_id = JSON.parse(last_response.body)['id']
       assert_equal full_url, found_id
     end
@@ -74,11 +74,11 @@ class TagRequestTest < GovUkContentApiTest
 
     should "load a tag that includes a slash" do
       FactoryGirl.create(:tag, tag_id: 'crime/batman')
-  
+
       get "/tags/crime%2Fbatman.json"
       assert last_response.ok?
       assert_status_field "ok", last_response
-      assert_equal 'http://contentapi.test.gov.uk/tags/crime%2Fbatman.json', JSON.parse(last_response.body)['id']
+      assert_equal 'http://example.org/tags/crime%2Fbatman.json', JSON.parse(last_response.body)['id']
     end
 
     context "has a parent tag" do
@@ -91,14 +91,14 @@ class TagRequestTest < GovUkContentApiTest
         get "/tags/crime.json"
         response = JSON.parse(last_response.body)
         expected = {
-          "id" => "http://contentapi.test.gov.uk/tags/crime-and-prison.json",
+          "id" => "http://example.org/tags/crime-and-prison.json",
           "web_url" => nil,
           "details"=>{
-            "description" => nil, 
+            "description" => nil,
             "type" => "section"
           },
           "content_with_tag" => {
-            "id" => "http://contentapi.test.gov.uk/with_tag.json?tag=crime-and-prison",
+            "id" => "http://example.org/with_tag.json?tag=crime-and-prison",
             "web_url" => "http://www.test.gov.uk/browse/crime-and-prison"
           },
           "parent" => nil,
