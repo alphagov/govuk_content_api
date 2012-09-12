@@ -28,7 +28,7 @@ class TagRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
       expected_id = "http://example.org/tags/crime.json"
-      expected_url = "http://www.test.gov.uk/browse/crime"
+      expected_url = "http://example.org/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
       assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
       assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
@@ -46,7 +46,7 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal "Lots to say for myself", response["details"]["description"]
       assert_equal "http://example.org/tags/good-tag.json", response["id"]
       assert_equal nil, response["web_url"]
-      assert_equal "http://www.test.gov.uk/browse/good-tag", response["content_with_tag"]["web_url"]
+      assert_equal "http://example.org/browse/good-tag", response["content_with_tag"]["web_url"]
     end
 
     should "return 404 if specific tag not found" do
@@ -107,7 +107,7 @@ class TagRequestTest < GovUkContentApiTest
           },
           "content_with_tag" => {
             "id" => "http://example.org/with_tag.json?tag=crime-and-prison",
-            "web_url" => "http://www.test.gov.uk/browse/crime-and-prison"
+            "web_url" => "http://example.org/browse/crime-and-prison"
           },
           "parent" => nil,
           "title" => @parent.title
