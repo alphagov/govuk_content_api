@@ -3,10 +3,6 @@ require "test_helper"
 class LocalAuthorityRequestTest < GovUkContentApiTest
   include URLHelpers
 
-  def assert_status_field(expected, response)
-    assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
-  end
-
   should "return 404 if no snac code is provided" do
     get "/local_authorities/"
     assert last_response.not_found?
