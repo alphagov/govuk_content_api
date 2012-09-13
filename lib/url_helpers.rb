@@ -3,11 +3,11 @@ require "cgi"
 module URLHelpers
 
   def tag_url(tag)
-    url("/tags/#{CGI.escape(tag.tag_id)}.json")
+    api_url("/tags/#{CGI.escape(tag.tag_id)}.json")
   end
 
   def with_tag_url(tag)
-    url("/with_tag.json?tag=#{CGI.escape(tag.tag_id)}")
+    api_url("/with_tag.json?tag=#{CGI.escape(tag.tag_id)}")
   end
 
   def with_tag_web_url(tag)
@@ -15,11 +15,16 @@ module URLHelpers
   end
 
   def artefact_url(artefact)
-    url("/#{CGI.escape(artefact.slug)}.json")
+    api_url("/#{CGI.escape(artefact.slug)}.json")
   end
 
   def artefact_web_url(artefact)
     "#{base_web_url(artefact)}/#{artefact.slug}"
+  end
+
+  def api_url(uri)
+    env['SCRIPT_NAME'] = 'api' if env['SERVER_NAME'] == "www.gov.uk"
+    url(uri)
   end
 
   def base_web_url(artefact)
