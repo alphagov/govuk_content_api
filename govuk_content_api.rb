@@ -50,6 +50,51 @@ def format_content(string)
 end
 
 # Render RABL
+get "/local_authorities.json" do
+  content_type :json
+
+  if params[:name]
+    name = Regexp.escape(params[:name])
+    statsd.time("request.local_authorities.#{name}") do
+      @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
+    end
+  elsif params[:snac_code]
+    snac_code = Regexp.escape(params[:snac_code])
+    statsd.time("request.local_authorities.#{snac_code}") do
+      @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
+    end
+  else
+    custom_404
+  end
+
+  if @local_authorities.nil? or @local_authorities.empty?
+    @local_authorities = []
+  end
+
+  search_param = params[:snac_code] || params[:name]
+  statsd.time("request.local_authorities.#{search_param}.render") do
+    render :rabl, :local_authorities, format: "json"
+  end
+end
+
+get "/local_authorities/:snac_code.json" do
+  content_type :json
+
+  if params[:snac_code]
+    statsd.time("request.local_authority.#{params[:snac_code]}") do
+      @local_authority = LocalAuthority.find_by_snac(params[:snac_code])
+    end
+  end
+
+  if @local_authority
+    statsd.time("request.local_authority.#{params[:snac_code]}.render") do
+      render :rabl, :local_authority, format: "json"
+    end
+  else
+    custom_404
+  end
+end
+
 get "/search.json" do
   begin
     params[:index] ||= 'mainstream'
