@@ -202,7 +202,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     expected_first_part = {
-      "id" => "part-one",
+      "id" => "http://www.test.gov.uk/published-artefact/part-one",
       "order" => 1,
       "title" => "Part One",
       "body" => "<h2>Header 2</h2>\n"
