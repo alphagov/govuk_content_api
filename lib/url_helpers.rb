@@ -23,7 +23,7 @@ module URLHelpers
   end
 
   def api_url(uri)
-    env['SCRIPT_NAME'] = 'api' if env['SERVER_NAME'] == "www.gov.uk"
+    env['SCRIPT_NAME'] = env['HTTP_API_PREFIX']
     url(uri)
   end
 
