@@ -81,7 +81,7 @@ class FormatsRequestTest < GovUkContentApiTest
     refute fields.has_key?('body')
     assert_equal "Some Part Title!", fields['parts'][0]['title']
     assert_equal "<p>This is some <strong>version</strong> text.</p>\n", fields['parts'][0]['body']
-    assert_equal "part-one", fields['parts'][0]['id']
+    assert_equal "http://www.test.gov.uk/batman/part-one", fields['parts'][0]['id']
   end
 
   should "programme_edition" do
@@ -102,7 +102,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
     assert_equal "Overview", fields['parts'][0]['title']
-    assert_equal "overview", fields['parts'][0]['id']
+    assert_equal "http://www.test.gov.uk/batman/overview", fields['parts'][0]['id']
   end
 
   should "video_edition" do
