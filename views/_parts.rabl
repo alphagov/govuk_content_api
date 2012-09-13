@@ -2,7 +2,8 @@ node do |artefact|
   list_parts = []
   artefact.edition.parts.each do |p|
     part = {
-              id: artefact_part_web_url(artefact, p),
+              web_url: artefact_part_web_url(artefact, p),
+              slug: p.slug,
               order: p.order,
               title: p.title,
               body: format_content(p.body)
