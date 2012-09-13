@@ -49,7 +49,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
 
   should "return a JSON formatted array of LocalAuthority objects when searching by name" do
     stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
-    LocalAuthority.stubs(:where).with(name: /^Solihull Metro/i).returns(stub_authority)
+    LocalAuthority.stubs(:where).with(name: /^Solihull\ Metro/i).returns(stub_authority)
 
     get "/local_authorities.json?name=Solihull%20Metro"
     parsed_response = JSON.parse(last_response.body)
@@ -116,6 +116,8 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   should "not allow glob searching of snac codes" do
+    LocalAuthority.expects(:where).with(snac: /^\*/i).once
+
     get "/local_authorities.json?snac_code=*"
     parsed_response = JSON.parse(last_response.body)
 
@@ -126,6 +128,8 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   should "not allow glob searching of names" do
+    LocalAuthority.expects(:where).with(name: /^\*/i).once
+
     get "/local_authorities.json?name=*"
     parsed_response = JSON.parse(last_response.body)
 

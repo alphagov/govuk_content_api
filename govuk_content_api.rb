@@ -51,18 +51,14 @@ get "/local_authorities.json" do
   content_type :json
 
   if params[:name]
-    name = params[:name].to_s.gsub(/[^0-9a-z ]/i, '')
-    unless name.empty?
-      statsd.time("request.local_authorities.#{name}") do
-        @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
-      end
+    name = Regexp.escape(params[:name])
+    statsd.time("request.local_authorities.#{name}") do
+      @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
     end
   elsif params[:snac_code]
-    snac_code = params[:snac_code].to_s.gsub(/[^0-9a-z ]/i, '')
-    unless snac_code.empty?
-      statsd.time("request.local_authorities.#{snac_code}") do
-        @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
-      end
+    snac_code = Regexp.escape(params[:snac_code])
+    statsd.time("request.local_authorities.#{snac_code}") do
+      @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
     end
   else
     custom_404
