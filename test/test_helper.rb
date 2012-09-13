@@ -33,12 +33,6 @@ class GovUkContentApiTest < MiniTest::Spec
   include Rack::Test::Methods
   include ResponseTestMethods
 
-  class << self
-    alias :context :describe
-    alias :should :it
-    alias :setup :before
-  end
-
   def app
     Sinatra::Application
   end

@@ -6,14 +6,14 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
   end
 
-  should "return 404 if artefact not found" do
+  it "return 404 if artefact not found" do
     Artefact.expects(:where).with(slug: 'bad-artefact').returns([])
     get '/bad-artefact.json'
     assert last_response.not_found?
     assert_status_field "not found", last_response
   end
 
-  should "return 404 if artefact is publication but never published" do
+  it "return 404 if artefact is publication but never published" do
     stub_artefact = Artefact.new(slug: 'unpublished-artefact', owning_app: 'publisher')
     Artefact.stubs(:where).with(slug: 'unpublished-artefact').returns([stub_artefact])
     Edition.stubs(:where).with(slug: 'unpublished-artefact', state: 'published').returns([])
@@ -25,7 +25,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  should "return 410 if artefact is publication but only archived" do
+  it "return 410 if artefact is publication but only archived" do
     stub_artefact = Artefact.new(slug: 'archived-artefact', owning_app: 'publisher')
     Artefact.stubs(:where).with(slug: 'archived-artefact').returns([stub_artefact])
     Edition.stubs(:where).with(slug: 'archived-artefact', state: 'published').returns([])
@@ -37,7 +37,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "gone", last_response
   end
 
-  should "return publication data if published" do
+  it "return publication data if published" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher', business_proposition: true, need_id: 1234)
     stub_answer = AnswerEdition.new(body: '# Important information')
 
@@ -58,7 +58,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal true, parsed_response["details"]["business_proposition"]
   end
 
-  should "convert artefact body and part bodies to html" do
+  it "convert artefact body and part bodies to html" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
     stub_answer = GuideEdition.new(body: '# Important information', parts: [Part.new(title: "Part One", body: "## Header 2", slug: "part-one")])
 
@@ -74,7 +74,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "<h2>Header 2</h2>\n", parsed_response["details"]["parts"][0]["body"]
   end
 
-  should "return govspeak in artefact body and part bodies if requested" do
+  it "return govspeak in artefact body and part bodies if requested" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
     stub_answer = GuideEdition.new(body: '# Important information', parts: [Part.new(title: "Part One", body: "## Header 2", slug: "part-one")])
 
@@ -90,7 +90,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
   end
 
-  should "return related artefacts" do
+  it "return related artefacts" do
     related_artefacts = [
       FactoryGirl.build(:artefact, slug: "related-artefact-1", name: "Pies"),
       FactoryGirl.build(:artefact, slug: "related-artefact-2", name: "Cake")
@@ -117,7 +117,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
   end
 
-  should "return an empty list if there are no related artefacts" do
+  it "return an empty list if there are no related artefacts" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
     stub_answer = AnswerEdition.new(body: '# Important information')
 
@@ -133,7 +133,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal [], parsed_response["related"]
   end
 
-  should "not look for edition if publisher not owner" do
+  it "not look for edition if publisher not owner" do
     stub_artefact = Artefact.new(slug: 'smart-answer', owning_app: 'smart-answers')
     Artefact.stubs(:where).with(slug: 'smart-answer').returns([stub_artefact])
     Edition.expects(:where).never
@@ -145,7 +145,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     refute JSON.parse(last_response.body).has_key?('format')
   end
 
-  should "give an empty list of tags when there are no tags" do
+  it "give an empty list of tags when there are no tags" do
     stub_artefact = Artefact.new(slug: "fish", owning_app: "smart-answers")
     Artefact.stubs(:where).with(slug: "fish").returns([stub_artefact])
     stub_artefact.stubs(:tags).returns([])
@@ -157,7 +157,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal [], JSON.parse(last_response.body)["tags"]
   end
 
-  should "list section information" do
+  it "list section information" do
     sections = [
       ["crime-and-justice", "Crime and justice"],
       ["crime-and-justice/batman", "Batman"]
@@ -189,7 +189,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
   end
 
-  should "return parts" do
+  it "return parts" do
     stub_artefact = Artefact.new(slug: 'published-artefact', owning_app: 'publisher')
     stub_answer = GuideEdition.new(body: '# Important information', parts: [Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one")])
 
