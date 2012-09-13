@@ -10,12 +10,11 @@ ENV['RACK_ENV'] = 'test'
 $LOAD_PATH << File.expand_path('../../', __FILE__)
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
-require 'test/unit'
+require 'minitest/autorun'
 require 'rack/test'
 
 require 'database_cleaner'
 require 'mocha'
-require 'shoulda'
 require 'factory_girl'
 require 'govuk_content_api'
 require 'govuk_content_models/test_helpers/factories'
@@ -30,9 +29,15 @@ module ResponseTestMethods
   end
 end
 
-class GovUkContentApiTest < Test::Unit::TestCase
+class GovUkContentApiTest < MiniTest::Spec
   include Rack::Test::Methods
   include ResponseTestMethods
+
+  class << self
+    alias :context :describe
+    alias :should :it
+    alias :setup :before
+  end
 
   def app
     Sinatra::Application

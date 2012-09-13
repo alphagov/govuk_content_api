@@ -23,7 +23,6 @@ gem 'yajl-ruby'
 
 group :development, :test do
   gem 'mocha', '0.12.4', require: false
-  gem 'shoulda', '3.1.1'
   gem 'simplecov', '0.6.4'
   gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '3.4.0'
