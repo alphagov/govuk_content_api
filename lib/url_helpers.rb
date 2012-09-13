@@ -22,6 +22,10 @@ module URLHelpers
     "#{base_web_url(artefact)}/#{artefact.slug}"
   end
 
+  def artefact_part_web_url(artefact, part)
+    "#{artefact_web_url(artefact)}/#{part.slug}"
+  end
+
   def api_url(uri)
     env['SCRIPT_NAME'] = env['HTTP_API_PREFIX']
     url(uri)
