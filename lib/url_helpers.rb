@@ -47,6 +47,6 @@ module URLHelpers
   end
 
   def local_authority_url(authority)
-    "#{base_api_url}/local_authorities/#{CGI.escape(authority.snac)}.json"
+    api_url("/local_authorities/#{CGI.escape(authority.snac)}.json")
   end
 end
