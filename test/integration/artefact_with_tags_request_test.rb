@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ArtefactWithTagsRequestTest < GovUkContentApiTest
-  it "return 404 if tag not found" do
+  it "should return 404 if tag not found" do
     Tag.expects(:where).with(tag_id: 'farmers').returns([])
 
     get "/with_tag.json?tag=farmers"
@@ -10,7 +10,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
-  it "return the standard response even if zero results" do
+  it "should return the standard response even if zero results" do
     t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
 
@@ -25,7 +25,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   end
 
 
-  it "return an array of results" do
+  it "should return an array of results" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
     FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers'])
 
@@ -35,7 +35,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 1, JSON.parse(last_response.body)["results"].count
   end
 
-  it "exclude unpublished publisher items" do
+  it "should exclude unpublished publisher items" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
     business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
     artefact = FactoryGirl.create(:artefact, owning_app: "publisher", sections: ['farmers', 'business'])
@@ -47,7 +47,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 0, JSON.parse(last_response.body)["results"].count
   end
 
-  it "allow filtering by multiple tags" do
+  it "should allow filtering by multiple tags" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
     business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
     FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers', 'business'])
@@ -57,7 +57,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 1, JSON.parse(last_response.body)["results"].count
   end
 
-  it "return include children in array of results" do
+  it "should return include children in array of results" do
     FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
     FactoryGirl.create(:tag, tag_id: 'foo', title: 'Business', tag_type: 'section', parent_id: "business")
     FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['business'])
@@ -69,7 +69,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 2, JSON.parse(last_response.body)["results"].count
   end
 
-  it "return 501 if more than 1 child requested" do
+  it "should return 501 if more than 1 child requested" do
     get "/with_tag.json?tag=business&include_children=2"
 
     assert_equal 501, last_response.status

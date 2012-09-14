@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class SearchRequestTest < GovUkContentApiTest
-  it "return an array of results" do
+  it "should return an array of results" do
     SolrWrapper.any_instance.stubs(:search).returns([
       Document.from_hash(title: 'Result 1', link: 'http://example.com/', description: '1', format: 'answer'),
       Document.from_hash(title: 'Result 2', link: 'http://example2.com/', description: '2', format: 'answer')
@@ -17,7 +17,7 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 'Result 1', parsed_response["results"].first['title']
   end
 
-  it "return the standard response even if zero results" do
+  it "should return the standard response even if zero results" do
     SolrWrapper.any_instance.stubs(:search).returns([])
 
     get "/search.json?q=empty+result+set"
@@ -28,7 +28,7 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["total"]
   end
 
-  it "return 503 if no solr connection" do
+  it "should return 503 if no solr connection" do
     SolrWrapper.any_instance.stubs(:search).raises(Errno::ECONNREFUSED)
     get "/search.json?q=government"
 
