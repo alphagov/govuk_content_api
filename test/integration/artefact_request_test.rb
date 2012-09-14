@@ -185,7 +185,9 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal tag_path, URI.parse(tag_info["id"]).path
       assert_equal nil, tag_info["web_url"]
       assert_equal "section", tag_info["details"]["type"]
-      assert_equal "http://www.test.gov.uk/browse/#{section[0]}", tag_info["content_with_tag"]["web_url"]
+      # Temporary hack until the browse pages are rebuilt
+      expected_section_slug = section[0].sub(%r{/}, '#/')
+      assert_equal "http://www.test.gov.uk/browse/#{expected_section_slug}", tag_info["content_with_tag"]["web_url"]
     end
   end
 
