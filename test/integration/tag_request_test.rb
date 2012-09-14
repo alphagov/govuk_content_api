@@ -89,6 +89,16 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal 'http://example.org/tags/crime%2Fbatman.json', JSON.parse(last_response.body)['id']
     end
 
+    it "should link to the correct browse URL for a subsection tag" do
+      # This is a temporary thing until the browse pages have been rebuilt to have proper URL's
+      FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section')
+      get "/tags/crime%2Fbatman.json"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+      assert_equal "http://www.test.gov.uk/browse/crime#/batman", response["content_with_tag"]["web_url"]
+    end
+
     describe "has a parent tag" do
       before do
         @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')

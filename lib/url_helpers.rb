@@ -10,7 +10,14 @@ module URLHelpers
   end
 
   def with_tag_web_url(tag)
-    "#{base_web_search_url}/browse/#{tag.tag_id}"
+    # Temporarily hack the browse URL's for subsections until the browse pages are rebuilt
+    # www.example.com/browse/section/subsection -> www.example.com/browse/section#/subsection
+    if tag.tag_type == "section"
+      tag_slug = tag.tag_id.sub(%r{/}, '#/')
+    else
+      tag_slug = tag.tag_id
+    end
+    "#{base_web_search_url}/browse/#{tag_slug}"
   end
 
   def artefact_url(artefact)
