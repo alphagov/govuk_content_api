@@ -142,7 +142,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
     assert_status_field "ok", last_response
-    refute JSON.parse(last_response.body).has_key?('format')
+    refute JSON.parse(last_response.body)["details"].has_key?('overview')
   end
 
   it "should give an empty list of tags when there are no tags" do
@@ -213,7 +213,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal expected_first_part, parsed_response["details"]["parts"][0]
   end
 
-  it "should set the kind field at the top-level from the artefact" do
+  it "should set the format field at the top-level from the artefact" do
     stub_artefact = Artefact.new(slug: 'smart-answer', owning_app: 'smart-answers', kind: 'smart-answer')
     Artefact.stubs(:where).with(slug: 'smart-answer').returns([stub_artefact])
 
@@ -221,6 +221,6 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     assert last_response.ok?
     response = JSON.parse(last_response.body)
-    assert_equal 'smart-answer', response["kind"]
+    assert_equal 'smart-answer', response["format"]
   end
 end
