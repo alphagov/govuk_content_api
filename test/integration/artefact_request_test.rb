@@ -212,4 +212,15 @@ class ArtefactRequestTest < GovUkContentApiTest
     }
     assert_equal expected_first_part, parsed_response["details"]["parts"][0]
   end
+
+  it "should set the kind field at the top-level from the artefact" do
+    stub_artefact = Artefact.new(slug: 'smart-answer', owning_app: 'smart-answers', kind: 'smart-answer')
+    Artefact.stubs(:where).with(slug: 'smart-answer').returns([stub_artefact])
+
+    get '/smart-answer.json'
+
+    assert last_response.ok?
+    response = JSON.parse(last_response.body)
+    assert_equal 'smart-answer', response["kind"]
+  end
 end
