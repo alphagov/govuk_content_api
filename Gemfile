@@ -11,7 +11,7 @@ gem 'statsd-ruby', '1.0.0'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '1.8.0'
+  gem 'govuk_content_models', '1.10.0'
 end
 
 gem 'govspeak', '1.0.1'
