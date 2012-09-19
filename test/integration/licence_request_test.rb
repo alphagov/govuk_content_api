@@ -79,6 +79,20 @@ class LicenceRequestTest < GovUkContentApiTest
     assert_equal "http://www.gov.uk/licence-artefact/south-ribble/apply=1", authority["actions"]["apply"].first["url"]
   end
 
+it "should not query the licence api if no licence identifier is present" do
+    stub_artefact = Artefact.new(slug: 'licence-artefact', owning_app: 'publisher', business_proposition: true, need_id: 1234)
+    stub_licence = LicenceEdition.new(licence_identifier: nil, licence_overview: "")
+
+    Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(slug: 'licence-artefact', state: 'published').returns([stub_licence])
+
+    get '/licence-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert ! parsed_response["details"]["licence"].present?
+  end
+
   it "should not return any licence details if the licence does not exist in the licence application tool" do
     stub_artefact = Artefact.new(slug: 'licence-artefact', owning_app: 'publisher', business_proposition: true, need_id: 1234)
     stub_licence = LicenceEdition.new(licence_identifier: 'blaaargh', licence_overview: "")
