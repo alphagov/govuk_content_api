@@ -164,31 +164,45 @@ get "/with_tag.json" do
     tag_ids = tag_ids + tags.map(&:tag_id)
   end
 
-  statsd.time("request.with_tag.multi.#{tag_ids.length}") do
-    @artefacts = Artefact.any_in(tag_ids: tag_ids)
+  curated_list = nil
+  if params[:include_curated_list]
+    # Curated list can only be associated with one section
+    curated_list = CuratedList.any_in(tag_ids: [tags[0].tag_id]).first
   end
 
-  statsd.time('request.with_tag.map_results') do
-    # Preload to avoid hundreds of individual queries
-    published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
-    editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
-      result_hash[edition.slug] = edition
+  if curated_list
+    @artefacts = curated_list.artefacts
+  else
+    statsd.time("request.with_tag.multi.#{tag_ids.length}") do
+      @artefacts = Artefact.any_in(tag_ids: tag_ids)
     end
+  end
 
-    @results = @artefacts.map { |r|
-      if r.owning_app == 'publisher'
-        r.edition = editions_by_slug[r.slug]
-        if r.edition
-          r
-        else
-          nil
-        end
-      else
-        r
+  if @artefacts.length > 0
+    statsd.time('request.with_tag.map_results') do
+      # Preload to avoid hundreds of individual queries
+      published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
+      editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
+        result_hash[edition.slug] = edition
       end
-    }
 
-    @results.compact!
+      @results = @artefacts.map { |r|
+        if r.owning_app == 'publisher'
+          r.edition = editions_by_slug[r.slug]
+          if r.edition
+            r
+          else
+            nil
+          end
+        else
+          r
+        end
+      }
+
+      @results.compact!
+    end
+  else
+    @results = []
   end
 
   content_type :json
