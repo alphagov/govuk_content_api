@@ -3,7 +3,8 @@ object false
 node :_response_info do
   { 
     status: "ok",
-    http_api_prefix: env["HTTP_API_PREFIX"]
+    env: env.inspect,
+    request: request.inspect
   }
 end
 
