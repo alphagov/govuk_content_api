@@ -12,6 +12,13 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
+  it "should return 404 if artefact in draft" do
+    artefact = FactoryGirl.create(:non_publisher_artefact, state: 'draft')
+    get "/#{artefact.slug}.json"
+    assert last_response.not_found?
+    assert_status_field "not found", last_response
+  end
+
   # TODO should this be restricted to published artefacts?
   it "should return related artefacts" do
     related_artefacts = [
@@ -77,7 +84,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     sections.each do |tag_id, title|
       TagRepository.put(tag_id: tag_id, title: title, tag_type: "section")
     end
-    artefact = FactoryGirl.create(:non_publisher_artefact, sections: sections.map { |slug, title| slug })
+    artefact = FactoryGirl.create(:non_publisher_artefact, 
+        sections: sections.map { |slug, title| slug },
+        state: 'live')
 
     get "/#{artefact.slug}.json"
 
@@ -119,7 +128,8 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
 
     it "should return 410 if artefact is publication but only archived" do
-      edition = FactoryGirl.create(:edition, state: 'archived')
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id)
 
       get "/#{edition.artefact.slug}.json"
 
