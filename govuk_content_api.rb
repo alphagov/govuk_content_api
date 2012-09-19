@@ -165,7 +165,9 @@ get "/with_tag.json" do
   end
 
   curated_list = nil
-  if params[:include_curated_list]
+  # Currently only supported sort order is curated
+  if params[:sort]
+    return custom_404 unless params[:sort] == "curated"
     # Curated list can only be associated with one section
     curated_list = CuratedList.any_in(tag_ids: [tags[0].tag_id]).first
   end

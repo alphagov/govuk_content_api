@@ -48,7 +48,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     curated_list.artefact_ids = [bat3._id, bat._id]
     curated_list.save!
 
-    get "/with_tag.json?tag=batman&include_curated_list=1"
+    get "/with_tag.json?tag=batman&sort=curated"
 
     assert last_response.ok?
     assert_equal 2, JSON.parse(last_response.body)["results"].count
@@ -60,10 +60,20 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
     bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
     bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
-    get "/with_tag.json?tag=batman&include_curated_list=1"
+    get "/with_tag.json?tag=batman&sort=curated"
 
     assert last_response.ok?
     assert_equal 1, JSON.parse(last_response.body)["results"].count
+  end
+
+  it "should return a 404 if an unsupported sort order is requested" do
+    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
+    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
+    get "/with_tag.json?tag=batman&sort=bobbles"
+
+    assert last_response.not_found?
+    assert_status_field "not found", last_response
   end
 
   it "should exclude unpublished publisher items" do
