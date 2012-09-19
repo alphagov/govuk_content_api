@@ -212,7 +212,13 @@ get "/:id.json" do
     end
 
     if @artefact.edition and @artefact.edition.format == 'Licence'
-      @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier)
+      begin
+        statsd.time("request.id.#{params[:id]}.licence") do
+          @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
+        end
+      rescue GdsApi::TimedOutException, GdsApi::HTTPErrorResponse
+        @artefact.licence = nil
+      end
     end
 
     unless @artefact.edition
