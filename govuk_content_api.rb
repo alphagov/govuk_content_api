@@ -39,6 +39,12 @@ end
 class Artefact
   attr_accessor :edition
   field :description, type: String
+
+  scope :live, where(state: 'live')
+
+  def live_related_artefacts
+    related_artefacts.live
+  end
 end
 
 def format_content(string)
@@ -176,7 +182,7 @@ get "/with_tag.json" do
     @artefacts = curated_list.artefacts
   else
     statsd.time("request.with_tag.multi.#{tag_ids.length}") do
-      @artefacts = Artefact.any_in(tag_ids: tag_ids)
+      @artefacts = Artefact.live.any_in(tag_ids: tag_ids)
     end
   end
 
@@ -217,7 +223,8 @@ get "/:id.json" do
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
-  custom_404 unless @artefact
+  custom_410 if @artefact && @artefact.state == 'archived'
+  custom_404 unless (@artefact && @artefact.state == 'live')
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
