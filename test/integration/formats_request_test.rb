@@ -109,8 +109,10 @@ class FormatsRequestTest < GovUkContentApiTest
 
   it "should work with video_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id])
-    video_edition = VideoEdition.create!(slug: artefact.slug, title: 'Video killed the radio star', body: 'Important batman information',
-                                video_summary: 'I am a video summary', video_url: 'http://somevideourl.com', panopticon_id: artefact.id, state: 'published')
+    video_edition = FactoryGirl.create(:video_edition, title: 'Video killed the radio star', panopticon_id: artefact.id, slug: artefact.slug,
+                                       video_summary: 'I am a video summary', video_url: 'http://somevideourl.com',
+                                       body: "Video description\n------", state: 'published')
+
     get '/batman.json'
     parsed_response = JSON.parse(last_response.body)
 
@@ -119,12 +121,12 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
 
-    expected_fields = ['alternative_title', 'overview', 'body', 'video_url', 'video_summary']
+    expected_fields = %w(alternative_title overview video_url video_summary body)
 
     _assert_has_expected_fields(fields, expected_fields)
-    assert_equal "<p>Important batman information</p>\n", fields["body"]
     assert_equal "I am a video summary", fields["video_summary"]
     assert_equal "http://somevideourl.com", fields["video_url"]
+    assert_equal "<h2>Video description</h2>\n", fields["body"]
   end
 
   it "should work with licence_edition" do
