@@ -39,6 +39,8 @@ end
 class Artefact
   attr_accessor :edition
   field :description, type: String
+
+  scope :live, where(state: 'live')
 end
 
 def format_content(string)
@@ -176,7 +178,7 @@ get "/with_tag.json" do
     @artefacts = curated_list.artefacts
   else
     statsd.time("request.with_tag.multi.#{tag_ids.length}") do
-      @artefacts = Artefact.any_in(tag_ids: tag_ids)
+      @artefacts = Artefact.live.any_in(tag_ids: tag_ids)
     end
   end
 
