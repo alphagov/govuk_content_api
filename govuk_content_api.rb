@@ -9,10 +9,11 @@ require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'url_helpers'
+require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
 
-helpers URLHelpers
+helpers URLHelpers, GdsApi::Helpers
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 
@@ -37,7 +38,7 @@ def custom_410
 end
 
 class Artefact
-  attr_accessor :edition
+  attr_accessor :edition, :licence
   field :description, type: String
 end
 
@@ -209,6 +210,11 @@ get "/:id.json" do
     statsd.time("request.id.#{params[:id]}.edition") do
       @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
     end
+
+    if @artefact.edition and @artefact.edition.format == 'Licence'
+      @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier)
+    end
+
     unless @artefact.edition
       if Edition.where(slug: @artefact.slug, state: 'archived').any?
         custom_410
