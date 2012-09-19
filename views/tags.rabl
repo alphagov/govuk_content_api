@@ -1,11 +1,7 @@
 object false
 
 node :_response_info do
-  { 
-    status: "ok",
-    env: env.inspect,
-    request: request.inspect
-  }
+  { status: "ok" }
 end
 
 node(:description) { "Tags!" }
