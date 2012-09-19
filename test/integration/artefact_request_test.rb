@@ -19,6 +19,13 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
+  it "should return 410 if artefact archived" do
+    artefact = FactoryGirl.create(:non_publisher_artefact, state: 'archived')
+    get "/#{artefact.slug}.json"
+    assert_equal 410, last_response.status
+    assert_status_field "gone", last_response
+  end
+
   # TODO should this be restricted to published artefacts?
   it "should return related artefacts" do
     related_artefacts = [
