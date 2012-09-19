@@ -1,7 +1,10 @@
 object false
 
 node :_response_info do
-  { status: "ok" }
+  { 
+    status: "ok",
+    http_api_prefix: env["HTTP_API_PREFIX"]
+  }
 end
 
 node(:description) { "Tags!" }
