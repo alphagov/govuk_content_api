@@ -41,6 +41,10 @@ class Artefact
   field :description, type: String
 
   scope :live, where(state: 'live')
+
+  def live_related_artefacts
+    related_artefacts.live
+  end
 end
 
 def format_content(string)

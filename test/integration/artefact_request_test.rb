@@ -26,11 +26,10 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "gone", last_response
   end
 
-  # TODO should this be restricted to published artefacts?
   it "should return related artefacts" do
     related_artefacts = [
-      FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies"),
-      FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake")
+      FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
+      FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
     ]
 
     artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, state: 'live')
@@ -49,6 +48,27 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal artefact_path, URI.parse(related_info["id"]).path
       assert_equal "http://www.test.gov.uk/#{response_artefact.slug}", related_info["web_url"]
     end
+  end
+
+  it "should exclude unpublished related artefacts" do
+    related_artefacts = [
+      draft    = FactoryGirl.create(:artefact, state: 'draft'),
+      live     = FactoryGirl.create(:artefact, state: 'live'),
+      archived = FactoryGirl.create(:artefact, state: 'archived')
+    ]
+
+    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, 
+        state: 'live', slug: "workaround")
+
+    get "/#{artefact.slug}.json"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert_equal 200, last_response.status
+
+    assert_status_field "ok", last_response
+    assert_equal 1, parsed_response["related"].length
+
+    assert_equal "http://example.org/#{live.slug}.json", parsed_response['related'][0]["id"]
   end
 
   it "should return an empty list if there are no related artefacts" do
