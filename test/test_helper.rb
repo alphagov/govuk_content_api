@@ -46,5 +46,6 @@ class GovUkContentApiTest < MiniTest::Spec
 
   def teardown
     DatabaseCleaner.clean
+    WebMock.reset!
   end
 end
