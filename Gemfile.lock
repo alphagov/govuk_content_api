@@ -64,7 +64,7 @@ GEM
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
       sanitize (= 2.0.3)
-    govuk_content_models (1.12.2)
+    govuk_content_models (1.13.0)
       bson_ext
       differ
       gds-api-adapters
@@ -203,7 +203,7 @@ DEPENDENCIES
   delsolr!
   factory_girl (= 3.6.1)
   govspeak (= 1.0.1)
-  govuk_content_models (= 1.12.2)
+  govuk_content_models (= 1.13.0)
   minitest (= 3.4.0)
   mocha (= 0.12.4)
   plek (= 0.3.0)

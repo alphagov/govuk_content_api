@@ -223,10 +223,10 @@ get "/:id.json" do
 
   if @artefact.owning_app == 'publisher'
     statsd.time("request.id.#{params[:id]}.edition") do
-      @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+      @artefact.edition = Edition.where(panopticon_id: @artefact.id, state: 'published').first
     end
     unless @artefact.edition
-      if Edition.where(slug: @artefact.slug, state: 'archived').any?
+      if Edition.where(panopticon_id: @artefact.id, state: 'archived').any?
         custom_410
       else
         custom_404
