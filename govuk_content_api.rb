@@ -188,16 +188,16 @@ get "/with_tag.json" do
         result_hash[edition.slug] = edition
       end
 
-      @results = @artefacts.map { |r|
-        if r.owning_app == 'publisher'
-          r.edition = editions_by_slug[r.slug]
-          if r.edition
-            r
+      @results = @artefacts.map { |artefact|
+        if artefact.owning_app == 'publisher'
+          artefact.edition = editions_by_slug[artefact.slug]
+          if artefact.edition
+            artefact
           else
             nil
           end
         else
-          r
+          artefact
         end
       }
 
