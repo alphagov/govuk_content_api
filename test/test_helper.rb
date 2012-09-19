@@ -16,12 +16,15 @@ require 'rack/test'
 require 'database_cleaner'
 require 'mocha'
 require 'factory_girl'
+require 'webmock/minitest'
 require 'govuk_content_api'
 require 'govuk_content_models/test_helpers/factories'
 
 DatabaseCleaner.strategy = :truncation
 # initial clean
 DatabaseCleaner.clean
+
+WebMock.disable_net_connect!
 
 module ResponseTestMethods
   def assert_status_field(expected, response)
