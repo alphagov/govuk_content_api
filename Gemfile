@@ -19,7 +19,7 @@ gem 'plek', '0.3.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 
-group :development, :test do
+group :test do
   gem 'database_cleaner', '0.7.2'
   gem 'factory_girl', '3.6.1'
   gem 'mocha', '0.12.4', require: false
