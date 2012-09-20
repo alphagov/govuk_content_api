@@ -237,7 +237,9 @@ get "/:id.json" do
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
-  if params[:edition].nil? 
+  if params[:edition]
+    custom_404 unless @artefact
+  else
     if @artefact && @artefact.state == 'archived'
       custom_410 
     end  
