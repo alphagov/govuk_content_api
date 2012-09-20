@@ -36,6 +36,11 @@ def custom_410
   halt 410, render(:rabl, :gone, format: "json")
 end
 
+def custom_error(code, message)
+  @status = message
+  halt code, render(:rabl, :error, format: "json")
+end
+
 class Artefact
   attr_accessor :edition
   field :description, type: String
@@ -220,17 +225,36 @@ get "/with_tag.json" do
 end
 
 get "/:id.json" do
+  if params[:edition]
+    if env['HTTP_AUTHORIZATION'] == "Bearer xyz_has_permission_xyz"
+      # yay
+    elsif env['HTTP_AUTHORIZATION'] == "Bearer xyz_does_not_have_permission_xyz"
+      custom_error(403, "You must be authorized to use the edition parameter")
+    else
+      custom_error(401, "Edition parameter requires authentication")
+    end
+  end
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
-  custom_410 if @artefact && @artefact.state == 'archived'
-  custom_404 unless (@artefact && @artefact.state == 'live')
+  if params[:edition].nil? 
+    if @artefact && @artefact.state == 'archived'
+      custom_410 
+    end  
+    if @artefact.nil? || (@artefact.state != 'live')
+      custom_404
+    end
+  end
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
     statsd.time("request.id.#{params[:id]}.edition") do
-      @artefact.edition = Edition.where(panopticon_id: @artefact.id, state: 'published').first
+      @artefact.edition = if params[:edition]
+        Edition.where(panopticon_id: @artefact.id, version_number: params[:edition]).first
+      else 
+        Edition.where(panopticon_id: @artefact.id, state: 'published').first
+      end
     end
     unless @artefact.edition
       if Edition.where(panopticon_id: @artefact.id, state: 'archived').any?

@@ -6,6 +6,14 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
   end
 
+  def bearer_token_for_user_with_permission
+    { 'HTTP_AUTHORIZATION' => 'Bearer xyz_has_permission_xyz' }
+  end
+
+  def bearer_token_for_user_without_permission
+    { 'HTTP_AUTHORIZATION' => 'Bearer xyz_does_not_have_permission_xyz' }
+  end
+
   it "should return 404 if artefact not found" do
     get '/bad-artefact.json'
     assert last_response.not_found?
@@ -162,6 +170,44 @@ class ArtefactRequestTest < GovUkContentApiTest
 
       assert_equal 410, last_response.status
       assert_status_field "gone", last_response
+    end
+
+    describe "accessing unpublished editions" do
+      before do
+        @artefact = FactoryGirl.create(:artefact, state: 'live')
+        @published = FactoryGirl.create(:edition, panopticon_id: @artefact.id, body: '# Published edition', state: 'published', version_number: 1)
+        @draft     = FactoryGirl.create(:edition, panopticon_id: @artefact.id, body: '# Draft edition',     state: 'draft',     version_number: 2)
+      end
+
+      it "should return 401 if using edition parameter, not authenticated" do
+        get "/#{@artefact.slug}.json?edition=anything"
+        assert_equal 401, last_response.status
+        assert_status_field "Edition parameter requires authentication", last_response
+      end
+
+      it "should return 403 if using edition parameter, authenticated but lacking permission" do
+        get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_without_permission
+        assert_equal 403, last_response.status
+        assert_status_field "You must be authorized to use the edition parameter", last_response
+      end
+
+      describe "user has permission" do
+        it "should return draft data if using edition parameter, edition is draft" do
+          get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
+          assert_equal 200, last_response.status
+          parsed_response = JSON.parse(last_response.body)
+          assert_match(/Draft edition/, parsed_response["details"]["body"])
+        end
+
+        it "should return draft data if using edition parameter, edition is draft and artefact is draft" do
+          @artefact = FactoryGirl.create(:artefact, state: 'draft')
+          @published = FactoryGirl.create(:edition, panopticon_id: @artefact.id, state: 'draft', version_number: 1)
+
+          get "/#{@artefact.slug}.json?edition=1", {}, bearer_token_for_user_with_permission
+          assert_equal 200, last_response.status
+          parsed_response = JSON.parse(last_response.body)
+        end
+      end
     end
 
     it "should return publication data if published" do
