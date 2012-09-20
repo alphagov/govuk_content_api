@@ -17,7 +17,7 @@ end
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
-  gem 'gds-api-adapters', '2.4.0'
+  gem 'gds-api-adapters', '2.5.0'
 end
 
 gem 'govspeak', '1.0.1'
