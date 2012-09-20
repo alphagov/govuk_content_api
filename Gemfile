@@ -14,6 +14,7 @@ else
   gem 'govuk_content_models', '1.13.0'
 end
 
+gem 'gds-sso', '2.0.1'
 gem 'govspeak', '1.0.1'
 gem 'plek', '0.3.0'
 gem 'router-client', '3.1.0', :require => false

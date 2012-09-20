@@ -1,7 +1,3 @@
-%w[ lib ].each do |path|
-  $:.unshift path unless $:.include?(path)
-end
-
 require 'sinatra'
 require 'rabl'
 require 'solr_wrapper'
@@ -11,6 +7,7 @@ require 'plek'
 require 'url_helpers'
 require_relative "config"
 require 'statsd'
+require 'config/gds_sso'
 
 helpers URLHelpers
 
@@ -27,6 +24,7 @@ statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi"
 
 require "govuk_content_models"
 require "govuk_content_models/require_all"
+
 
 def custom_404
   halt 404, render(:rabl, :not_found, format: "json")
@@ -225,11 +223,14 @@ get "/with_tag.json" do
 end
 
 get "/:id.json" do
+  warden = request.env['warden']
   if params[:edition]
-    if env['HTTP_AUTHORIZATION'] == "Bearer xyz_has_permission_xyz"
-      # yay
-    elsif env['HTTP_AUTHORIZATION'] == "Bearer xyz_does_not_have_permission_xyz"
-      custom_error(403, "You must be authorized to use the edition parameter")
+    if warden.authenticate?
+      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
+        # yay
+      else
+        custom_error(403, "You must be authorized to use the edition parameter")
+      end
     else
       custom_error(401, "Edition parameter requires authentication")
     end

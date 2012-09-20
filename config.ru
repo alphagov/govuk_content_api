@@ -1,5 +1,8 @@
 app_path = File.dirname(__FILE__)
 $:.unshift(app_path) unless $:.include?(app_path)
+%w[ lib ].each do |path|
+  $:.unshift path unless $:.include?(path)
+end
 
 require 'rubygems'
 require "bundler"
@@ -12,7 +15,7 @@ in_development = ENV['RACK_ENV'] == 'development'
 in_preview = ENV['FACTER_govuk_platform'] == 'preview'
 
 if in_development or in_preview
-  set :logging, Logger::INFO
+  set :logging, Logger::DEBUG
 else
   enable :logging
 end
