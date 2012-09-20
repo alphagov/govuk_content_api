@@ -23,6 +23,10 @@ Rabl.configure do |c|
   c.json_engine = :yajl
 end
 
+before do
+  content_type :json
+end
+
 # Initialise statsd
 statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
 
@@ -58,8 +62,6 @@ end
 
 # Render RABL
 get "/local_authorities.json" do
-  content_type :json
-
   if params[:name]
     name = Regexp.escape(params[:name])
     statsd.time("request.local_authorities.#{name}") do
@@ -85,8 +87,6 @@ get "/local_authorities.json" do
 end
 
 get "/local_authorities/:snac_code.json" do
-  content_type :json
-
   if params[:snac_code]
     statsd.time("request.local_authority.#{params[:snac_code]}") do
       @local_authority = LocalAuthority.find_by_snac(params[:snac_code])
@@ -117,7 +117,6 @@ get "/search.json" do
       @results = index.search(params[:q])
     end
 
-    content_type :json
     statsd.time("request.search.#{params[:q]}.render") do
       render :rabl, :search, format: "json"
     end
@@ -138,7 +137,6 @@ get "/tags.json" do
     end
   end
 
-  content_type :json
   render :rabl, :tags, format: "json"
 end
 
@@ -146,7 +144,6 @@ get "/tags/:id.json" do
   statsd.time("request.tag.#{params[:id]}") do
     @tag = Tag.where(tag_id: params[:id]).first
   end
-  content_type :json
 
   if @tag
     render :rabl, :tag, format: "json"
@@ -214,7 +211,6 @@ get "/with_tag.json" do
     @results = []
   end
 
-  content_type :json
   statsd.time("request.with_tag.render") do
     render :rabl, :with_tag, format: "json"
   end
@@ -255,7 +251,6 @@ get "/:id.json" do
     end
   end
 
-  content_type :json
   statsd.time("request.id.#{params[:id]}.render") do
     render :rabl, :artefact, format: "json"
   end
