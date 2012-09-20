@@ -40,8 +40,12 @@ GEM
     addressable (2.3.2)
     arel (3.0.2)
     bson (1.6.4)
+    bson (1.7.0)
     bson_ext (1.6.4)
       bson (~> 1.6.4)
+    bson_ext (1.7.0)
+      bson (~> 1.7.0)
+    builder (3.0.0)
     builder (3.0.3)
     ci_reporter (1.7.0)
       builder (>= 2.1.2)
@@ -57,7 +61,7 @@ GEM
       lrucache (~> 0.1.1)
       null_logger
       plek
-    gds-sso (1.2.2)
+    gds-sso (2.0.0)
       omniauth-gds (= 0.0.3)
       rack-accept (~> 0.4.4)
       rails (>= 3.0.0)
@@ -66,7 +70,7 @@ GEM
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
       sanitize (= 2.0.3)
-    govuk_content_models (1.8.0)
+    govuk_content_models (1.13.0)
       bson_ext
       differ
       gds-api-adapters
@@ -98,8 +102,8 @@ GEM
     minitest (3.4.0)
     mocha (0.12.4)
       metaclass (~> 0.0.1)
-    mongo (1.6.2)
-      bson (~> 1.6.2)
+    mongo (1.3.1)
+      bson (>= 1.3.1)
     mongoid (2.4.12)
       activemodel (~> 3.1)
       mongo (<= 1.6.2)
@@ -119,7 +123,7 @@ GEM
       rack
     omniauth-gds (0.0.3)
       omniauth-oauth2 (~> 1.0)
-    omniauth-oauth2 (1.1.0)
+    omniauth-oauth2 (1.1.1)
       oauth2 (~> 0.8.0)
       omniauth (~> 1.0)
     plek (0.3.0)
@@ -209,7 +213,7 @@ DEPENDENCIES
   factory_girl (= 3.6.1)
   gds-api-adapters (= 2.4.0)
   govspeak (= 1.0.1)
-  govuk_content_models (= 1.8.0)
+  govuk_content_models (= 1.13.0)
   minitest (= 3.4.0)
   mocha (= 0.12.4)
   plek (= 0.3.0)

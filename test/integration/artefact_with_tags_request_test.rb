@@ -14,8 +14,6 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     t = Tag.new(tag_id: 'farmers', name: 'Farmers', tag_type: 'Audience')
     Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
 
-    Artefact.expects(:any_in).with(tag_ids: ['farmers']).returns([])
-
     get "/with_tag.json?tag=farmers"
     parsed_response = JSON.parse(last_response.body)
 
@@ -24,15 +22,69 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["total"]
   end
 
-
   it "should return an array of results" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
-    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers'])
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers'], state: 'live')
 
     get "/with_tag.json?tag=farmers"
 
     assert last_response.ok?
     assert_equal 1, JSON.parse(last_response.body)["results"].count
+  end
+
+  it "should return a curated list of results" do
+    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
+    bat2 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 2', slug: 'batman-returns')
+    bat3 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 3', slug: 'batman-forever')
+    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
+    bat_guide2 = FactoryGirl.create(:guide_edition, panopticon_id: bat2.id, state: "published", slug: 'batman-returns')
+    bat_guide3 = FactoryGirl.create(:guide_edition, panopticon_id: bat3.id, state: "published", slug: 'batman-forever')
+    curated_list = FactoryGirl.create(:curated_list)
+    curated_list.sections = [batman.tag_id]
+    curated_list.artefact_ids = [bat3._id, bat._id]
+    curated_list.save!
+
+    get "/with_tag.json?tag=batman&sort=curated"
+
+    assert last_response.ok?
+    assert_equal 2, JSON.parse(last_response.body)["results"].count
+    assert_equal "Bat 3", JSON.parse(last_response.body)["results"][0]["title"]
+    assert_equal "Bat", JSON.parse(last_response.body)["results"][1]["title"]
+  end
+
+  it "should return all things if no curated list is found" do
+    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman', state: 'live')
+    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
+    get "/with_tag.json?tag=batman&sort=curated"
+
+    assert last_response.ok?
+    assert_equal 1, JSON.parse(last_response.body)["results"].count
+  end
+
+  it "should return a 404 if an unsupported sort order is requested" do
+    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
+    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
+    get "/with_tag.json?tag=batman&sort=bobbles"
+
+    assert last_response.not_found?
+    assert_status_field "not found", last_response
+  end
+
+  it "should exclude artefacts which aren't live" do
+    FactoryGirl.create(:tag, tag_id: 'farmers')
+    draft    = FactoryGirl.create(:non_publisher_artefact, sections: ['farmers'], state: 'draft')
+    live     = FactoryGirl.create(:non_publisher_artefact, sections: ['farmers'], state: 'live')
+    archived = FactoryGirl.create(:non_publisher_artefact, sections: ['farmers'], state: 'archived')
+
+    get "/with_tag.json?tag=farmers"
+
+    assert last_response.ok?
+    response = JSON.parse(last_response.body)
+    assert_equal 1, response["results"].count
+    assert_equal "http://example.org/#{live.slug}.json", response["results"][0]["id"]
   end
 
   it "should exclude unpublished publisher items" do
@@ -50,7 +102,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   it "should allow filtering by multiple tags" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'section')
     business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
-    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers', 'business'])
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['farmers', 'business'], state: 'live')
 
     get "/with_tag.json?tag=farmers,business"
     assert last_response.ok?
@@ -60,8 +112,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   it "should return include children in array of results" do
     FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
     FactoryGirl.create(:tag, tag_id: 'foo', title: 'Business', tag_type: 'section', parent_id: "business")
-    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['business'])
-    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['foo'])
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['business'], state: 'live')
+    FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['foo'], state: 'live')
 
     get "/with_tag.json?tag=business&include_children=1"
 

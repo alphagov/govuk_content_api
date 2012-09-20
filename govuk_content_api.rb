@@ -40,6 +40,12 @@ end
 class Artefact
   attr_accessor :edition, :licence
   field :description, type: String
+
+  scope :live, where(state: 'live')
+
+  def live_related_artefacts
+    related_artefacts.live
+  end
 end
 
 def format_content(string)
@@ -165,31 +171,47 @@ get "/with_tag.json" do
     tag_ids = tag_ids + tags.map(&:tag_id)
   end
 
-  statsd.time("request.with_tag.multi.#{tag_ids.length}") do
-    @artefacts = Artefact.any_in(tag_ids: tag_ids)
+  curated_list = nil
+  # Currently only supported sort order is curated
+  if params[:sort]
+    return custom_404 unless params[:sort] == "curated"
+    # Curated list can only be associated with one section
+    curated_list = CuratedList.any_in(tag_ids: [tags[0].tag_id]).first
   end
 
-  statsd.time('request.with_tag.map_results') do
-    # Preload to avoid hundreds of individual queries
-    published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
-    editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
-      result_hash[edition.slug] = edition
+  if curated_list
+    @artefacts = curated_list.artefacts
+  else
+    statsd.time("request.with_tag.multi.#{tag_ids.length}") do
+      @artefacts = Artefact.live.any_in(tag_ids: tag_ids)
     end
+  end
 
-    @results = @artefacts.map { |r|
-      if r.owning_app == 'publisher'
-        r.edition = editions_by_slug[r.slug]
-        if r.edition
-          r
-        else
-          nil
-        end
-      else
-        r
+  if @artefacts.length > 0
+    statsd.time('request.with_tag.map_results') do
+      # Preload to avoid hundreds of individual queries
+      published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
+      editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
+        result_hash[edition.slug] = edition
       end
-    }
 
-    @results.compact!
+      @results = @artefacts.map { |artefact|
+        if artefact.owning_app == 'publisher'
+          artefact.edition = editions_by_slug[artefact.slug]
+          if artefact.edition
+            artefact
+          else
+            nil
+          end
+        else
+          artefact
+        end
+      }
+
+      @results.compact!
+    end
+  else
+    @results = []
   end
 
   content_type :json
@@ -202,13 +224,14 @@ get "/:id.json" do
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
-  custom_404 unless @artefact
+  custom_410 if @artefact && @artefact.state == 'archived'
+  custom_404 unless (@artefact && @artefact.state == 'live')
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
     statsd.time("request.id.#{params[:id]}.edition") do
-      @artefact.edition = Edition.where(slug: @artefact.slug, state: 'published').first
+      @artefact.edition = Edition.where(panopticon_id: @artefact.id, state: 'published').first
     end
 
     if @artefact.edition and @artefact.edition.format == 'Licence'
@@ -222,7 +245,7 @@ get "/:id.json" do
     end
 
     unless @artefact.edition
-      if Edition.where(slug: @artefact.slug, state: 'archived').any?
+      if Edition.where(panopticon_id: @artefact.id, state: 'archived').any?
         custom_410
       else
         custom_404
