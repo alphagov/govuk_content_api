@@ -1,6 +1,8 @@
 require 'test_helper'
+require "gds_api/test_helpers/licence_application"
 
 class FormatsRequestTest < GovUkContentApiTest
+  include GdsApi::TestHelpers::LicenceApplication
 
   def setup
     super
@@ -131,7 +133,9 @@ class FormatsRequestTest < GovUkContentApiTest
     artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence',
                                 licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published',
-                                will_continue_on: 'The Batman', continuation_link: 'http://www.batman.com')
+                                will_continue_on: 'The Batman', continuation_link: 'http://www.batman.com', licence_identifier: "123-4-5")
+    licence_exists('123-4-5', { })
+
     get '/batman-licence.json'
     parsed_response = JSON.parse(last_response.body)
 

@@ -37,13 +37,19 @@ GEM
     activesupport (3.2.8)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    addressable (2.3.2)
     arel (3.0.2)
+    bson (1.6.4)
     bson (1.7.0)
+    bson_ext (1.6.4)
+      bson (~> 1.6.4)
     bson_ext (1.7.0)
       bson (~> 1.7.0)
     builder (3.0.0)
+    builder (3.0.3)
     ci_reporter (1.7.0)
       builder (>= 2.1.2)
+    crack (0.3.1)
     database_cleaner (0.7.2)
     differ (0.1.2)
     erubis (2.7.0)
@@ -192,6 +198,9 @@ GEM
       raindrops (~> 0.7)
     warden (1.2.1)
       rack (>= 1.0)
+    webmock (1.8.10)
+      addressable (>= 2.2.7)
+      crack (>= 0.1.7)
     yajl-ruby (1.1.0)
 
 PLATFORMS
@@ -202,6 +211,7 @@ DEPENDENCIES
   database_cleaner (= 0.7.2)
   delsolr!
   factory_girl (= 3.6.1)
+  gds-api-adapters (= 2.4.0)
   govspeak (= 1.0.1)
   govuk_content_models (= 1.13.0)
   minitest (= 3.4.0)
@@ -216,4 +226,5 @@ DEPENDENCIES
   sinatra (= 1.3.2)
   statsd-ruby (= 1.0.0)
   unicorn (~> 4.3.1)
+  webmock (~> 1.8)
   yajl-ruby
