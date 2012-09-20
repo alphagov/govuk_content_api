@@ -15,6 +15,12 @@ else
 end
 
 gem 'gds-sso', '2.0.1'
+if ENV['API_DEV']
+  gem 'gds-api-adapters', :path => '../gds-api-adapters'
+else
+  gem 'gds-api-adapters', '2.5.0'
+end
+
 gem 'govspeak', '1.0.1'
 gem 'plek', '0.3.0'
 gem 'router-client', '3.1.0', :require => false
@@ -28,6 +34,7 @@ group :test do
   gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '3.4.0'
   gem 'ci_reporter', '1.7.0'
+  gem 'webmock', '~> 1.8', require: false
 end
 
 group :development do

@@ -5,11 +5,12 @@ require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'url_helpers'
+require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso'
 
-helpers URLHelpers
+helpers URLHelpers, GdsApi::Helpers
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 
@@ -40,7 +41,7 @@ def custom_error(code, message)
 end
 
 class Artefact
-  attr_accessor :edition
+  attr_accessor :edition, :licence
   field :description, type: String
 
   scope :live, where(state: 'live')
@@ -259,6 +260,19 @@ get "/:id.json" do
         Edition.where(panopticon_id: @artefact.id, state: 'published').first
       end
     end
+
+    if @artefact.edition and @artefact.edition.format == 'Licence'
+      begin
+        statsd.time("request.id.#{params[:id]}.licence") do
+          @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
+        end
+      rescue GdsApi::TimedOutException
+        @artefact.licence = { "error" => "timed_out" }
+      rescue GdsApi::HTTPErrorResponse
+        @artefact.licence = { "error" => "http_error" }
+      end
+    end
+
     unless @artefact.edition
       if Edition.where(panopticon_id: @artefact.id, state: 'archived').any?
         custom_410
