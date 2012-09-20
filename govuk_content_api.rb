@@ -239,8 +239,10 @@ get "/:id.json" do
         statsd.time("request.id.#{params[:id]}.licence") do
           @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
         end
-      rescue GdsApi::TimedOutException, GdsApi::HTTPErrorResponse
-        @artefact.licence = nil
+      rescue GdsApi::TimedOutException
+        @artefact.licence = { "error" => "timed_out" }
+      rescue GdsApi::HTTPErrorResponse
+        @artefact.licence = { "error" => "http_error" }
       end
     end
 

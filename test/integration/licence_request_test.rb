@@ -122,10 +122,10 @@ it "should not query the licence api if no licence identifier is present" do
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert ! parsed_response["details"][" licence"].present?
+    assert ! parsed_response["details"]["licence"].present?
   end
 
-  it "should not blow the stack if the api request times out" do
+  it "should return an error message if the api request times out" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
     stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
 
@@ -138,10 +138,11 @@ it "should not query the licence api if no licence identifier is present" do
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert ! parsed_response["details"][" licence"].present?
+    assert parsed_response["details"]["licence"].present?
+    assert_equal "timed_out", parsed_response["details"]["licence"]["error"]
   end
 
-  it "should not blow the stack if the api request returns an error" do
+  it "should return an error message if the api request returns an error" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
     stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
 
@@ -154,7 +155,8 @@ it "should not query the licence api if no licence identifier is present" do
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    assert ! parsed_response["details"][" licence"].present?
+    assert parsed_response["details"]["licence"].present?
+    assert_equal "http_error", parsed_response["details"]["licence"]["error"]
   end
 
 end
