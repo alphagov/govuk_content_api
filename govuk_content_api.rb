@@ -1,7 +1,3 @@
-%w[ lib ].each do |path|
-  $:.unshift path unless $:.include?(path)
-end
-
 require 'sinatra'
 require 'rabl'
 require 'solr_wrapper'
@@ -12,6 +8,7 @@ require 'url_helpers'
 require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
+require 'config/gds_sso_middleware'
 
 helpers URLHelpers, GdsApi::Helpers
 
@@ -33,12 +30,18 @@ statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi"
 require "govuk_content_models"
 require "govuk_content_models/require_all"
 
+
 def custom_404
   halt 404, render(:rabl, :not_found, format: "json")
 end
 
 def custom_410
   halt 410, render(:rabl, :gone, format: "json")
+end
+
+def custom_error(code, message)
+  @status = message
+  halt code, render(:rabl, :error, format: "json")
 end
 
 class Artefact
@@ -217,17 +220,41 @@ get "/with_tag.json" do
 end
 
 get "/:id.json" do
+  warden = request.env['warden']
+  if params[:edition]
+    if warden.authenticate?
+      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
+        # yay
+      else
+        custom_error(403, "You must be authorized to use the edition parameter")
+      end
+    else
+      custom_error(401, "Edition parameter requires authentication")
+    end
+  end
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
-  custom_410 if @artefact && @artefact.state == 'archived'
-  custom_404 unless (@artefact && @artefact.state == 'live')
+  if params[:edition]
+    custom_404 unless @artefact
+  else
+    if @artefact && @artefact.state == 'archived'
+      custom_410 
+    end  
+    if @artefact.nil? || (@artefact.state != 'live')
+      custom_404
+    end
+  end
 
   @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
     statsd.time("request.id.#{params[:id]}.edition") do
-      @artefact.edition = Edition.where(panopticon_id: @artefact.id, state: 'published').first
+      @artefact.edition = if params[:edition]
+        Edition.where(panopticon_id: @artefact.id, version_number: params[:edition]).first
+      else 
+        Edition.where(panopticon_id: @artefact.id, state: 'published').first
+      end
     end
 
     if @artefact.edition and @artefact.edition.format == 'Licence'
