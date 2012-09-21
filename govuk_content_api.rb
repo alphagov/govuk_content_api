@@ -8,7 +8,7 @@ require 'url_helpers'
 require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
-require 'config/gds_sso'
+require 'config/gds_sso_middleware'
 
 helpers URLHelpers, GdsApi::Helpers
 

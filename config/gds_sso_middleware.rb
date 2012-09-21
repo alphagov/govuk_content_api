@@ -1,16 +1,9 @@
 require 'gds-sso'
 require 'gds-sso/config'
 require 'read_only_user'
+require_relative 'gds_sso_config'
 
-::GDS::SSO.config do |config|
-  config.user_model     = "ReadOnlyUser"
-  config.oauth_id       = 'abcdefghjasndjkasndcontentapi'
-  config.oauth_secret   = 'secret'
-  config.oauth_root_url = Plek.current.find("signon")
-  config.default_scope  = "Content API"
-end
-
- # have to provide a session for OmniAuth, but API clients probably won't support that
+# have to provide a session for OmniAuth, but API clients probably won't support that
 use Rack::Session::Cookie
 
 use ::OmniAuth::Builder do
