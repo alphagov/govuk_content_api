@@ -5,12 +5,13 @@ require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'url_helpers'
+require 'content_format_helpers'
 require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
 
-helpers URLHelpers, GdsApi::Helpers
+helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers
 
 set :views, File.expand_path('views', File.dirname(__FILE__))
 
@@ -52,14 +53,6 @@ class Artefact
 
   def live_related_artefacts
     related_artefacts.live
-  end
-end
-
-def format_content(string)
-  if @content_format == "html"
-    Govspeak::Document.new(string, auto_ids: false).to_html
-  else
-    string
   end
 end
 
@@ -245,8 +238,6 @@ get "/:id.json" do
       custom_404
     end
   end
-
-  @content_format = (params[:content_format] == "govspeak") ? "govspeak" : "html"
 
   if @artefact.owning_app == 'publisher'
     statsd.time("request.id.#{params[:id]}.edition") do
