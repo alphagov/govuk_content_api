@@ -10,8 +10,9 @@ use ::OmniAuth::Builder do
   provider :gds, ::GDS::SSO::Config.oauth_id, ::GDS::SSO::Config.oauth_secret,
     client_options: {
       site: ::GDS::SSO::Config.oauth_root_url,
-      authorize_url: "#{::GDS::SSO::Config.oauth_root_url}/oauth/authorize",
-      token_url: "#{::GDS::SSO::Config.oauth_root_url}/oauth/access_token",
+      # These don't apply to/don't exist in this app
+      # authorize_url: "#{::GDS::SSO::Config.oauth_root_url}/oauth/authorize",
+      # token_url: "#{::GDS::SSO::Config.oauth_root_url}/oauth/access_token",
       ssl: { verify: false }
     }
 end
