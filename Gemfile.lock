@@ -57,7 +57,7 @@ GEM
       lrucache (~> 0.1.1)
       null_logger
       plek
-    gds-sso (2.0.0)
+    gds-sso (2.0.1)
       omniauth-gds (= 0.0.3)
       rack-accept (~> 0.4.4)
       rails (>= 3.0.0)
@@ -208,6 +208,7 @@ DEPENDENCIES
   delsolr!
   factory_girl (= 3.6.1)
   gds-api-adapters (= 2.5.0)
+  gds-sso (= 2.0.1)
   govspeak (= 1.0.1)
   govuk_content_models (= 1.13.0)
   minitest (= 3.4.0)
