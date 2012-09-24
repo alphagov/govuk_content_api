@@ -151,23 +151,15 @@ class GovUkContentApi < Sinatra::Application
     if @artefacts.length > 0
       statsd.time("#{@statsd_scope}.map_results") do
         # Preload to avoid hundreds of individual queries
-        published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
-        editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
-          result_hash[edition.slug] = edition
-        end
+        editions_by_slug = published_editions_for_artefacts(@artefacts)
 
-        @results = @artefacts.map { |artefact|
+        @results = @artefacts.map do |artefact|
           if artefact.owning_app == 'publisher'
-            artefact.edition = editions_by_slug[artefact.slug]
-            if artefact.edition
-              artefact
-            else
-              nil
-            end
+            artefact_with_edition(artefact, editions_by_slug)
           else
             artefact
           end
-        }
+        end
 
         @results.compact!
       end
@@ -197,6 +189,23 @@ class GovUkContentApi < Sinatra::Application
   end
 
   protected
+  def published_editions_for_artefacts(artefacts)
+    slugs = artefacts.map(&:slug)
+    published_editions_for_artefacts = Edition.published.any_in(slug: slugs)
+    published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
+      result_hash[edition.slug] = edition
+    end
+  end
+
+  def artefact_with_edition(artefact, editions_by_slug)
+    artefact.edition = editions_by_slug[artefact.slug]
+    if artefact.edition
+      artefact
+    else
+      nil
+    end
+  end
+
   def handle_unpublished_artefact(artefact)
     if artefact.state == 'archived'
       custom_410
