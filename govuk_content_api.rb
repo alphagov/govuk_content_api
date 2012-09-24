@@ -141,19 +141,19 @@ class GovUkContentApi < Sinatra::Application
     end
 
     if curated_list
-      @artefacts = curated_list.artefacts
+      artefacts = curated_list.artefacts
     else
       statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-        @artefacts = Artefact.live.any_in(tag_ids: tag_ids)
+        artefacts = Artefact.live.any_in(tag_ids: tag_ids)
       end
     end
 
-    if @artefacts.length > 0
+    if artefacts.length > 0
       statsd.time("#{@statsd_scope}.map_results") do
         # Preload to avoid hundreds of individual queries
-        editions_by_slug = published_editions_for_artefacts(@artefacts)
+        editions_by_slug = published_editions_for_artefacts(artefacts)
 
-        @results = @artefacts.map do |artefact|
+        @results = artefacts.map do |artefact|
           if artefact.owning_app == 'publisher'
             artefact_with_edition(artefact, editions_by_slug)
           else
