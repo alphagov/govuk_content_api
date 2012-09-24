@@ -243,15 +243,18 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def custom_404
+    statsd.increment("#{@statsd_scope}.error.404")
     halt 404, render(:rabl, :not_found, format: "json")
   end
 
   def custom_410
+    statsd.increment("#{@statsd_scope}.error.410")
     halt 410, render(:rabl, :gone, format: "json")
   end
 
   def custom_error(code, message)
     @status = message
+    statsd.increment("#{@statsd_scope}.error.#{code}")
     halt code, render(:rabl, :error, format: "json")
   end
 
