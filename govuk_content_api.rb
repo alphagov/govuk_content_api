@@ -212,19 +212,22 @@ get "/with_tag.json" do
   end
 end
 
-get "/:id.json" do
+def verify_unpublished_permission
   warden = request.env['warden']
-  if params[:edition]
-    if warden.authenticate?
-      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
-        # yay
-      else
-        custom_error(403, "You must be authorized to use the edition parameter")
-      end
+  if warden.authenticate?
+    if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
+      return true
     else
-      custom_error(401, "Edition parameter requires authentication")
+      custom_error(403, "You must be authorized to use the edition parameter")
     end
   end
+
+  custom_error(401, "Edition parameter requires authentication")
+end
+
+get "/:id.json" do
+  verify_unpublished_permission if params[:edition]
+
   statsd.time("request.id.#{params[:id]}") do
     @artefact = Artefact.where(slug: params[:id]).first
   end
