@@ -10,6 +10,7 @@ require 'gds_api/helpers'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
+require 'models'
 
 helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers
 
@@ -28,10 +29,6 @@ end
 # Initialise statsd
 statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
 
-require "govuk_content_models"
-require "govuk_content_models/require_all"
-
-
 def custom_404
   halt 404, render(:rabl, :not_found, format: "json")
 end
@@ -43,17 +40,6 @@ end
 def custom_error(code, message)
   @status = message
   halt code, render(:rabl, :error, format: "json")
-end
-
-class Artefact
-  attr_accessor :edition, :licence
-  field :description, type: String
-
-  scope :live, where(state: 'live')
-
-  def live_related_artefacts
-    related_artefacts.live
-  end
 end
 
 # Render RABL
