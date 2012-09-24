@@ -123,8 +123,7 @@ class GovUkContentApi < Sinatra::Application
     @statsd_scope = 'request.with_tag'
 
     if params[:include_children].to_i > 1
-      @status = "Include children only supports a depth of 1."
-      halt 501, render(:rabl, :error, format: "json")
+      custom_error(501, "Include children only supports a depth of 1.")
     end
 
     tag_ids = params[:tag].split(',')
