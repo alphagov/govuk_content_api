@@ -216,8 +216,10 @@ class GovUkContentApi < Sinatra::Application
             @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
           end
         rescue GdsApi::TimedOutException
+          statsd.increment("#{@statsd_scope}.license_request_error.timed_out")
           @artefact.licence = { "error" => "timed_out" }
         rescue GdsApi::HTTPErrorResponse
+          statsd.increment("#{@statsd_scope}.license_request_error.http")
           @artefact.licence = { "error" => "http_error" }
         end
       end
