@@ -190,25 +190,7 @@ class GovUkContentApi < Sinatra::Application
     handle_unpublished_artefact unless params[:edition]
 
     if @artefact.owning_app == 'publisher'
-      statsd.time("#{@statsd_scope}.edition") do
-        @artefact.edition = if params[:edition]
-          Edition.where(panopticon_id: @artefact.id, version_number: params[:edition]).first
-        else 
-          Edition.where(panopticon_id: @artefact.id, state: 'published').first
-        end
-      end
-
-      if @artefact.edition and @artefact.edition.format == 'Licence'
-        attach_license_data(@artefact)
-      end
-
-      unless @artefact.edition
-        if Edition.where(panopticon_id: @artefact.id, state: 'archived').any?
-          custom_410
-        else
-          custom_404
-        end
-      end
+      attach_publisher_edition(@artefact, params[:edition])
     end
 
     render :rabl, :artefact, format: "json"
@@ -221,6 +203,26 @@ class GovUkContentApi < Sinatra::Application
     elsif artefact.state != 'live'
       custom_404
     end
+  end
+
+  def attach_publisher_edition(artefact, version_number = nil)
+    statsd.time("#{@statsd_scope}.edition") do
+      artefact.edition = if version_number
+        Edition.where(panopticon_id: artefact.id, version_number: version_number).first
+      else
+        Edition.where(panopticon_id: artefact.id).first
+      end
+    end
+
+    if artefact.edition && version_number.nil?
+      if artefact.edition.state == 'archived'
+        custom_410
+      elsif artefact.edition.state != 'live'
+        custom_404
+      end
+    end
+
+    attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
   end
 
   def attach_license_data(artefact)
