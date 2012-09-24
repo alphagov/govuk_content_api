@@ -148,23 +148,19 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    if artefacts.length > 0
-      statsd.time("#{@statsd_scope}.map_results") do
-        # Preload to avoid hundreds of individual queries
-        editions_by_slug = published_editions_for_artefacts(artefacts)
+    statsd.time("#{@statsd_scope}.map_results") do
+      # Preload to avoid hundreds of individual queries
+      editions_by_slug = published_editions_for_artefacts(artefacts)
 
-        @results = artefacts.map do |artefact|
-          if artefact.owning_app == 'publisher'
-            artefact_with_edition(artefact, editions_by_slug)
-          else
-            artefact
-          end
+      @results = artefacts.map do |artefact|
+        if artefact.owning_app == 'publisher'
+          artefact_with_edition(artefact, editions_by_slug)
+        else
+          artefact
         end
-
-        @results.compact!
       end
-    else
-      @results = []
+
+      @results.compact!
     end
 
     render :rabl, :with_tag, format: "json"
@@ -190,6 +186,8 @@ class GovUkContentApi < Sinatra::Application
 
   protected
   def published_editions_for_artefacts(artefacts)
+    return [] if artefacts.empty?
+
     slugs = artefacts.map(&:slug)
     published_editions_for_artefacts = Edition.published.any_in(slug: slugs)
     published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
