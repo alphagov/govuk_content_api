@@ -46,10 +46,6 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
-    if @local_authorities.nil? or @local_authorities.empty?
-      @local_authorities = []
-    end
-
     render :rabl, :local_authorities, format: "json"
   end
 
