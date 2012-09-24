@@ -186,16 +186,8 @@ class GovUkContentApi < Sinatra::Application
       @artefact = Artefact.where(slug: params[:id]).first
     end
 
-    if params[:edition]
-      custom_404 unless @artefact
-    else
-      if @artefact && @artefact.state == 'archived'
-        custom_410 
-      end  
-      if @artefact.nil? || (@artefact.state != 'live')
-        custom_404
-      end
-    end
+    custom_404 unless @artefact
+    handle_unpublished_artefact unless params[:edition]
 
     if @artefact.owning_app == 'publisher'
       statsd.time("#{@statsd_scope}.edition") do
@@ -223,6 +215,14 @@ class GovUkContentApi < Sinatra::Application
   end
 
   protected
+  def handle_unpublished_artefact(artefact)
+    if artefact.state == 'archived'
+      custom_410
+    elsif artefact.state != 'live'
+      custom_404
+    end
+  end
+
   def attach_license_data(artefact)
     statsd.time("#{@statsd_scope}.licence") do
       artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
