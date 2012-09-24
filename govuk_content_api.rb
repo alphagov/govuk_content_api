@@ -27,32 +27,19 @@ class GovUkContentApi < Sinatra::Application
     content_type :json
   end
 
-  # Initialise statsd
-  statsd = Statsd.new("localhost").tap do |c| c.namespace = "govuk.app.contentapi" end
-
-  def custom_404
-    halt 404, render(:rabl, :not_found, format: "json")
-  end
-
-  def custom_410
-    halt 410, render(:rabl, :gone, format: "json")
-  end
-
-  def custom_error(code, message)
-    @status = message
-    halt code, render(:rabl, :error, format: "json")
-  end
-
   # Render RABL
   get "/local_authorities.json" do
+    search_param = params[:snac_code] || params[:name]
+    @statsd_scope = "request.local_authorities.#{search_param}"
+
     if params[:name]
       name = Regexp.escape(params[:name])
-      statsd.time("request.local_authorities.#{name}") do
+      statsd.time(@statsd_scope) do
         @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
       end
     elsif params[:snac_code]
       snac_code = Regexp.escape(params[:snac_code])
-      statsd.time("request.local_authorities.#{snac_code}") do
+      statsd.time(@statsd_scope) do
         @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
       end
     else
@@ -63,23 +50,19 @@ class GovUkContentApi < Sinatra::Application
       @local_authorities = []
     end
 
-    search_param = params[:snac_code] || params[:name]
-    statsd.time("request.local_authorities.#{search_param}.render") do
-      render :rabl, :local_authorities, format: "json"
-    end
+    render :rabl, :local_authorities, format: "json"
   end
 
   get "/local_authorities/:snac_code.json" do
+    @statsd_scope = "request.local_authority.#{params[:snac_code]}"
     if params[:snac_code]
-      statsd.time("request.local_authority.#{params[:snac_code]}") do
+      statsd.time(@statsd_scope) do
         @local_authority = LocalAuthority.find_by_snac(params[:snac_code])
       end
     end
 
     if @local_authority
-      statsd.time("request.local_authority.#{params[:snac_code]}.render") do
-        render :rabl, :local_authority, format: "json"
-      end
+      render :rabl, :local_authority, format: "json"
     else
       custom_404
     end
@@ -87,6 +70,7 @@ class GovUkContentApi < Sinatra::Application
 
   get "/search.json" do
     begin
+      @statsd_scope = "request.search.q.#{params[:q]}"
       params[:index] ||= 'mainstream'
 
       if params[:index] == 'mainstream'
@@ -96,13 +80,11 @@ class GovUkContentApi < Sinatra::Application
       else
         raise "What do you want?"
       end
-      statsd.time("request.search.q.#{params[:q]}") do
+      statsd.time(@statsd_scope) do
         @results = index.search(params[:q])
       end
 
-      statsd.time("request.search.#{params[:q]}.render") do
-        render :rabl, :search, format: "json"
-      end
+      render :rabl, :search, format: "json"
     rescue Errno::ECONNREFUSED
       statsd.increment('request.search.unavailable')
       halt 503, render(:rabl, :unavailable, format: "json")
@@ -110,12 +92,13 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags.json" do
+    @statsd_scope = "request.tags"
     if params[:type]
-      statsd.time("request.tags.type.#{params[:type]}") do
+      statsd.time("#{@statsd_scope}.type.#{params[:type]}") do
         @tags = Tag.where(tag_type: params[:type])
       end
     else
-      statsd.time('request.tags.all') do
+      statsd.time("#{@statsd_scope}.all") do
         @tags = Tag.all
       end
     end
@@ -124,7 +107,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:id.json" do
-    statsd.time("request.tag.#{params[:id]}") do
+    @statsd_scope = "request.tag.#{params[:id]}"
+    statsd.time(@statsd_scope) do
       @tag = Tag.where(tag_id: params[:id]).first
     end
 
@@ -136,6 +120,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/with_tag.json" do
+    @statsd_scope = 'request.with_tag'
+
     if params[:include_children].to_i > 1
       @status = "Include children only supports a depth of 1."
       halt 501, render(:rabl, :error, format: "json")
@@ -162,13 +148,13 @@ class GovUkContentApi < Sinatra::Application
     if curated_list
       @artefacts = curated_list.artefacts
     else
-      statsd.time("request.with_tag.multi.#{tag_ids.length}") do
+      statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
         @artefacts = Artefact.live.any_in(tag_ids: tag_ids)
       end
     end
 
     if @artefacts.length > 0
-      statsd.time('request.with_tag.map_results') do
+      statsd.time("#{@statsd_scope}.map_results") do
         # Preload to avoid hundreds of individual queries
         published_editions_for_artefacts = Edition.published.any_in(slug: @artefacts.map(&:slug))
         editions_by_slug = published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
@@ -194,28 +180,14 @@ class GovUkContentApi < Sinatra::Application
       @results = []
     end
 
-    statsd.time("request.with_tag.render") do
-      render :rabl, :with_tag, format: "json"
-    end
-  end
-
-  def verify_unpublished_permission
-    warden = request.env['warden']
-    if warden.authenticate?
-      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
-        return true
-      else
-        custom_error(403, "You must be authorized to use the edition parameter")
-      end
-    end
-
-    custom_error(401, "Edition parameter requires authentication")
+    render :rabl, :with_tag, format: "json"
   end
 
   get "/:id.json" do
+    @statsd_scope = "request.id.#{params[:id]}"
     verify_unpublished_permission if params[:edition]
 
-    statsd.time("request.id.#{params[:id]}") do
+    statsd.time("#{@statsd_scope}") do
       @artefact = Artefact.where(slug: params[:id]).first
     end
     if params[:edition]
@@ -230,7 +202,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     if @artefact.owning_app == 'publisher'
-      statsd.time("request.id.#{params[:id]}.edition") do
+      statsd.time("#{@statsd_scope}.edition") do
         @artefact.edition = if params[:edition]
           Edition.where(panopticon_id: @artefact.id, version_number: params[:edition]).first
         else 
@@ -240,7 +212,7 @@ class GovUkContentApi < Sinatra::Application
 
       if @artefact.edition and @artefact.edition.format == 'Licence'
         begin
-          statsd.time("request.id.#{params[:id]}.licence") do
+          statsd.time("#{@statsd_scope}.licence") do
             @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
           end
         rescue GdsApi::TimedOutException
@@ -259,8 +231,46 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    statsd.time("request.id.#{params[:id]}.render") do
-      render :rabl, :artefact, format: "json"
+    render :rabl, :artefact, format: "json"
+  end
+
+  protected
+  # Initialise statsd
+  def statsd
+    @statsd ||= Statsd.new("localhost").tap do |c|
+      c.namespace = "govuk.app.contentapi"
     end
+  end
+
+  def custom_404
+    halt 404, render(:rabl, :not_found, format: "json")
+  end
+
+  def custom_410
+    halt 410, render(:rabl, :gone, format: "json")
+  end
+
+  def custom_error(code, message)
+    @status = message
+    halt code, render(:rabl, :error, format: "json")
+  end
+
+  def render(*args)
+    statsd.time("#{@statsd_scope}.render") do
+      super
+    end
+  end
+
+  def verify_unpublished_permission
+    warden = request.env['warden']
+    if warden.authenticate?
+      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
+        return true
+      else
+        custom_error(403, "You must be authorized to use the edition parameter")
+      end
+    end
+
+    custom_error(401, "Edition parameter requires authentication")
   end
 end
