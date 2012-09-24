@@ -185,6 +185,7 @@ class GovUkContentApi < Sinatra::Application
     statsd.time("#{@statsd_scope}") do
       @artefact = Artefact.where(slug: params[:id]).first
     end
+
     if params[:edition]
       custom_404 unless @artefact
     else
@@ -206,17 +207,7 @@ class GovUkContentApi < Sinatra::Application
       end
 
       if @artefact.edition and @artefact.edition.format == 'Licence'
-        begin
-          statsd.time("#{@statsd_scope}.licence") do
-            @artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
-          end
-        rescue GdsApi::TimedOutException
-          statsd.increment("#{@statsd_scope}.license_request_error.timed_out")
-          @artefact.licence = { "error" => "timed_out" }
-        rescue GdsApi::HTTPErrorResponse
-          statsd.increment("#{@statsd_scope}.license_request_error.http")
-          @artefact.licence = { "error" => "http_error" }
-        end
+        attach_license_data(@artefact)
       end
 
       unless @artefact.edition
@@ -232,6 +223,18 @@ class GovUkContentApi < Sinatra::Application
   end
 
   protected
+  def attach_license_data(artefact)
+    statsd.time("#{@statsd_scope}.licence") do
+      artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
+    end
+  rescue GdsApi::TimedOutException
+    statsd.increment("#{@statsd_scope}.license_request_error.timed_out")
+    artefact.licence = { "error" => "timed_out" }
+  rescue GdsApi::HTTPErrorResponse
+    statsd.increment("#{@statsd_scope}.license_request_error.http")
+    artefact.licence = { "error" => "http_error" }
+  end
+
   # Initialise statsd
   def statsd
     @statsd ||= Statsd.new("localhost").tap do |c|
