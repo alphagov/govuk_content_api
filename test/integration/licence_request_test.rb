@@ -6,7 +6,7 @@ class LicenceRequestTest < GovUkContentApiTest
 
   it "should return full licence details for an edition with a licence identifier" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
 
     authorities = [{
       "authorityName" => "Authority",
@@ -30,7 +30,7 @@ class LicenceRequestTest < GovUkContentApiTest
     licence_exists('123-2-1', {"isLocationSpecific" => false, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => authorities})
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json'
     parsed_response = JSON.parse(last_response.body)
@@ -47,7 +47,7 @@ class LicenceRequestTest < GovUkContentApiTest
 
   it "should return location-specific licence details for an edition with a licence identifier and snac code" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
 
     authorities = [{
       "authorityName" => "South Ribble Borough Council",
@@ -64,7 +64,7 @@ class LicenceRequestTest < GovUkContentApiTest
     licence_exists('123-2-1/41UH', {"isLocationSpecific" => true, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => authorities})
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json?snac=41UH'
 
@@ -81,26 +81,25 @@ class LicenceRequestTest < GovUkContentApiTest
 
 it "should not query the licence api if no licence identifier is present" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: nil)
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: nil, state: 'published')
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json'
     parsed_response = JSON.parse(last_response.body)
-
     assert last_response.ok?
     assert ! parsed_response["details"]["licence"].present?
   end
 
   it "should not return any licence details if the licence does not exist in the licence application tool" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_does_not_exist('blaaargh')
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json'
     parsed_response = JSON.parse(last_response.body)
@@ -111,12 +110,12 @@ it "should not query the licence api if no licence identifier is present" do
 
   it "should not return any licence details if the licence does not exist in the licence application tool when provided with a snac code" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_does_not_exist('blaaargh/43UG')
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json?snac=43UG'
     parsed_response = JSON.parse(last_response.body)
@@ -127,12 +126,12 @@ it "should not query the licence api if no licence identifier is present" do
 
   it "should return an error message if the api request times out" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_times_out('blaaargh/43UG')
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json?snac=43UG'
     parsed_response = JSON.parse(last_response.body)
@@ -144,12 +143,12 @@ it "should not query the licence api if no licence identifier is present" do
 
   it "should return an error message if the api request returns an error" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_returns_error('blaaargh')
 
     Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
-    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id).returns([stub_licence])
 
     get '/licence-artefact.json'
     parsed_response = JSON.parse(last_response.body)
