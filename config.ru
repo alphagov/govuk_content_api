@@ -29,4 +29,4 @@ unless in_development
 end
 
 require 'govuk_content_api'
-run Sinatra::Application
+run GovUkContentApi

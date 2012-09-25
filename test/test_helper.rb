@@ -37,7 +37,7 @@ class GovUkContentApiTest < MiniTest::Spec
   include ResponseTestMethods
 
   def app
-    Sinatra::Application
+    GovUkContentApi
   end
 
   def setup
