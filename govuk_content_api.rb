@@ -122,46 +122,12 @@ class GovUkContentApi < Sinatra::Application
       custom_error(501, "Include children only supports a depth of 1.")
     end
 
-    tag_ids = params[:tag].split(',')
-    tags = tag_ids.map { |ti| Tag.where(tag_id: ti).first }.compact
-
-    custom_404 unless tags.length == tag_ids.length
-
-    if params[:include_children]
-      tags = Tag.any_in(parent_id: tag_ids)
-      tag_ids = tag_ids + tags.map(&:tag_id)
-    end
-
-    curated_list = nil
     # Currently only supported sort order is curated
-    if params[:sort]
-      return custom_404 unless params[:sort] == "curated"
-      # Curated list can only be associated with one section
-      curated_list = CuratedList.any_in(tag_ids: [tags[0].tag_id]).first
-    end
+    custom_404 if params[:sort] && params[:sort] != "curated"
 
-    if curated_list
-      artefacts = curated_list.artefacts
-    else
-      statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-        artefacts = Artefact.live.any_in(tag_ids: tag_ids)
-      end
-    end
-
-    statsd.time("#{@statsd_scope}.map_results") do
-      # Preload to avoid hundreds of individual queries
-      editions_by_slug = published_editions_for_artefacts(artefacts)
-
-      @results = artefacts.map do |artefact|
-        if artefact.owning_app == 'publisher'
-          artefact_with_edition(artefact, editions_by_slug)
-        else
-          artefact
-        end
-      end
-
-      @results.compact!
-    end
+    tag_ids = collect_tag_ids(params[:tag], params[:include_children])
+    artefacts = sorted_artefacts_for_tag_ids(tag_ids, params[:sort])
+    @results = map_artefacts_and_add_editions(artefacts)
 
     render :rabl, :with_tag, format: "json"
   end
@@ -175,7 +141,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     custom_404 unless @artefact
-    handle_unpublished_artefact unless params[:edition]
+    handle_unpublished_artefact(@artefact) unless params[:edition]
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
@@ -185,6 +151,55 @@ class GovUkContentApi < Sinatra::Application
   end
 
   protected
+  def map_artefacts_and_add_editions(artefacts)
+    statsd.time("#{@statsd_scope}.map_results") do
+      # Preload to avoid hundreds of individual queries
+      editions_by_slug = published_editions_for_artefacts(artefacts)
+
+      results = artefacts.map do |artefact|
+        if artefact.owning_app == 'publisher'
+          artefact_with_edition(artefact, editions_by_slug)
+        else
+          artefact
+        end
+      end
+
+      results.compact
+    end
+  end
+
+  def collect_tag_ids(tag_list, include_children)
+    tag_ids = params[:tag].split(',')
+    # TODO: Can this be done with a single query?
+    tags = tag_ids.map { |ti| Tag.where(tag_id: ti).first }.compact
+
+    custom_404 unless tags.length == tag_ids.length
+
+    if params[:include_children]
+      tags = Tag.any_in(parent_id: tag_ids)
+      tag_ids = tag_ids + tags.map(&:tag_id)
+    end
+
+    tag_ids
+  end
+
+  def sorted_artefacts_for_tag_ids(tag_ids, sort)
+    curated_list = nil
+    
+    if sort
+      # Curated list can only be associated with one section
+      curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
+    end
+
+    if curated_list
+      artefacts = curated_list.artefacts
+    else
+      statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
+        artefacts = Artefact.live.any_in(tag_ids: tag_ids)
+      end
+    end
+  end
+
   def published_editions_for_artefacts(artefacts)
     return [] if artefacts.empty?
 
@@ -224,7 +239,7 @@ class GovUkContentApi < Sinatra::Application
     if artefact.edition && version_number.nil?
       if artefact.edition.state == 'archived'
         custom_410
-      elsif artefact.edition.state != 'live'
+      elsif artefact.edition.state != 'published'
         custom_404
       end
     end
