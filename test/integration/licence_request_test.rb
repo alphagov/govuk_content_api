@@ -10,6 +10,7 @@ class LicenceRequestTest < GovUkContentApiTest
 
     authorities = [{
       "authorityName" => "Authority",
+      "authoritySlug" => "authority-slug",
       "authorityInteractions" => {
         "apply" => [{
           "url" => "http://gov.uk/apply",
@@ -42,6 +43,7 @@ class LicenceRequestTest < GovUkContentApiTest
     assert_equal ["England","Wales"], parsed_response["details"]["licence"]["availability"]
 
     assert_equal ['Authority'], parsed_response["details"]["licence"]["authorities"].map {|r| r['name']}
+    assert_equal ['authority-slug'], parsed_response["details"]["licence"]["authorities"].map {|r| r['slug']}
     assert_equal ['Apply for all the things', 'Renew all the things'], parsed_response["details"]["licence"]["authorities"].first["actions"].map {|k,v| v.first["description"] }
   end
 
@@ -51,6 +53,7 @@ class LicenceRequestTest < GovUkContentApiTest
 
     authorities = [{
       "authorityName" => "South Ribble Borough Council",
+      "authoritySlug" => "south-ribble",
       "authorityInteractions" => {
         "apply" => [{
           "url" => "http://www.gov.uk/licence-artefact/south-ribble/apply=1",
@@ -74,6 +77,7 @@ class LicenceRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_equal "South Ribble Borough Council", authority["name"]
+    assert_equal "south-ribble", authority["slug"]
     assert_equal 1, authority["actions"]["apply"].size
     assert_equal "Apply for one thing", authority["actions"]["apply"].first["description"]
     assert_equal "http://www.gov.uk/licence-artefact/south-ribble/apply=1", authority["actions"]["apply"].first["url"]
