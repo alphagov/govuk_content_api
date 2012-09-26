@@ -89,9 +89,17 @@ class GovUkContentApi < Sinatra::Application
 
   get "/tags.json" do
     @statsd_scope = "request.tags"
+    options = {}
     if params[:type]
-      statsd.time("#{@statsd_scope}.type.#{params[:type]}") do
-        @tags = Tag.where(tag_type: params[:type])
+      options["tag_type"] = params[:type]
+    end
+    if params[:parent_id]
+      options["parent_id"] = params[:parent_id]
+    end
+
+    if options.length > 0
+      statsd.time("#{@statsd_scope}.options.#{options}") do
+        @tags = Tag.where(options)
       end
     else
       statsd.time("#{@statsd_scope}.all") do
