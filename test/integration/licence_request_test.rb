@@ -11,6 +11,12 @@ class LicenceRequestTest < GovUkContentApiTest
     authorities = [{
       "authorityName" => "Authority",
       "authoritySlug" => "authority-slug",
+      "authorityContact" => {
+        "website" => "http://www.bexley.gov.uk/",
+        "email" => "customer.services@bexley.gov.uk",
+        "phone" => "020 8303 7777",
+        "address" => "Civic Offices,\nBroadway,\nBexleyheath,\nDA6 7LB"
+      },
       "authorityInteractions" => {
         "apply" => [{
           "url" => "http://gov.uk/apply",
@@ -41,6 +47,8 @@ class LicenceRequestTest < GovUkContentApiTest
 
     assert_equal false, parsed_response["details"]["licence"]["location_specific"]
     assert_equal ["England","Wales"], parsed_response["details"]["licence"]["availability"]
+
+    assert_equal '020 8303 7777', parsed_response['details']['licence']['authorities'].first['contact']['phone']
 
     assert_equal ['Authority'], parsed_response["details"]["licence"]["authorities"].map {|r| r['name']}
     assert_equal ['authority-slug'], parsed_response["details"]["licence"]["authorities"].map {|r| r['slug']}
