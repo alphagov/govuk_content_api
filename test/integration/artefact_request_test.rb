@@ -153,6 +153,24 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   describe "publisher artefacts" do
+    it "should return authority and interactio details for local transactions with snac codes" do
+      service = FactoryGirl.create(:local_service)
+      authority = FactoryGirl.create(:local_authority)
+      interaction = FactoryGirl.create(:local_interaction, lgsl_code: service.lgsl_code,
+        local_authority: authority)
+      local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
+        lgsl_code: service.lgsl_code, state: 'published')
+
+      local_transaction_edition.artefact.update_attribute(:state, 'live')
+
+      get "/#{local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+
+      assert_equal authority.name, response['details']['authority']['name']
+      assert_equal interaction.url, response['details']['authority']['interaction']['url']
+    end
+
     it "should return 404 if artefact is publication but never published" do
       edition = FactoryGirl.create(:edition)
 

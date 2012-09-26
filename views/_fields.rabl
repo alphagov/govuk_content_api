@@ -21,3 +21,7 @@ end
 node(:licence, :if => lambda { |artefact| artefact.licence }) do |artefact|
   partial("licence", object: artefact)
 end
+
+node(:authority, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac_code] }) do |artefact|
+  partial("local_transaction", object: artefact)
+end
