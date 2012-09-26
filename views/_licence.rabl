@@ -8,6 +8,7 @@ unless @artefact.licence["error"]
         {
           'name' => authority['authorityName'],
           'slug' => authority['authoritySlug'],
+          'contact' => authority['authorityContact'],
           'actions' => authority['authorityInteractions'].inject({}) {|actions, (key, links)|
             actions[key] = links.map {|link|
               {
