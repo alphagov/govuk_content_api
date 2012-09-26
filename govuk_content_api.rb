@@ -232,7 +232,8 @@ class GovUkContentApi < Sinatra::Application
       artefact.edition = if version_number
         Edition.where(panopticon_id: artefact.id, version_number: version_number).first
       else
-        Edition.where(panopticon_id: artefact.id).first
+        Edition.where(panopticon_id: artefact.id, state: 'published').first ||
+          Edition.where(panopticon_id: artefact.id).first
       end
     end
 
