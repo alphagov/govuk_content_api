@@ -172,6 +172,16 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_status_field "gone", last_response
     end
 
+    it "gets the published edition if a previous archived edition exists" do
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id)
+      edition2 = FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
+
+      get "/#{edition.artefact.slug}.json"
+
+      assert last_response.ok?
+    end
+
     describe "accessing unpublished editions" do
       before do
         @artefact = FactoryGirl.create(:artefact, state: 'live')
