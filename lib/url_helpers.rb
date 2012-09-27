@@ -10,14 +10,7 @@ module URLHelpers
   end
 
   def with_tag_web_url(tag)
-    # Temporarily hack the browse URL's for subsections until the browse pages are rebuilt
-    # www.example.com/browse/section/subsection -> www.example.com/browse/section#/subsection
-    if tag.tag_type == "section"
-      tag_slug = tag.tag_id.sub(%r{/}, '#/')
-    else
-      tag_slug = tag.tag_id
-    end
-    "#{base_web_search_url}/browse/#{tag_slug}"
+    "#{base_web_search_url}/browse/#{tag.tag_id}"
   end
 
   def artefact_url(artefact)
@@ -46,11 +39,7 @@ module URLHelpers
   end
 
   def base_web_search_url
-    if ["production", "test"].include?(ENV["RACK_ENV"])
-      @_base_web_search_url ||= Plek.current.find('www')
-    else
-      @_base_web_search_url ||= Plek.current.find('search')
-    end
+    @_base_web_search_url ||= Plek.current.find('www')
   end
 
   def local_authority_url(authority)
