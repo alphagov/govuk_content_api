@@ -45,7 +45,10 @@ class FormatsRequestTest < GovUkContentApiTest
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug,
                                 short_description: "No policeman's going to give the Batmobile a ticket", min_value: 100,
-                                max_value: 1000, panopticon_id: artefact.id, state: 'published')
+                                max_value: 1000, panopticon_id: artefact.id, state: 'published',
+                                business_support_identifier: 'enterprise-finance-guarantee', max_employees: 10,
+                                organiser: "Someone", continuation_link: "http://www.example.com/scheme", will_continue_on: "Example site",
+                                contact_details: "Someone, somewhere")
     business_support.parts[0].body = "Lalalala"
     business_support.save!
 
@@ -57,11 +60,13 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'overview',
-                        'short_description', 'min_value', 'max_value', 'parts']
+                        'short_description', 'min_value', 'max_value', 'parts',
+                        'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on', 'contact_details']
     _assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
     assert_equal "No policeman's going to give the Batmobile a ticket", fields['short_description']
     assert_equal "<p>Lalalala</p>\n", fields['parts'][0]["body"]
+    assert_equal "enterprise-finance-guarantee", fields['business_support_identifier']
   end
 
   it "should work with guide_edition" do
