@@ -129,10 +129,9 @@ class GovUkContentApi < Sinatra::Application
     if params[:include_children].to_i > 1
       custom_error(501, "Include children only supports a depth of 1.")
     end
-
-    # Currently only supported sort order is curated
-    custom_404 if params[:sort] && params[:sort] != "curated"
-
+    if params[:sort]
+      custom_404 unless ["curated", "alphabetical"].include?(params[:sort])
+    end
     tag_ids = collect_tag_ids(params[:tag], params[:include_children])
     artefacts = sorted_artefacts_for_tag_ids(tag_ids, params[:sort])
     @results = map_artefacts_and_add_editions(artefacts)
@@ -192,18 +191,23 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def sorted_artefacts_for_tag_ids(tag_ids, sort)
-    curated_list = nil
-    
-    if sort
-      # Curated list can only be associated with one section
-      curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
-    end
+    if sort == "curated"
+      curated_list = nil
+      if sort
+        # Curated list can only be associated with one section
+        curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
+      end
 
-    if curated_list
-      artefacts = curated_list.artefacts
+      if curated_list
+        artefacts = curated_list.artefacts
+      else
+        statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
+          artefacts = Artefact.live.any_in(tag_ids: tag_ids)
+        end
+      end
     else
       statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-        artefacts = Artefact.live.any_in(tag_ids: tag_ids)
+        artefacts = Artefact.live.any_in(tag_ids: tag_ids).order_by(:name, :asc)
       end
     end
   end
