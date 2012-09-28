@@ -49,7 +49,6 @@ class FormatsRequestTest < GovUkContentApiTest
                                 business_support_identifier: 'enterprise-finance-guarantee', max_employees: 10,
                                 organiser: "Someone", continuation_link: "http://www.example.com/scheme", will_continue_on: "Example site",
                                 contact_details: "Someone, somewhere")
-    business_support.parts[0].body = "Lalalala"
     business_support.save!
 
     get '/batman.json'
@@ -59,13 +58,11 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_base_response_info(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'overview',
-                        'short_description', 'min_value', 'max_value', 'parts',
+    expected_fields = ['alternative_title', 'overview', 'body',
+                        'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
                         'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on', 'contact_details']
     _assert_has_expected_fields(fields, expected_fields)
-    refute fields.has_key?('body')
     assert_equal "No policeman's going to give the Batmobile a ticket", fields['short_description']
-    assert_equal "<p>Lalalala</p>\n", fields['parts'][0]["body"]
     assert_equal "enterprise-finance-guarantee", fields['business_support_identifier']
   end
 
