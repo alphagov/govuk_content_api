@@ -15,7 +15,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should filter all tags by type" do
-      Tag.expects(:where).with(tag_type: 'Section').returns([
+      Tag.expects(:where).with("tag_type" => 'Section').returns([
         Tag.new(tag_id: 'good-tag', tag_type: 'Section', description: 'Lots to say for myself', name: 'good tag'),
       ])
       get "/tags.json?type=Section"
@@ -96,7 +96,7 @@ class TagRequestTest < GovUkContentApiTest
 
       assert last_response.ok?
       response = JSON.parse(last_response.body)
-      assert_equal "http://www.test.gov.uk/browse/crime#/batman", response["content_with_tag"]["web_url"]
+      assert_equal "http://www.test.gov.uk/browse/crime/batman", response["content_with_tag"]["web_url"]
     end
 
     describe "has a parent tag" do
