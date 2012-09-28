@@ -96,7 +96,9 @@ class GovUkContentApi < Sinatra::Application
     if params[:parent_id]
       options["parent_id"] = params[:parent_id]
     end
-
+    if params[:root_sections]
+      options["parent_id"] = nil
+    end
     if options.length > 0
       statsd.time("#{@statsd_scope}.options.#{options}") do
         @tags = Tag.where(options)
