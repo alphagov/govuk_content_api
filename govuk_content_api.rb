@@ -132,6 +132,17 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :with_tag, format: "json"
   end
 
+  get "/business_support_schemes.json" do
+    identifiers = params[:identifiers].to_s.split(",")
+    editions = BusinessSupportEdition.published.in(:business_support_identifier => identifiers)
+    @results = editions.map do |ed|
+      artefact = Artefact.find(ed.panopticon_id)
+      artefact.edition = ed
+      artefact
+    end
+    render :rabl, :business_support_schemes, format: "json"
+  end
+
   get "/:id.json" do
     @statsd_scope = "request.id.#{params[:id]}"
     verify_unpublished_permission if params[:edition]
