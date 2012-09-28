@@ -11,7 +11,7 @@ gem 'statsd-ruby', '1.0.0'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '1.13.0'
+  gem 'govuk_content_models', '1.14.0'
 end
 
 gem 'gds-sso', '2.0.1'
