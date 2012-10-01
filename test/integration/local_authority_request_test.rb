@@ -40,7 +40,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert last_response.ok?
     assert_status_field "ok", last_response
     assert_equal "Super Nova", parsed_response["name"]
-    assert_equal "supernova", parsed_response["snac_code"]
+    assert_equal "supernova", parsed_response["snac"]
   end
 
   it "should return a JSON formatted array of LocalAuthority objects when searching by name" do
@@ -53,20 +53,20 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert last_response.ok?
     assert_status_field "ok", last_response
     assert_equal "Solihull Metropolitan Borough Council", parsed_response["results"][0]["name"]
-    assert_equal "00CT", parsed_response["results"][0]["snac_code"]
+    assert_equal "00CT", parsed_response["results"][0]["snac"]
   end
 
   it "should return a JSON formatted array of LocalAuthority objects when searching by snac code" do
     stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
     LocalAuthority.stubs(:where).with(snac: /^00C/i).returns(stub_authority)
 
-    get "/local_authorities.json?snac_code=00C"
+    get "/local_authorities.json?snac=00C"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
     assert_status_field "ok", last_response
     assert_equal "Solihull Metropolitan Borough Council", parsed_response["results"][0]["name"]
-    assert_equal "00CT", parsed_response["results"][0]["snac_code"]
+    assert_equal "00CT", parsed_response["results"][0]["snac"]
   end
 
   it "should return a JSON formatted array of multiple LocalAuthority objects when searching by name" do
@@ -89,7 +89,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
 
     expected = [{
                   "name" => "Solihull Metropolitan Borough Council",
-                  "snac_code" => "00CT",
+                  "snac" => "00CT",
                   "id" => "http://example.org/local_authorities/00CT.json",
                   "tier" => "unitary",
                   "contact_address" => ["123 Fake Street"],
@@ -99,7 +99,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
                 },
                 {
                   "name" => "Solihull Council",
-                  "snac_code" => "00VT",
+                  "snac" => "00VT",
                   "id" => "http://example.org/local_authorities/00VT.json",
                   "tier" => "unitary",
                   "contact_address" => ["123 Fake Street"],
@@ -119,22 +119,22 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
                    LocalAuthority.new(name: "Solihull Test Council", snac: "00CF")]
     LocalAuthority.stubs(:where).with(snac: /^00C/i).returns(stub_result)
 
-    get "/local_authorities.json?snac_code=00C"
+    get "/local_authorities.json?snac=00C"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
     assert_status_field "ok", last_response
     assert_equal 2, parsed_response["total"]
     assert_equal "Solihull Metropolitan Borough Council", parsed_response["results"][0]["name"]
-    assert_equal "00CT", parsed_response["results"][0]["snac_code"]
+    assert_equal "00CT", parsed_response["results"][0]["snac"]
     assert_equal "Solihull Test Council", parsed_response["results"][1]["name"]
-    assert_equal "00CF", parsed_response["results"][1]["snac_code"]
+    assert_equal "00CF", parsed_response["results"][1]["snac"]
   end
 
   it "should not allow glob searching of snac codes" do
     LocalAuthority.expects(:where).with(snac: /^\*/i).once
 
-    get "/local_authorities.json?snac_code=*"
+    get "/local_authorities.json?snac=*"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
@@ -159,7 +159,7 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
     LocalAuthority.stubs(:where).with(snac: /^00C/i).returns(stub_authority)
 
-    get "/local_authorities.json?snac_code=00C"
+    get "/local_authorities.json?snac=00C"
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?

@@ -171,7 +171,7 @@ class ArtefactRequestTest < GovUkContentApiTest
           interaction = FactoryGirl.create(:local_interaction, lgsl_code: @service.lgsl_code,
             local_authority: authority)
 
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
           assert last_response.ok?
           response = JSON.parse(last_response.body)
 
@@ -184,7 +184,7 @@ class ArtefactRequestTest < GovUkContentApiTest
         it "should return nil local_interaction when no interaction available" do
           authority = FactoryGirl.create(:local_authority)
 
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
           assert last_response.ok?
           response = JSON.parse(last_response.body)
 
@@ -195,7 +195,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
         it "should return nil local_interaction and local_authority when no authority available" do
 
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=00PT"
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac=00PT"
           assert last_response.ok?
           response = JSON.parse(last_response.body)
 
