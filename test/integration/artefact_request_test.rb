@@ -153,22 +153,74 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   describe "publisher artefacts" do
-    it "should return authority and interactio details for local transactions with snac codes" do
-      service = FactoryGirl.create(:local_service)
-      authority = FactoryGirl.create(:local_authority)
-      interaction = FactoryGirl.create(:local_interaction, lgsl_code: service.lgsl_code,
-        local_authority: authority)
-      local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
-        lgsl_code: service.lgsl_code, state: 'published')
 
-      local_transaction_edition.artefact.update_attribute(:state, 'live')
+    describe "with local transactions" do
 
-      get "/#{local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
-      assert last_response.ok?
-      response = JSON.parse(last_response.body)
+      describe "with snac code provided" do
 
-      assert_equal authority.name, response['details']['authority']['name']
-      assert_equal interaction.url, response['details']['authority']['interaction']['url']
+        before do
+          @service = FactoryGirl.create(:local_service)
+          @local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
+            lgsl_code: @service.lgsl_code, state: 'published')
+
+          @local_transaction_edition.artefact.update_attribute(:state, 'live')
+        end
+
+        it "should return local service, local authority and local interaction details" do
+          authority = FactoryGirl.create(:local_authority)
+          interaction = FactoryGirl.create(:local_interaction, lgsl_code: @service.lgsl_code,
+            local_authority: authority)
+
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
+          assert last_response.ok?
+          response = JSON.parse(last_response.body)
+
+          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
+          assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
+          assert_equal authority.name, response['details']['local_authority']['name']
+          assert_equal interaction.url, response['details']['local_interaction']['url']
+        end
+
+        it "should return nil local_interaction when no interaction available" do
+          authority = FactoryGirl.create(:local_authority)
+
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=#{authority.snac}"
+          assert last_response.ok?
+          response = JSON.parse(last_response.body)
+
+          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
+          assert_equal authority.name, response['details']['local_authority']['name']
+          assert_nil response['details']['local_interaction']
+        end
+
+        it "should return nil local_interaction and local_authority when no authority available" do
+
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac_code=00PT"
+          assert last_response.ok?
+          response = JSON.parse(last_response.body)
+
+          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
+          assert_nil response['details']['local_authority']
+          assert_nil response['details']['local_interaction']
+        end
+
+      end
+
+      it "should return local_service details for local transactions without snac code" do
+        service = FactoryGirl.create(:local_service)
+        local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
+          lgsl_code: service.lgsl_code, state: 'published')
+
+        local_transaction_edition.artefact.update_attribute(:state, 'live')
+
+        get "/#{local_transaction_edition.artefact.slug}.json"
+        assert last_response.ok?
+        response = JSON.parse(last_response.body)
+
+        assert_equal service.lgsl_code, response['details']['local_service']['lgsl_code']
+        assert_equal service.providing_tier, response['details']['local_service']['providing_tier']
+      end
+
     end
 
     it "should return 404 if artefact is publication but never published" do

@@ -22,8 +22,17 @@ node(:licence, :if => lambda { |artefact| artefact.licence }) do |artefact|
   partial("licence", object: artefact)
 end
 
-node(:authority, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac_code] }) do |artefact|
-  partial("local_transaction", object: artefact)
+node(:local_authority, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac_code] }) do |artefact|
+  provider = artefact.edition.service.preferred_provider(params[:snac_code])
+  partial("_local_authority", object: provider)
+end
+
+node(:local_interaction, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac_code] }) do |artefact|
+  provider = artefact.edition.service.preferred_provider(params[:snac_code])
+  if provider
+    interaction = provider.preferred_interaction_for(artefact.edition.lgsl_code, artefact.edition.lgil_override)
+    partial("_local_interaction", object: interaction)
+  end
 end
 
 node(:local_service, :if => lambda { |artefact| artefact.edition.respond_to?(:service) }) do |artefact|

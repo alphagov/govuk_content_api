@@ -70,8 +70,18 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
   end
 
   it "should return a JSON formatted array of multiple LocalAuthority objects when searching by name" do
-    stub_results = [LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT"),
-                    LocalAuthority.new(name: "Solihull Council", snac: "00VT")]
+    attributes = {
+      name: "Solihull Metropolitan Borough Council",
+      snac: "00CT",
+      tier: "unitary",
+      contact_address: ["123 Fake Street"],
+      contact_url: "http://council.gov.uk",
+      contact_phone: "01234 567890",
+      contact_email: "cousin.sven@council.gov.uk"
+    }
+
+    stub_results = [LocalAuthority.new(attributes),
+                    LocalAuthority.new(attributes.merge({name: "Solihull Council", snac: "00VT"}))]
     LocalAuthority.stubs(:where).with(name: /^Solihull/i).returns(stub_results)
 
     get "/local_authorities.json?name=Solihull"
@@ -80,12 +90,22 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     expected = [{
                   "name" => "Solihull Metropolitan Borough Council",
                   "snac_code" => "00CT",
-                  "id" => "http://example.org/local_authorities/00CT.json"
+                  "id" => "http://example.org/local_authorities/00CT.json",
+                  "tier" => "unitary",
+                  "contact_address" => ["123 Fake Street"],
+                  "contact_url" => "http://council.gov.uk",
+                  "contact_phone" => "01234 567890",
+                  "contact_email" => "cousin.sven@council.gov.uk"
                 },
                 {
                   "name" => "Solihull Council",
                   "snac_code" => "00VT",
-                  "id" => "http://example.org/local_authorities/00VT.json"
+                  "id" => "http://example.org/local_authorities/00VT.json",
+                  "tier" => "unitary",
+                  "contact_address" => ["123 Fake Street"],
+                  "contact_url" => "http://council.gov.uk",
+                  "contact_phone" => "01234 567890",
+                  "contact_email" => "cousin.sven@council.gov.uk"
                 }]
 
     assert last_response.ok?
