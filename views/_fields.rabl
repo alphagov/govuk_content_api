@@ -25,3 +25,7 @@ end
 node(:authority, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac_code] }) do |artefact|
   partial("local_transaction", object: artefact)
 end
+
+node(:local_service, :if => lambda { |artefact| artefact.edition.respond_to?(:service) }) do |artefact|
+  partial("local_service", object: artefact.edition.service)
+end
