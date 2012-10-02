@@ -13,10 +13,11 @@ node(:pages) { 1 }
 node(:results) do
   @results.map { |r|
     {
-      id: r.link,
-      title: r.title,
+      id: search_result_url(r),
+      web_url: search_result_web_url(r),
+      title: r['title'],
       details: {
-        description: r.description
+        description: r['description']
       }
     }
   }

@@ -6,6 +6,7 @@ require 'plek'
 require 'url_helpers'
 require 'content_format_helpers'
 require 'gds_api/helpers'
+require 'gds_api/rummager'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
