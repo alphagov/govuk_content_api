@@ -29,7 +29,7 @@ class GovUkContentApi < Sinatra::Application
 
   # Render RABL
   get "/local_authorities.json" do
-    search_param = params[:snac_code] || params[:name]
+    search_param = params[:snac] || params[:name]
     @statsd_scope = "request.local_authorities.#{search_param}"
 
     if params[:name]
@@ -37,10 +37,10 @@ class GovUkContentApi < Sinatra::Application
       statsd.time(@statsd_scope) do
         @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
       end
-    elsif params[:snac_code]
-      snac_code = Regexp.escape(params[:snac_code])
+    elsif params[:snac]
+      snac = Regexp.escape(params[:snac])
       statsd.time(@statsd_scope) do
-        @local_authorities = LocalAuthority.where(snac: /^#{snac_code}/i).to_a
+        @local_authorities = LocalAuthority.where(snac: /^#{snac}/i).to_a
       end
     else
       custom_404
@@ -49,11 +49,11 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :local_authorities, format: "json"
   end
 
-  get "/local_authorities/:snac_code.json" do
-    @statsd_scope = "request.local_authority.#{params[:snac_code]}"
-    if params[:snac_code]
+  get "/local_authorities/:snac.json" do
+    @statsd_scope = "request.local_authority.#{params[:snac]}"
+    if params[:snac]
       statsd.time(@statsd_scope) do
-        @local_authority = LocalAuthority.find_by_snac(params[:snac_code])
+        @local_authority = LocalAuthority.find_by_snac(params[:snac])
       end
     end
 
