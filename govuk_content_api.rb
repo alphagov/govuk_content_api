@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'rabl'
-require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
@@ -74,7 +73,7 @@ class GovUkContentApi < Sinatra::Application
       end
 
       statsd.time(@statsd_scope) do
-        search_uri = Plek.current.find('search') + "/#{params[:index]}")
+        search_uri = Plek.current.find('search') + "/#{params[:index]}"
         client = GdsApi::Rummager.new(search_uri)
         @results = client.search(params[:q])
       end
