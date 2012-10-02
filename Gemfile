@@ -39,4 +39,6 @@ end
 
 group :development do
   gem "shotgun"
+  # Use thin because WEBrick has a URL length limit of 1024, and shotgun doesn't support unicorn
+  gem "thin"
 end
