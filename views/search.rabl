@@ -16,13 +16,7 @@ node(:results) do
       id: r.link,
       title: r.title,
       details: {
-        description: r.description,
-        additional_links: (r.additional_links || []).map { |al|
-          {
-            title: al.title,
-            url: al.link
-          }
-        }
+        description: r.description
       }
     }
   }

@@ -69,19 +69,18 @@ class GovUkContentApi < Sinatra::Application
       @statsd_scope = "request.search.q.#{params[:q]}"
       params[:index] ||= 'mainstream'
 
-      if params[:index] == 'mainstream'
-        index = SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
-      elsif params[:index] == 'whitehall'
-        index = SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
-      else
-        raise "What do you want?"
+      unless ['mainstream', 'detailed', 'government'].include?(params[:index])
+        custom_404
       end
+
       statsd.time(@statsd_scope) do
-        @results = index.search(params[:q])
+        search_uri = Plek.current.find('search') + "/#{params[:index]}")
+        client = GdsApi::Rummager.new(search_uri)
+        @results = client.search(params[:q])
       end
 
       render :rabl, :search, format: "json"
-    rescue Errno::ECONNREFUSED
+    rescue SearchServiceError, SearchTimeout
       statsd.increment('request.search.unavailable')
       halt 503, render(:rabl, :unavailable, format: "json")
     end
