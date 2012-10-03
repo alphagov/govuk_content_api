@@ -6,9 +6,9 @@ end
 
 node(:description) { "Tags!" }
 node(:total) { @tags.count }
-node(:startIndex) { 1 }
-node(:pageSize) { @tags.count }
-node(:currentPage) { 1 }
+node(:start_index) { 1 }
+node(:page_size) { @tags.count }
+node(:current_page) { 1 }
 node(:pages) { 1 }
 node(:results) do
   @tags.map { |r|

@@ -6,9 +6,9 @@ end
 
 node(:description) { "Search for your query" }
 node(:total) { @results.count }
-node(:startIndex) { 1 }
-node(:pageSize) { @results.count }
-node(:currentPage) { 1 }
+node(:start_index) { 1 }
+node(:page_size) { @results.count }
+node(:current_page) { 1 }
 node(:pages) { 1 }
 
 node(:results) do
