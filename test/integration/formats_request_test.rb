@@ -169,7 +169,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'lgsl_code', 'lgil_override', 'introduction', 'more_information',
-                        'minutes_to_complete', 'expectation_ids']
+                        'minutes_to_complete', 'expectations']
 
     _assert_has_expected_fields(fields, expected_fields)
   end
@@ -188,7 +188,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
     expected_fields = ['alternate_methods', 'will_continue_on', 'link', 'introduction', 'more_information',
-                        'expectation_ids']
+                        'expectations']
 
     _assert_has_expected_fields(fields, expected_fields)
   end
@@ -205,7 +205,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_base_response_info(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['introduction', 'more_information', 'place_type', 'expectation_ids']
+    expected_fields = ['introduction', 'more_information', 'place_type', 'expectations']
 
     _assert_has_expected_fields(fields, expected_fields)
   end
