@@ -312,6 +312,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "http://www.test.gov.uk/#{artefact.slug}", parsed_response["web_url"]
       assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
       assert_equal "1234", parsed_response["details"]["need_id"]
+      assert_equal DateTime.parse(edition.updated_at.to_s).to_s, parsed_response["details"]["updated_at"]
       # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
       assert_equal true, parsed_response["details"]["business_proposition"]
     end

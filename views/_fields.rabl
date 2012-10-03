@@ -6,7 +6,8 @@ node(:business_proposition) { |artefact| artefact.business_proposition }
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
-    :business_support_identifier, :max_employees, :organiser, :contact_details].each do |field|
+    :business_support_identifier, :max_employees, :organiser, :contact_details,
+    :updated_at].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     artefact.edition.send(field)
   end
