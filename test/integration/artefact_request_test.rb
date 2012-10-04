@@ -2,10 +2,6 @@ require 'test_helper'
 require 'uri'
 
 class ArtefactRequestTest < GovUkContentApiTest
-  def assert_status_field(expected, response)
-    assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
-  end
-
   def bearer_token_for_user_with_permission
     { 'HTTP_AUTHORIZATION' => 'Bearer xyz_has_permission_xyz' }
   end

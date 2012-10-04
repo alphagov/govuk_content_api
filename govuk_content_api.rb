@@ -154,6 +154,14 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :business_support_schemes, format: "json"
   end
 
+  get "/artefacts.json" do
+    statsd.time("request.artefacts") do
+      @artefacts = Artefact.live
+    end
+
+    render :rabl, :artefacts, format: "json"
+  end
+
   get "/:id.json" do
     @statsd_scope = "request.id.#{params[:id]}"
     verify_unpublished_permission if params[:edition]
