@@ -313,7 +313,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal true, parsed_response["details"]["business_proposition"]
     end
 
-    it "should set the format from the edition, not the artefact" do
+    it "should set the format from the edition, not the artefact in case the Artefact is out of date" do
       artefact = FactoryGirl.create(:artefact, kind: "answer", state: 'live')
       edition = FactoryGirl.create(:local_transaction_edition, panopticon_id: artefact.id,
             lgsl_code: FactoryGirl.create(:local_service).lgsl_code, state: 'published')
