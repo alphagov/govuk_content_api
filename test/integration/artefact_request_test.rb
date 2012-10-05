@@ -61,7 +61,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       archived = FactoryGirl.create(:artefact, state: 'archived')
     ]
 
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, 
+    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts,
         state: 'live', slug: "workaround")
 
     get "/#{artefact.slug}.json"
@@ -89,7 +89,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   it "should not look for edition if publisher not owner" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
-    
+
     get "/#{artefact.slug}.json"
 
     assert_equal 200, last_response.status
@@ -115,7 +115,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     sections.each do |tag_id, title|
       TagRepository.put(tag_id: tag_id, title: title, tag_type: "section")
     end
-    artefact = FactoryGirl.create(:non_publisher_artefact, 
+    artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |slug, title| slug },
         state: 'live')
 
@@ -273,7 +273,7 @@ class ArtefactRequestTest < GovUkContentApiTest
         it "should return draft data if using edition parameter, edition is draft" do
           Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
           Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => { "Content API" => ["access_unpublished"] }))
-          
+
           get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
           assert_equal 200, last_response.status
           parsed_response = JSON.parse(last_response.body)
@@ -325,11 +325,11 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should convert artefact body and part bodies to html" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-          panopticon_id: artefact.id, 
-          parts: [ 
+      edition = FactoryGirl.create(:guide_edition,
+          panopticon_id: artefact.id,
+          parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
-          ], 
+          ],
           state: 'published')
 
       get "/#{artefact.slug}.json"
@@ -341,11 +341,11 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should return govspeak in artefact body and part bodies if requested" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-          panopticon_id: artefact.id, 
-          parts: [ 
+      edition = FactoryGirl.create(:guide_edition,
+          panopticon_id: artefact.id,
+          parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
-          ], 
+          ],
           state: 'published')
 
       get "/#{artefact.slug}.json?content_format=govspeak"
