@@ -17,7 +17,7 @@ node(:body, :if => lambda { |artefact| artefact.edition.respond_to?(:body) }) do
   format_content(artefact.edition.body)
 end
 
-node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:parts) }) do |artefact|
+node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:order_parts) }) do |artefact|
   partial("parts", object: artefact)
 end
 

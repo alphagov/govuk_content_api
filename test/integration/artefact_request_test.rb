@@ -355,12 +355,13 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
     end
 
-    it "should return parts" do
+    it "should return parts in the correct order" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-        panopticon_id: artefact.id, 
+      edition = FactoryGirl.create(:guide_edition,
+        panopticon_id: artefact.id,
         parts: [
-          Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one") 
+          Part.new(title: "Part Two", order: 2, body: "## Header 3", slug: "part-two"),
+          Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one")
         ],
         state: 'published')
 
