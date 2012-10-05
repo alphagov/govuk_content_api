@@ -58,6 +58,10 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should default to the mainstream index" do
+    search_stub = stub(search: sample_results)
+    GdsApi::Rummager.expects(:new).with { |u| u.match /mainstream/ }.returns(search_stub)
+    get "/search.json?q=something"
+    assert last_response.ok?
   end
 
   it "should include proper URLs for each response" do
