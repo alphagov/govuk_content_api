@@ -56,9 +56,9 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   it "should exclude unpublished related artefacts" do
     related_artefacts = [
-      draft    = FactoryGirl.create(:artefact, state: 'draft'),
-      live     = FactoryGirl.create(:artefact, state: 'live'),
-      archived = FactoryGirl.create(:artefact, state: 'archived')
+      FactoryGirl.create(:artefact, state: 'draft'),
+      live = FactoryGirl.create(:artefact, state: 'live'),
+      FactoryGirl.create(:artefact, state: 'archived')
     ]
 
     artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts,
@@ -241,7 +241,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     it "gets the published edition if a previous archived edition exists" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
       edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id)
-      edition2 = FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
+      FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
 
       get "/#{edition.artefact.slug}.json"
 
@@ -289,7 +289,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
           get "/#{@artefact.slug}.json?edition=1", {}, bearer_token_for_user_with_permission
           assert_equal 200, last_response.status
-          parsed_response = JSON.parse(last_response.body)
+          JSON.parse(last_response.body)
         end
       end
     end
@@ -315,7 +315,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should set the format from the edition, not the artefact in case the Artefact is out of date" do
       artefact = FactoryGirl.create(:artefact, kind: "answer", state: 'live')
-      edition = FactoryGirl.create(:local_transaction_edition, panopticon_id: artefact.id,
+      FactoryGirl.create(:local_transaction_edition, panopticon_id: artefact.id,
             lgsl_code: FactoryGirl.create(:local_service).lgsl_code, state: 'published')
 
       get "/#{artefact.slug}.json"
@@ -325,7 +325,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should convert artefact body and part bodies to html" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition,
+      FactoryGirl.create(:guide_edition,
           panopticon_id: artefact.id,
           parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
@@ -341,7 +341,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should return govspeak in artefact body and part bodies if requested" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition,
+      FactoryGirl.create(:guide_edition,
           panopticon_id: artefact.id,
           parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
@@ -357,7 +357,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should return parts in the correct order" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
-      edition = FactoryGirl.create(:guide_edition,
+      FactoryGirl.create(:guide_edition,
         panopticon_id: artefact.id,
         parts: [
           Part.new(title: "Part Two", order: 2, body: "## Header 3", slug: "part-two"),
