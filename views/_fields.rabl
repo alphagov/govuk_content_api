@@ -1,7 +1,7 @@
 node(:need_id) { |artefact| artefact.need_id }
 node(:business_proposition) { |artefact| artefact.business_proposition }
 
-[:format, :alternative_title, :overview, :more_information, :min_value, :max_value,
+[:alternative_title, :overview, :more_information, :min_value, :max_value,
     :short_description, :introduction, :will_continue_on, :continuation_link, :link, :alternate_methods,
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
