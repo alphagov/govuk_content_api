@@ -56,7 +56,7 @@ class GovUkContentApi < Sinatra::Application
     artefacts = Artefact.live.any_in(tag_ids: tag_ids).where(kind: 'licence')
     @results = map_artefacts_and_add_editions(artefacts)
 
-    render :rabl, :licenses, format: "json"
+    render :rabl, :licences, format: "json"
   end
 
   get "/local_authorities/:snac.json" do
