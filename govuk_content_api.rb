@@ -49,7 +49,9 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :local_authorities, format: "json"
   end
 
-  get "/licences(.json)" do
+  get "/licences.?:format?" do
+    halt(404) unless params[:format].nil? or params[:format] == 'json'
+
     licence_ids = (params[:ids] || '').split(',')
     artefacts = Artefact.live.any_in(tag_ids: tag_ids).where(kind: 'licence')
     @results = map_artefacts_and_add_editions(artefacts)
