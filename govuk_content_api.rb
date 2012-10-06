@@ -49,6 +49,14 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :local_authorities, format: "json"
   end
 
+  get "/licences(.json)" do
+    licence_ids = (params[:ids] || '').split(',')
+    artefacts = Artefact.live.any_in(tag_ids: tag_ids).where(kind: 'licence')
+    @results = map_artefacts_and_add_editions(artefacts)
+
+    render :rabl, :licenses, format: "json"
+  end
+
   get "/local_authorities/:snac.json" do
     @statsd_scope = "request.local_authority.#{params[:snac]}"
     if params[:snac]
