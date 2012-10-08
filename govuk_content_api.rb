@@ -49,20 +49,6 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :local_authorities, format: "json"
   end
 
-  get "/licences.?:format?" do
-    halt(404) unless params[:format].nil? or params[:format] == 'json'
-
-    licence_ids = (params[:ids] || '').split(',')
-    if licence_ids.any?
-      licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
-      @results = map_editions_with_artefacts(licences)
-    else
-      @results = []
-    end
-
-    render :rabl, :licences, format: "json"
-  end
-
   get "/local_authorities/:snac.json" do
     @statsd_scope = "request.local_authority.#{params[:snac]}"
     if params[:snac]
@@ -153,6 +139,20 @@ class GovUkContentApi < Sinatra::Application
     @results = map_artefacts_and_add_editions(artefacts)
 
     render :rabl, :with_tag, format: "json"
+  end
+
+  get "/licences.?:format?" do
+    halt(404) unless params[:format].nil? or params[:format] == 'json'
+
+    licence_ids = (params[:ids] || '').split(',')
+    if licence_ids.any?
+      licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
+      @results = map_editions_with_artefacts(licences)
+    else
+      @results = []
+    end
+
+    render :rabl, :licences, format: "json"
   end
 
   get "/business_support_schemes.json" do
