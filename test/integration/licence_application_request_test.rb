@@ -1,7 +1,7 @@
 require 'test_helper'
 require "gds_api/test_helpers/licence_application"
 
-class LicenceRequestTest < GovUkContentApiTest
+class LicenceApplicationRequestTest < GovUkContentApiTest
   include GdsApi::TestHelpers::LicenceApplication
 
   it "should return full licence details for an edition with a licence identifier" do
