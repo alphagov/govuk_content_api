@@ -1,12 +1,13 @@
 node(:need_id) { |artefact| artefact.need_id }
 node(:business_proposition) { |artefact| artefact.business_proposition }
 
-[:format, :alternative_title, :overview, :more_information, :min_value, :max_value,
+[:alternative_title, :overview, :more_information, :min_value, :max_value,
     :short_description, :introduction, :will_continue_on, :continuation_link, :link, :alternate_methods,
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
-    :lgsl_code, :lgil_override, :minutes_to_complete, :expectation_ids, :place_type,
+    :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
-    :business_support_identifier, :max_employees, :organiser, :contact_details].each do |field|
+    :business_support_identifier, :max_employees, :organiser, :contact_details,
+    :updated_at].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     artefact.edition.send(field)
   end
@@ -16,7 +17,7 @@ node(:body, :if => lambda { |artefact| artefact.edition.respond_to?(:body) }) do
   format_content(artefact.edition.body)
 end
 
-node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:parts) }) do |artefact|
+node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:order_parts) }) do |artefact|
   partial("parts", object: artefact)
 end
 
@@ -39,4 +40,8 @@ end
 
 node(:local_service, :if => lambda { |artefact| artefact.edition.respond_to?(:service) }) do |artefact|
   partial("local_service", object: artefact.edition.service)
+end
+
+node(:expectations, :if => lambda { |artefact| artefact.edition.respond_to?(:expectations) }) do |artefact|
+  artefact.edition.expectations.map(&:text)
 end

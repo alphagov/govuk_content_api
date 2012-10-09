@@ -25,6 +25,7 @@ gem 'govspeak', '1.0.1'
 gem 'plek', '0.3.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
+gem 'aws-ses'
 
 group :test do
   gem 'database_cleaner', '0.7.2'

@@ -4,7 +4,7 @@ node :_response_info do
   { status: "ok" }
 end
 
-node(:description) { "Search for your query" }
+node(:description) { "Licences" }
 node(:total) { @results.count }
 node(:start_index) { 1 }
 node(:page_size) { @results.count }

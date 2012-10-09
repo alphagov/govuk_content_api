@@ -140,6 +140,20 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :with_tag, format: "json"
   end
 
+  get "/licences.?:format?" do
+    halt(404) unless params[:format].nil? or params[:format] == 'json'
+
+    licence_ids = (params[:ids] || '').split(',')
+    if licence_ids.any?
+      licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
+      @results = map_editions_with_artefacts(licences)
+    else
+      @results = []
+    end
+
+    render :rabl, :licences, format: "json"
+  end
+
   get "/business_support_schemes.json" do
     identifiers = params[:identifiers].to_s.split(",")
     statsd.time("request.business_support_schemes") do
@@ -151,6 +165,14 @@ class GovUkContentApi < Sinatra::Application
       end
     end
     render :rabl, :business_support_schemes, format: "json"
+  end
+
+  get "/artefacts.json" do
+    statsd.time("request.artefacts") do
+      @artefacts = Artefact.live
+    end
+
+    render :rabl, :artefacts, format: "json"
   end
 
   get "/:id.json" do
@@ -172,6 +194,18 @@ class GovUkContentApi < Sinatra::Application
   end
 
   protected
+  def map_editions_with_artefacts(editions)
+    statsd.time("#{@statsd_scope}.map_editions_to_artefacts") do
+      artefact_ids = editions.collect(&:panopticon_id)
+      matching_artefacts = Artefact.live.any_in(_id: artefact_ids)
+
+      matching_artefacts.map do |artefact|
+        artefact.edition = editions.detect { |e| e.panopticon_id.to_s == artefact.id.to_s }
+        artefact
+      end
+    end
+  end
+
   def map_artefacts_and_add_editions(artefacts)
     statsd.time("#{@statsd_scope}.map_results") do
       # Preload to avoid hundreds of individual queries

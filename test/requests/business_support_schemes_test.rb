@@ -28,7 +28,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 3, parsed_response["total"]
-      assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["details"]["short_description"] }
+      assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["details"]["short_description"] }.sort
     end
 
     it "should return basic artefact details for each result" do
@@ -63,7 +63,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 2, parsed_response["total"]
-      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["details"]["short_description"] }
+      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["details"]["short_description"] }.sort
     end
 
     it "should only return published business support editions" do

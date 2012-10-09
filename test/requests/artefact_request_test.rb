@@ -2,10 +2,6 @@ require 'test_helper'
 require 'uri'
 
 class ArtefactRequestTest < GovUkContentApiTest
-  def assert_status_field(expected, response)
-    assert_equal expected, JSON.parse(response.body)["_response_info"]["status"]
-  end
-
   def bearer_token_for_user_with_permission
     { 'HTTP_AUTHORIZATION' => 'Bearer xyz_has_permission_xyz' }
   end
@@ -60,12 +56,12 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   it "should exclude unpublished related artefacts" do
     related_artefacts = [
-      draft    = FactoryGirl.create(:artefact, state: 'draft'),
-      live     = FactoryGirl.create(:artefact, state: 'live'),
-      archived = FactoryGirl.create(:artefact, state: 'archived')
+      FactoryGirl.create(:artefact, state: 'draft'),
+      live = FactoryGirl.create(:artefact, state: 'live'),
+      FactoryGirl.create(:artefact, state: 'archived')
     ]
 
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, 
+    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts,
         state: 'live', slug: "workaround")
 
     get "/#{artefact.slug}.json"
@@ -93,7 +89,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   it "should not look for edition if publisher not owner" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
-    
+
     get "/#{artefact.slug}.json"
 
     assert_equal 200, last_response.status
@@ -119,7 +115,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     sections.each do |tag_id, title|
       TagRepository.put(tag_id: tag_id, title: title, tag_type: "section")
     end
-    artefact = FactoryGirl.create(:non_publisher_artefact, 
+    artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |slug, title| slug },
         state: 'live')
 
@@ -245,7 +241,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     it "gets the published edition if a previous archived edition exists" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
       edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id)
-      edition2 = FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
+      FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
 
       get "/#{edition.artefact.slug}.json"
 
@@ -277,7 +273,7 @@ class ArtefactRequestTest < GovUkContentApiTest
         it "should return draft data if using edition parameter, edition is draft" do
           Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
           Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => { "Content API" => ["access_unpublished"] }))
-          
+
           get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
           assert_equal 200, last_response.status
           parsed_response = JSON.parse(last_response.body)
@@ -293,7 +289,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
           get "/#{@artefact.slug}.json?edition=1", {}, bearer_token_for_user_with_permission
           assert_equal 200, last_response.status
-          parsed_response = JSON.parse(last_response.body)
+          JSON.parse(last_response.body)
         end
       end
     end
@@ -312,17 +308,28 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "http://www.test.gov.uk/#{artefact.slug}", parsed_response["web_url"]
       assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
       assert_equal "1234", parsed_response["details"]["need_id"]
+      assert_equal DateTime.parse(edition.updated_at.to_s).to_s, parsed_response["details"]["updated_at"]
       # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
       assert_equal true, parsed_response["details"]["business_proposition"]
     end
 
+    it "should set the format from the edition, not the artefact in case the Artefact is out of date" do
+      artefact = FactoryGirl.create(:artefact, kind: "answer", state: 'live')
+      FactoryGirl.create(:local_transaction_edition, panopticon_id: artefact.id,
+            lgsl_code: FactoryGirl.create(:local_service).lgsl_code, state: 'published')
+
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal "local_transaction", parsed_response["format"]
+    end
+
     it "should convert artefact body and part bodies to html" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-          panopticon_id: artefact.id, 
-          parts: [ 
+      FactoryGirl.create(:guide_edition,
+          panopticon_id: artefact.id,
+          parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
-          ], 
+          ],
           state: 'published')
 
       get "/#{artefact.slug}.json"
@@ -334,11 +341,11 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "should return govspeak in artefact body and part bodies if requested" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-          panopticon_id: artefact.id, 
-          parts: [ 
+      FactoryGirl.create(:guide_edition,
+          panopticon_id: artefact.id,
+          parts: [
             Part.new(title: "Part One", body: "## Header 2", slug: "part-one")
-          ], 
+          ],
           state: 'published')
 
       get "/#{artefact.slug}.json?content_format=govspeak"
@@ -348,12 +355,13 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
     end
 
-    it "should return parts" do
+    it "should return parts in the correct order" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
-      edition = FactoryGirl.create(:guide_edition, 
-        panopticon_id: artefact.id, 
+      FactoryGirl.create(:guide_edition,
+        panopticon_id: artefact.id,
         parts: [
-          Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one") 
+          Part.new(title: "Part Two", order: 2, body: "## Header 3", slug: "part-two"),
+          Part.new(title: "Part One", order: 1, body: "## Header 2", slug: "part-one")
         ],
         state: 'published')
 
