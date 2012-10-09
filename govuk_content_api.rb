@@ -1,12 +1,12 @@
 require 'sinatra'
 require 'rabl'
-require 'solr_wrapper'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'url_helpers'
 require 'content_format_helpers'
 require 'gds_api/helpers'
+require 'gds_api/rummager'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
@@ -67,21 +67,20 @@ class GovUkContentApi < Sinatra::Application
   get "/search.json" do
     begin
       @statsd_scope = "request.search.q.#{params[:q]}"
-      params[:index] ||= 'mainstream'
+      search_index = params[:index] || 'mainstream'
 
-      if params[:index] == 'mainstream'
-        index = SolrWrapper.new(DelSolr::Client.new(settings.mainstream_solr), settings.recommended_format)
-      elsif params[:index] == 'whitehall'
-        index = SolrWrapper.new(DelSolr::Client.new(settings.inside_solr), settings.recommended_format)
-      else
-        raise "What do you want?"
+      unless ['mainstream', 'detailed', 'government'].include?(search_index)
+        custom_404
       end
+
       statsd.time(@statsd_scope) do
-        @results = index.search(params[:q])
+        search_uri = Plek.current.find('search') + "/#{search_index}"
+        client = GdsApi::Rummager.new(search_uri)
+        @results = client.search(params[:q])
       end
 
       render :rabl, :search, format: "json"
-    rescue Errno::ECONNREFUSED
+    rescue GdsApi::Rummager::SearchServiceError, GdsApi::Rummager::SearchTimeout
       statsd.increment('request.search.unavailable')
       halt 503, render(:rabl, :unavailable, format: "json")
     end
