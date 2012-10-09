@@ -67,14 +67,14 @@ class GovUkContentApi < Sinatra::Application
   get "/search.json" do
     begin
       @statsd_scope = "request.search.q.#{params[:q]}"
-      params[:index] ||= 'mainstream'
+      search_index = params[:index] || 'mainstream'
 
-      unless ['mainstream', 'detailed', 'government'].include?(params[:index])
+      unless ['mainstream', 'detailed', 'government'].include?(search_index)
         custom_404
       end
 
       statsd.time(@statsd_scope) do
-        search_uri = Plek.current.find('search') + "/#{params[:index]}"
+        search_uri = Plek.current.find('search') + "/#{search_index}"
         client = GdsApi::Rummager.new(search_uri)
         @results = client.search(params[:q])
       end
