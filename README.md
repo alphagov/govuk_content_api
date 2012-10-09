@@ -16,7 +16,6 @@ internal discussion of how it should look and function.
   * contact-o-tron
 
 * Database error handling
-* See if the solr code can be simplified
 * Clean way to add more publication types
 * Include related items
 * Include curated lists
