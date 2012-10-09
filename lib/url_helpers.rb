@@ -13,6 +13,14 @@ module URLHelpers
     "#{base_web_search_url}/browse/#{tag.tag_id}"
   end
 
+  def search_result_url(result)
+    api_url(result['link']) + ".json"
+  end
+
+  def search_result_web_url(result)
+    url(result['link'])
+  end
+
   def artefact_url(artefact)
     api_url("/#{CGI.escape(artefact.slug)}.json")
   end
