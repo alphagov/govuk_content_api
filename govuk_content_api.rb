@@ -183,7 +183,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/:id.json" do
-    @statsd_scope = "request.id.#{params[:id]}"
+    @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
     statsd.time("#{@statsd_scope}") do
