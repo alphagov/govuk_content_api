@@ -33,16 +33,39 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   end
 
   it "should return a curated list of results" do
-    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
-    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
-    bat2 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 2', slug: 'batman-returns')
-    bat3 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 3', slug: 'batman-forever')
-    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
-    bat_guide2 = FactoryGirl.create(:guide_edition, panopticon_id: bat2.id, state: "published", slug: 'batman-returns')
-    bat_guide3 = FactoryGirl.create(:guide_edition, panopticon_id: bat3.id, state: "published", slug: 'batman-forever')
+    batman_tag = FactoryGirl.create(
+      :tag,
+      tag_id: 'batman',
+      title: 'Batman',
+      tag_type: 'section'
+    )
+
+    bat_data = [
+      ['batman', 'Bat'],
+      ['batman-returns', 'Bat 2'],
+      ['batman-forever', 'Bat 3']
+    ]
+    bat_artefacts = bat_data.map { |slug, name|
+      FactoryGirl.create(
+        :artefact,
+        owning_app: 'publisher',
+        sections: ['batman'],
+        name: name,
+        slug: slug
+      )
+    }
+
+    bat_guides = bat_artefacts.map { |artefact|
+      FactoryGirl.create(
+        :guide_edition,
+        panopticon_id: artefact.id,
+        state: "published",
+        slug: artefact.slug
+      )
+    }
     curated_list = FactoryGirl.create(:curated_list)
-    curated_list.sections = [batman.tag_id]
-    curated_list.artefact_ids = [bat3._id, bat._id]
+    curated_list.sections = [batman_tag.tag_id]
+    curated_list.artefact_ids = [bat_artefacts[2]._id, bat_artefacts[0]._id]
     curated_list.save!
 
     get "/with_tag.json?tag=batman&sort=curated"
