@@ -9,3 +9,10 @@ node(:format) do |artefact|
   end
 end
 node(:details) { |artefact| partial("fields", object: artefact) }
+node(:updated_at) { |artefact|
+  if artefact.edition && artefact.edition.updated_at && artefact.edition.updated_at > artefact.updated_at
+    artefact.edition.updated_at.xmlschema
+  else
+    artefact.updated_at.xmlschema
+  end
+}

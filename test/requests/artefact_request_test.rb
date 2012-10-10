@@ -148,6 +148,39 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal 'smart-answer', response["format"]
   end
 
+  describe "updated timestamp" do
+    it "should set the updated_at field at the top-level from the artefact if there's no edition" do
+      artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
+      get "/#{artefact.slug}.json"
+
+      assert_equal 200, last_response.status
+      response = JSON.parse(last_response.body)
+      assert_equal artefact.updated_at.xmlschema, response["updated_at"]
+    end
+
+    it "should set the updated_at field from the artefact if it's most recently updated" do
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published')
+      edition.update_attribute(:updated_at, 3.days.ago)
+      get "/#{artefact.slug}.json"
+
+      assert_equal 200, last_response.status
+      response = JSON.parse(last_response.body)
+      assert_equal artefact.updated_at.xmlschema, response["updated_at"]
+    end
+
+    it "should set the updated_at field from the edition if it's most recently updated" do
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published')
+      artefact.update_attribute(:updated_at, 3.days.ago)
+      get "/#{artefact.slug}.json"
+
+      assert_equal 200, last_response.status
+      response = JSON.parse(last_response.body)
+      assert_equal edition.updated_at.xmlschema, response["updated_at"]
+    end
+  end
+
   describe "publisher artefacts" do
 
     describe "with local transactions" do
@@ -308,7 +341,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "http://www.test.gov.uk/#{artefact.slug}", parsed_response["web_url"]
       assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
       assert_equal "1234", parsed_response["details"]["need_id"]
-      assert_equal DateTime.parse(edition.updated_at.to_s).to_s, parsed_response["details"]["updated_at"]
+      assert_equal DateTime.parse(edition.updated_at.to_s).to_s, parsed_response["updated_at"]
       # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
       assert_equal true, parsed_response["details"]["business_proposition"]
     end
