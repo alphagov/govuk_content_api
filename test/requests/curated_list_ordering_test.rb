@@ -54,6 +54,19 @@ class CuratedListOrderingTest < GovUkContentApiTest
     }
   end
 
+  def assert_result_titles(expected_titles, options = {})
+    check_order = options.fetch(:check_order, true)
+
+    assert last_response.ok?
+    results = JSON.parse(last_response.body)["results"]
+    result_titles = results.map { |r| r["title"] }
+    if check_order
+      assert_equal expected_titles, result_titles
+    else
+      assert_equal expected_titles.sort, result_titles.sort
+    end
+  end
+
   it "should return a curated list of results" do
     curated_list = FactoryGirl.create(:curated_list)
     curated_list.sections = [@tag.tag_id]
@@ -62,17 +75,12 @@ class CuratedListOrderingTest < GovUkContentApiTest
 
     get "/with_tag.json?tag=batman&sort=curated"
 
-    assert last_response.ok?
-    assert_equal 2, JSON.parse(last_response.body)["results"].count
-    assert_equal "Bat 3", JSON.parse(last_response.body)["results"][0]["title"]
-    assert_equal "Bat", JSON.parse(last_response.body)["results"][1]["title"]
+    assert_result_titles ["Bat 3", "Bat"]
   end
 
   it "should return all live things if no curated list is found" do
     get "/with_tag.json?tag=batman&sort=curated"
 
-    assert last_response.ok?
-    results = JSON.parse(last_response.body)["results"]
-    assert_equal ["Bat", "Bat 2", "Bat 3"], results.map { |r| r["title"] }.sort
+    assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
   end
 end
