@@ -5,6 +5,7 @@ require 'govspeak'
 require 'plek'
 require 'url_helpers'
 require 'content_format_helpers'
+require 'timestamp_helpers'
 require 'gds_api/helpers'
 require 'gds_api/rummager'
 require_relative "config"
@@ -13,7 +14,7 @@ require 'config/gds_sso_middleware'
 require 'models'
 
 class GovUkContentApi < Sinatra::Application
-  helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers
+  helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
 
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
