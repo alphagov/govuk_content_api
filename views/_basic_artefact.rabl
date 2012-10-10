@@ -11,8 +11,8 @@ end
 node(:details) { |artefact| partial("fields", object: artefact) }
 node(:updated_at) { |artefact|
   if artefact.edition && artefact.edition.updated_at && artefact.edition.updated_at > artefact.updated_at
-    artefact.edition.updated_at.xmlschema
+    artefact.edition.updated_at.iso8601
   else
-    artefact.updated_at.xmlschema
+    artefact.updated_at.iso8601
   end
 }
