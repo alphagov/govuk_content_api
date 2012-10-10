@@ -330,7 +330,7 @@ class GovUkContentApi < Sinatra::Application
   # Initialise statsd
   def statsd
     @statsd ||= Statsd.new("localhost").tap do |c|
-      c.namespace = "govuk.app.contentapi"
+      c.namespace = ENV['GOVUK_STATSD_PREFIX'].to_s
     end
   end
 
