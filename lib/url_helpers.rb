@@ -34,8 +34,11 @@ module URLHelpers
   end
 
   def api_url(uri)
-    env['SCRIPT_NAME'] = env['HTTP_API_PREFIX']
-    url(uri)
+    if env['HTTP_API_PREFIX'] && env['HTTP_API_PREFIX'] != ''
+      Plek.current.find('www') + "/#{env['HTTP_API_PREFIX']}#{uri}"
+    else
+      url(uri)
+    end
   end
 
   def base_web_url(artefact)
