@@ -116,6 +116,17 @@ class CuratedListOrderingTest < GovUkContentApiTest
     assert_result_titles ["Bat 3", "Bat 2", "Bat"]
   end
 
+  it "should include unlisted items in name order" do
+    curated_list = FactoryGirl.create(
+      :curated_list,
+      sections: [@tag.tag_id],
+      artefact_ids: [@live_artefacts[2]._id]
+    )
+
+    get "/with_tag.json?tag=batman&sort=curated"
+    assert_result_titles ["Bat 3", "Bat", "Bat 2"]
+  end
+
   it "should exclude items not in the section" do
     curated_list = FactoryGirl.create(
       :curated_list,
