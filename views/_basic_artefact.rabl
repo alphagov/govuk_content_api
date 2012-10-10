@@ -9,3 +9,6 @@ node(:format) do |artefact|
   end
 end
 node(:details) { |artefact| partial("fields", object: artefact) }
+node(:updated_at) { |artefact|
+  most_recent_updated_at(artefact).iso8601
+}
