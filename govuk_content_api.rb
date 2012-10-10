@@ -246,23 +246,35 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def sorted_artefacts_for_tag_ids(tag_ids, sort)
-    if sort == "curated"
-      curated_list = nil
-      if sort
-        # Curated list can only be associated with one section
-        curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
-      end
+    statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
+      artefacts = Artefact.live.any_in(tag_ids: tag_ids)
 
-      if curated_list
-        artefacts = curated_list.artefacts
+      if sort == "curated"
+        # Load in the curated list and use it as an ordering for the top items
+        # in the list. Any items not present in the list go on the end, in an
+        # indeterminate order.
+        #
+        # For example, if the curated list is
+        #
+        #     [3, 1, 2]
+        #
+        # and the items have ids
+        #
+        #     [1, 2, 3, 4, 5]
+        #
+        # the sorted list will be one of the following:
+        #
+        #     [3, 1, 2, 4, 5]
+        #     [3, 1, 2, 5, 4]
+
+        curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
+        artefact_ids = curated_list ? curated_list.artefact_ids : []
+
+        return artefacts.to_a.sort_by { |artefact|
+          artefact_ids.find_index(artefact._id) || artefact_ids.length
+        }
       else
-        statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-          artefacts = Artefact.live.any_in(tag_ids: tag_ids)
-        end
-      end
-    else
-      statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-        artefacts = Artefact.live.any_in(tag_ids: tag_ids).order_by(:name, :asc)
+        return artefacts.order_by :name, :asc
       end
     end
   end

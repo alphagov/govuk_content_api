@@ -52,6 +52,28 @@ class CuratedListOrderingTest < GovUkContentApiTest
         slug: artefact.slug
       )
     }
+
+    FactoryGirl.create(
+      :tag,
+      tag_id: "x-men",
+      title: "X-Men",
+      tag_type: "section"
+    )
+
+    @other_section_artefact = FactoryGirl.create(
+      :artefact,
+      owning_app: "publisher",
+      sections: ["x-men"],
+      name: "James Howlett",
+      slug: "james-howlett",
+      state: "live"
+    )
+    @other_section_guide = FactoryGirl.create(
+      :guide_edition,
+      panopticon_id: @other_section_artefact.id,
+      state: "published",
+      slug: @other_section_artefact.slug
+    )
   end
 
   def result_titles
@@ -83,9 +105,37 @@ class CuratedListOrderingTest < GovUkContentApiTest
     assert_result_titles ["Bat 3", "Bat", "Bat 2"]
   end
 
+  it "should include unlisted items at the end" do
+    curated_list = FactoryGirl.create(
+      :curated_list,
+      sections: [@tag.tag_id],
+      artefact_ids: [@live_artefacts[2], @live_artefacts[1]].map(&:_id)
+    )
+
+    get "/with_tag.json?tag=batman&sort=curated"
+    assert_result_titles ["Bat 3", "Bat 2", "Bat"]
+  end
+
+  it "should exclude items not in the section" do
+    curated_list = FactoryGirl.create(
+      :curated_list,
+      sections: [@tag.tag_id],
+      artefact_ids: [@live_artefacts[1]._id, @other_section_artefact._id]
+    )
+    get "/with_tag.json?tag=batman&sort=curated"
+    assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
+    assert_equal "Bat 2", result_titles[0]
+  end
+
   it "should return all live things if no curated list is found" do
     get "/with_tag.json?tag=batman&sort=curated"
 
+    assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
+  end
+
+  it "should return all live things if the list is empty" do
+    curated_list = FactoryGirl.create(:curated_list, sections: [@tag.tag_id])
+    get "/with_tag.json?tag=batman&sort=curated"
     assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
   end
 end
