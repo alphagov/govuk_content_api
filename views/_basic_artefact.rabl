@@ -10,9 +10,7 @@ node(:format) do |artefact|
 end
 node(:details) { |artefact| partial("fields", object: artefact) }
 node(:updated_at) { |artefact|
-  if artefact.edition && artefact.edition.updated_at && artefact.edition.updated_at > artefact.updated_at
-    artefact.edition.updated_at.iso8601
-  else
-    artefact.updated_at.iso8601
-  end
+  updated_options = [artefact.updated_at]
+  updated_options << artefact.edition.updated_at if artefact.edition
+  updated_options.compact.max.iso8601
 }
