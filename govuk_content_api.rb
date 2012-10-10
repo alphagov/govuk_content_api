@@ -16,11 +16,17 @@ class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers
 
   set :views, File.expand_path('views', File.dirname(__FILE__))
+  set :show_exceptions, false
 
   # Register RABL
   Rabl.register!
   Rabl.configure do |c|
     c.json_engine = :yajl
+  end
+
+  error Mongo::MongoDBError, Mongo::MongoRubyError do
+    statsd.increment("mongo_error")
+    raise
   end
 
   before do
