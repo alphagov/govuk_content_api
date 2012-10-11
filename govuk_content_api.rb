@@ -358,6 +358,7 @@ class GovUkContentApi < Sinatra::Application
 
   def verify_unpublished_permission
     warden = request.env['warden']
+    return if (ENV['RACK_ENV'] == "development") && ENV['REQUIRE_AUTH'].nil?
     if warden.authenticate?
       if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
         return true
