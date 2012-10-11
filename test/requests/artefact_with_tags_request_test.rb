@@ -32,37 +32,6 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     assert_equal 1, JSON.parse(last_response.body)["results"].count
   end
 
-  it "should return a curated list of results" do
-    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
-    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
-    bat2 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 2', slug: 'batman-returns')
-    bat3 = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat 3', slug: 'batman-forever')
-    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
-    bat_guide2 = FactoryGirl.create(:guide_edition, panopticon_id: bat2.id, state: "published", slug: 'batman-returns')
-    bat_guide3 = FactoryGirl.create(:guide_edition, panopticon_id: bat3.id, state: "published", slug: 'batman-forever')
-    curated_list = FactoryGirl.create(:curated_list)
-    curated_list.sections = [batman.tag_id]
-    curated_list.artefact_ids = [bat3._id, bat._id]
-    curated_list.save!
-
-    get "/with_tag.json?tag=batman&sort=curated"
-
-    assert last_response.ok?
-    assert_equal 2, JSON.parse(last_response.body)["results"].count
-    assert_equal "Bat 3", JSON.parse(last_response.body)["results"][0]["title"]
-    assert_equal "Bat", JSON.parse(last_response.body)["results"][1]["title"]
-  end
-
-  it "should return all things if no curated list is found" do
-    batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
-    bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman', state: 'live')
-    bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
-    get "/with_tag.json?tag=batman&sort=curated"
-
-    assert last_response.ok?
-    assert_equal 1, JSON.parse(last_response.body)["results"].count
-  end
-
   it "should return a 404 if an unsupported sort order is requested" do
     batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
     bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
