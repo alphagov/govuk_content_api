@@ -18,7 +18,7 @@ module URLHelpers
   end
 
   def search_result_web_url(result)
-    url(result['link'])
+    Plek.current.find('www') + result['link']
   end
 
   def artefact_url(artefact)
