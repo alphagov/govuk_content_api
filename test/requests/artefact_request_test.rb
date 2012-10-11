@@ -356,6 +356,17 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "local_transaction", parsed_response["format"]
     end
 
+    it "should set the title from the edition, not the artefact in case the Artefact is out of date" do
+      artefact = FactoryGirl.create(:artefact, kind: "answer",
+                                    state: 'live', name: "artefact title")
+      FactoryGirl.create(:local_transaction_edition, title: "edition title", panopticon_id: artefact.id,
+        lgsl_code: FactoryGirl.create(:local_service).lgsl_code,
+        state: 'published')
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal "edition title", parsed_response["title"]
+    end
+
     it "should convert artefact body and part bodies to html" do
       artefact = FactoryGirl.create(:artefact, slug: "annoying", state: 'live')
       FactoryGirl.create(:guide_edition,
