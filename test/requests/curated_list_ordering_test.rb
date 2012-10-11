@@ -47,6 +47,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
     @guides = @live_artefacts.map { |artefact|
       FactoryGirl.create(
         :guide_edition,
+        title: artefact.name,
         panopticon_id: artefact.id,
         state: "published",
         slug: artefact.slug
