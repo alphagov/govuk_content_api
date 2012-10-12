@@ -11,7 +11,7 @@ require 'gds_api/rummager'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
-require 'models'
+require 'artefact'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
