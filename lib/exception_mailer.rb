@@ -28,7 +28,7 @@ class ExceptionMailer
     @ses.send_email(
       to: @to,
       source: @from,
-      subject: "[Rummager exception] #{exception.message}",
+      subject: "[Content API exception] #{exception.message}",
       text_body: mail_body(exception, env)
     )
   end
