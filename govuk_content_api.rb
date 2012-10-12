@@ -134,6 +134,8 @@ class GovUkContentApi < Sinatra::Application
   get "/with_tag.json" do
     @statsd_scope = 'request.with_tag'
 
+    custom_404 if params[:tag].nil? || params[:tag].empty?
+
     if params[:include_children].to_i > 1
       custom_error(501, "Include children only supports a depth of 1.")
     end
