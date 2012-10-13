@@ -1,6 +1,17 @@
 require 'test_helper'
 
 class ArtefactWithTagsRequestTest < GovUkContentApiTest
+
+  it "should return 404 if no tag is provided" do
+    Tag.expects(:where).never
+
+    ["/with_tag.json", "/with_tag.json?tag="].each do |url|
+      get url
+      assert last_response.not_found?
+      assert_status_field "not found", last_response
+    end
+  end
+
   it "should return 404 if tag not found" do
     Tag.expects(:where).with(tag_id: 'farmers').returns([])
 
