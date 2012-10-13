@@ -6,7 +6,6 @@ module ContentApiArtefactExtensions
 
   included do
     attr_accessor :edition, :licence
-    field :description, type: String
     scope :live, where(state: 'live')
   end
 
