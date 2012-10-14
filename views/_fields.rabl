@@ -1,5 +1,6 @@
 node(:need_id) { |artefact| artefact.need_id }
 node(:business_proposition) { |artefact| artefact.business_proposition }
+node(:description) { |artefact| artefact.description }
 
 [:alternative_title, :overview, :more_information, :min_value, :max_value,
     :short_description, :introduction, :will_continue_on, :continuation_link, :link, :alternate_methods,
