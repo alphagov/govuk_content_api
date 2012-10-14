@@ -46,10 +46,10 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
 
       fields = parsed_response["details"]
 
-      expected_fields = ['alternative_title', 'overview', 'body',
-                          'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
-                          'business_support_identifier', 'max_employees', 'organiser',
-                          'continuation_link', 'will_continue_on', 'contact_details']
+      expected_fields = ['alternative_title', 'body', 'short_description', 'min_value',
+        'max_value', 'eligibility', 'evaluation', 'additional_information',
+        'business_support_identifier', 'max_employees', 'organiser',
+        'continuation_link', 'will_continue_on', 'contact_details']
       expected_fields.each do |field|
         assert_has_field artefact["details"], field
       end
