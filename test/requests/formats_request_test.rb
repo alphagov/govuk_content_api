@@ -44,7 +44,7 @@ class FormatsRequestTest < GovUkContentApiTest
   it "should work with business_support_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug,
-                                short_description: "No policeman's going to give the Batmobile a ticket", min_value: 100,
+                                short_description: "No policeman is going to give the Batmobile a ticket", min_value: 100,
                                 max_value: 1000, panopticon_id: artefact.id, state: 'published',
                                 business_support_identifier: 'enterprise-finance-guarantee', max_employees: 10,
                                 organiser: "Someone", continuation_link: "http://www.example.com/scheme", will_continue_on: "Example site",
@@ -62,7 +62,7 @@ class FormatsRequestTest < GovUkContentApiTest
                         'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
                         'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on', 'contact_details']
     _assert_has_expected_fields(fields, expected_fields)
-    assert_equal "No policeman's going to give the Batmobile a ticket", fields['short_description']
+    assert_equal "<p>No policeman is going to give the Batmobile a ticket</p>", fields['short_description'].strip
     assert_equal "enterprise-finance-guarantee", fields['business_support_identifier']
   end
 
@@ -150,8 +150,8 @@ class FormatsRequestTest < GovUkContentApiTest
     expected_fields = ['alternative_title', 'licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
 
     _assert_has_expected_fields(fields, expected_fields)
-    assert_equal "Not just anyone can be Batman", fields["licence_overview"]
-    assert_equal "Batman licence", fields["licence_short_description"]
+    assert_equal "<p>Not just anyone can be Batman</p>", fields["licence_overview"].strip
+    assert_equal "<p>Batman licence</p>", fields["licence_short_description"].strip
   end
 
   it "should work with local_transaction_edition" do
