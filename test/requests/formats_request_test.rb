@@ -35,7 +35,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
 
-    expected_fields = ['alternative_title', 'overview', 'body']
+    expected_fields = ['description', 'alternative_title', 'body']
 
     _assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Important batman information</p>\n", fields["body"]
@@ -58,7 +58,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_base_response_info(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'overview', 'body',
+    expected_fields = ['alternative_title', 'description', 'body',
                         'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
                         'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on', 'contact_details']
     _assert_has_expected_fields(fields, expected_fields)
@@ -79,7 +79,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_base_response_info(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'overview', 'parts']
+    expected_fields = ['alternative_title', 'description', 'parts']
 
     _assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
@@ -102,7 +102,7 @@ class FormatsRequestTest < GovUkContentApiTest
     _assert_base_response_info(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'overview', 'parts']
+    expected_fields = ['alternative_title', 'description', 'parts']
 
     _assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
@@ -125,7 +125,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
 
-    expected_fields = %w(alternative_title overview video_url video_summary body)
+    expected_fields = %w(alternative_title description video_url video_summary body)
 
     _assert_has_expected_fields(fields, expected_fields)
     assert_equal "I am a video summary", fields["video_summary"]
