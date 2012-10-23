@@ -149,9 +149,7 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :with_tag, format: "json"
   end
 
-  get "/licences.?:format?" do
-    halt(404) unless params[:format].nil? or params[:format] == 'json'
-
+  get "/licences.json" do
     licence_ids = (params[:ids] || '').split(',')
     if licence_ids.any?
       licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
