@@ -2,19 +2,19 @@ node(:need_id) { |artefact| artefact.need_id }
 node(:business_proposition) { |artefact| artefact.business_proposition }
 node(:description) { |artefact| artefact.description }
 
-[:alternative_title, :more_information, :min_value, :max_value,
+[:body, :alternative_title, :more_information, :min_value, :max_value,
     :short_description, :introduction, :will_continue_on, :continuation_link, :link, :alternate_methods,
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
     :business_support_identifier, :max_employees, :organiser, :contact_details].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
-    artefact.edition.send(field)
+    if artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
+      format_content(artefact.edition.send(field))
+    else
+      artefact.edition.send(field)
+    end
   end
-end
-
-node(:body, :if => lambda { |artefact| artefact.edition.respond_to?(:body) }) do |artefact|
-  format_content(artefact.edition.body)
 end
 
 node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:order_parts) }) do |artefact|
