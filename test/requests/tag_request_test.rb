@@ -122,6 +122,7 @@ class TagRequestTest < GovUkContentApiTest
           "web_url" => nil,
           "details"=>{
             "description" => nil,
+            "short_description" => nil,
             "type" => "section"
           },
           "content_with_tag" => {
