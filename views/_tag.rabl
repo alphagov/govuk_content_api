@@ -5,6 +5,7 @@ attribute :title
 node :details do |tag|
   {
     description: tag.description,
+    short_description: tag.short_description,
     type: tag.tag_type
   }
 end
