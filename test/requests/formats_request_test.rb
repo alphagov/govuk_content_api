@@ -136,7 +136,7 @@ class FormatsRequestTest < GovUkContentApiTest
   it "should work with licence_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence',
-                                licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published',
+                                licence_overview: 'Not just anyone can be **Batman**', panopticon_id: artefact.id, state: 'published',
                                 will_continue_on: 'The Batman', continuation_link: 'http://www.batman.com', licence_identifier: "123-4-5")
     licence_exists('123-4-5', { })
 
@@ -150,7 +150,7 @@ class FormatsRequestTest < GovUkContentApiTest
     expected_fields = ['alternative_title', 'licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
 
     _assert_has_expected_fields(fields, expected_fields)
-    assert_equal "Not just anyone can be Batman", fields["licence_overview"]
+    assert_equal "<p>Not just anyone can be <strong>Batman</strong></p>\n", fields["licence_overview"]
     assert_equal "Batman licence", fields["licence_short_description"]
   end
 
