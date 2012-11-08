@@ -7,7 +7,13 @@ end
 node(:total) { @results.count }
 
 node(:results) do
-  @results.map { |r|
-    partial "_basic_artefact", object: r
-  }
+  @results.map do |r|
+    {
+      :id => artefact_url(r),
+      :web_url => artefact_web_url(r),
+      :title => r.edition.title,
+      :short_description => r.edition.short_description,
+      :format => r.kind 
+    }
+  end
 end
