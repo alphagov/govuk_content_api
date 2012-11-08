@@ -46,6 +46,6 @@ class LicenceFormatsTest < GovUkContentApiTest
     assert last_response.ok?
 
     parsed_response = JSON.parse(last_response.body)
-    assert_equal "<p>Music licence</p>", parsed_response["details"]["licence_short_description"].strip
+    assert_equal "Music licence", parsed_response["details"]["licence_short_description"]
   end
 end
