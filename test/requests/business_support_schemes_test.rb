@@ -28,7 +28,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 3, parsed_response["total"]
-      assert_equal ['<p>Alpha desc</p>', '<p>Bravo desc</p>', '<p>Echo desc</p>'], parsed_response["results"].map {|r| r["details"]["short_description"].strip }.sort
+      assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
     end
 
     it "should return basic artefact details for each result" do
@@ -43,18 +43,10 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_has_field artefact, 'title'
       assert_has_field artefact, 'id'
       assert_has_field artefact, 'web_url'
+      assert_has_field artefact, 'short_description'
+      assert_has_field artefact, 'format'
 
-      fields = parsed_response["details"]
-
-      expected_fields = ['alternative_title', 'body', 'short_description', 'min_value',
-        'max_value', 'eligibility', 'evaluation', 'additional_information',
-        'business_support_identifier', 'max_employees', 'organiser',
-        'continuation_link', 'will_continue_on', 'contact_details']
-      expected_fields.each do |field|
-        assert_has_field artefact["details"], field
-      end
-
-      assert_equal "<p>Alpha desc</p>", artefact["details"]["short_description"].strip
+      assert_equal "Alpha desc", artefact["short_description"]
     end
 
     it "should ignore identifiers with no matching business support edition" do
@@ -63,7 +55,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 2, parsed_response["total"]
-      assert_equal ['<p>Alpha desc</p>', '<p>Echo desc</p>'], parsed_response["results"].map {|r| r["details"]["short_description"].strip }.sort
+      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"].strip }.sort
     end
 
     it "should only return published business support editions" do
@@ -72,7 +64,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 2, parsed_response["total"]
-      assert_equal ['<p>Alpha desc</p>', '<p>Echo desc</p>'], parsed_response["results"].map {|r| r["details"]["short_description"].strip }
+      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }
     end
 
     it "should return an empty result set if nothing matches" do
