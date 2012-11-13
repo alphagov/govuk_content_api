@@ -88,6 +88,11 @@ class PlaceFormatTest < GovUkContentApiTest
     end
 
     it "should show empty list if Imminence returns an empty list" do
+      imminence_has_places("1234", "4321", { "slug" => "batman-place", "details" => [] })
+      get '/batman-place.json?lat=1234&lon=4321'
+      parsed_response = JSON.parse(last_response.body)
+      assert_has_expected_fields(parsed_response["details"], ["places"])
+      assert_equal [], parsed_response["details"]["places"]
     end
 
     it "should set an error key if the call to Imminence errors" do
