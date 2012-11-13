@@ -38,7 +38,7 @@ module ResponseTestMethods
 
   def assert_has_expected_fields(parsed_response, fields)
     fields.each do |field|
-      assert parsed_response.has_key?(field), "Field #{field} is MISSING"
+      assert parsed_response.has_key?(field), "Field #{field} is MISSING. Fields were: #{parsed_response.keys}"
     end
   end
 end
