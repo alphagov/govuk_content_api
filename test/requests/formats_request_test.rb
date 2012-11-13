@@ -10,19 +10,6 @@ class FormatsRequestTest < GovUkContentApiTest
     @tag2 = FactoryGirl.create(:tag, tag_id: 'crime/batman')
   end
 
-  def _assert_base_response_info(parsed_response)
-    assert_equal 'ok', parsed_response["_response_info"]["status"]
-    assert parsed_response.has_key?('title')
-    assert parsed_response.has_key?('id')
-    assert parsed_response.has_key?('tags')
-  end
-
-  def _assert_has_expected_fields(parsed_response, fields)
-    fields.each do |field|
-      assert parsed_response.has_key?(field), "Field #{field} is MISSING"
-    end
-  end
-
   it "should work with answer_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     answer = FactoryGirl.create(:edition, slug: artefact.slug, body: 'Important batman information', panopticon_id: artefact.id, state: 'published')
@@ -31,13 +18,13 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
 
     expected_fields = ['description', 'alternative_title', 'body']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Important batman information</p>\n", fields["body"]
   end
 
@@ -55,13 +42,13 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'description', 'body',
                         'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
                         'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on', 'contact_details']
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>No policeman is going to give the Batmobile a ticket</p>", fields['short_description'].strip
     assert_equal "enterprise-finance-guarantee", fields['business_support_identifier']
   end
@@ -76,12 +63,12 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'description', 'parts']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
     assert_equal "Some Part Title!", fields['parts'][0]['title']
     assert_equal "<p>This is some <strong>version</strong> text.</p>\n", fields['parts'][0]['body']
@@ -99,12 +86,12 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'description', 'parts']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
     assert_equal "Overview", fields['parts'][0]['title']
     assert_equal "http://www.test.gov.uk/batman/overview", fields['parts'][0]['web_url']
@@ -121,13 +108,13 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
 
     expected_fields = %w(alternative_title description video_url video_summary body)
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     assert_equal "I am a video summary", fields["video_summary"]
     assert_equal "http://somevideourl.com", fields["video_url"]
     assert_equal "<h2>Video description</h2>\n", fields["body"]
@@ -144,12 +131,12 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Not just anyone can be Batman</p>", fields["licence_overview"].strip
     assert_equal "<p>Batman licence</p>", fields["licence_short_description"].strip
   end
@@ -165,13 +152,13 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'lgsl_code', 'lgil_override', 'introduction', 'more_information',
                         'minutes_to_complete', 'expectations']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
   end
 
   it "should work with transaction_edition" do
@@ -184,30 +171,12 @@ class FormatsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert last_response.ok?
-    _assert_base_response_info(parsed_response)
+    assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
     expected_fields = ['alternate_methods', 'will_continue_on', 'link', 'introduction', 'more_information',
                         'expectations']
 
-    _assert_has_expected_fields(fields, expected_fields)
+    assert_has_expected_fields(fields, expected_fields)
   end
-
-  it "should work with place_edition" do
-    expectation = FactoryGirl.create(:expectation)
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
-    place_edition = FactoryGirl.create(:place_edition, slug: artefact.slug, expectation_ids: [expectation.id],
-                                minutes_to_complete: 3, panopticon_id: artefact.id, state: 'published')
-    get '/batman-place.json'
-    parsed_response = JSON.parse(last_response.body)
-
-    assert last_response.ok?
-    _assert_base_response_info(parsed_response)
-
-    fields = parsed_response["details"]
-    expected_fields = ['introduction', 'more_information', 'place_type', 'expectations']
-
-    _assert_has_expected_fields(fields, expected_fields)
-  end
-
 end
