@@ -334,7 +334,18 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
+    attach_place_data(@artefact) if @artefact.edition.format == "Place" && params[:lat] && params[:lon]
     attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
+  end
+
+  def attach_place_data(artefact)
+    statsd.time("#{@statsd_scope}.place") do
+      artefact.places = imminence_api.places(artefact.edition.place_type, params[:lat], params[:lon])
+    end
+  rescue GdsApi::TimedOutException
+    artefact.places = { "error" => "timed_out" }
+  rescue GdsApi::HTTPErrorResponse
+    artefact.places = { "error" => "http_error" }
   end
 
   def attach_license_data(artefact)

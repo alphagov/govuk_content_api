@@ -25,6 +25,17 @@ node(:licence, :if => lambda { |artefact| artefact.licence }) do |artefact|
   partial("licence", object: artefact)
 end
 
+node(:places, :if => lambda { |artefact| artefact.places }) do |artefact|
+  artefact.places.map do |place|
+    [:name, :address1, :address2, :town, :postcode, 
+        :email, :phone, :text_phone, :fax, 
+        :access_notes, :general_notes, :url,
+        :location].each_with_object({}) do |field_name, hash|
+      hash[field_name.to_s] = place[field_name.to_s]
+    end
+  end
+end
+
 node(:local_authority, :if => lambda { |artefact| artefact.edition.is_a?(LocalTransactionEdition) && params[:snac] }) do |artefact|
   provider = artefact.edition.service.preferred_provider(params[:snac])
   partial("_local_authority", object: provider)
