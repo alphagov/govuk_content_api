@@ -343,9 +343,9 @@ class GovUkContentApi < Sinatra::Application
       artefact.places = imminence_api.places(artefact.edition.place_type, params[:lat], params[:lon])
     end
   rescue GdsApi::TimedOutException
-    artefact.places = { "error" => "timed_out" }
+    artefact.places = [{ "error" => "timed_out" }]
   rescue GdsApi::HTTPErrorResponse
-    artefact.places = { "error" => "http_error" }
+    artefact.places = [{ "error" => "http_error" }]
   end
 
   def attach_license_data(artefact)

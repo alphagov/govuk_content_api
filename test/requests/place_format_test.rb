@@ -96,6 +96,13 @@ class PlaceFormatTest < GovUkContentApiTest
     end
 
     it "should set an error key if the call to Imminence errors" do
+      stub_request(:get, "https://imminence.test.alphagov.co.uk/places/batman-place.json").
+          with(:query => {"lat" => 1234, "lng" => 4321, "limit" => "5"}).
+          to_timeout
+      get '/batman-place.json?lat=1234&lon=4321'
+      parsed_response = JSON.parse(last_response.body)
+      assert_has_expected_fields(parsed_response["details"], ["places"])
+      assert_equal [{"error" => "timed_out"}], parsed_response["details"]["places"]
     end
   end
 end
