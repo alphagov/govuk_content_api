@@ -59,9 +59,9 @@ class PlaceFormatTest < GovUkContentApiTest
   end
 
   describe "including place data from Imminence" do
-    it "should use the supplied lat and lon parameters" do
+    it "should use the supplied latitude and longitude parameters" do
       stub_imminence
-      get '/batman-place.json?lat=1234&lon=4321'
+      get '/batman-place.json?latitude=1234&longitude=4321'
       parsed_response = JSON.parse(last_response.body)
       assert_has_expected_fields(parsed_response["details"], ["places"])
       expected = [
@@ -89,7 +89,7 @@ class PlaceFormatTest < GovUkContentApiTest
 
     it "should show empty list if Imminence returns an empty list" do
       imminence_has_places("1234", "4321", { "slug" => "batman-place", "details" => [] })
-      get '/batman-place.json?lat=1234&lon=4321'
+      get '/batman-place.json?latitude=1234&longitude=4321'
       parsed_response = JSON.parse(last_response.body)
       assert_has_expected_fields(parsed_response["details"], ["places"])
       assert_equal [], parsed_response["details"]["places"]
@@ -99,7 +99,7 @@ class PlaceFormatTest < GovUkContentApiTest
       stub_request(:get, "https://imminence.test.alphagov.co.uk/places/batman-place.json").
           with(:query => {"lat" => 1234, "lng" => 4321, "limit" => "5"}).
           to_timeout
-      get '/batman-place.json?lat=1234&lon=4321'
+      get '/batman-place.json?latitude=1234&longitude=4321'
       parsed_response = JSON.parse(last_response.body)
       assert_has_expected_fields(parsed_response["details"], ["places"])
       assert_equal [{"error" => "timed_out"}], parsed_response["details"]["places"]
