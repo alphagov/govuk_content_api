@@ -45,6 +45,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_has_field artefact, 'web_url'
       assert_has_field artefact, 'short_description'
       assert_has_field artefact, 'format'
+      assert_has_field artefact, 'identifier'
 
       assert_equal "Alpha desc", artefact["short_description"]
     end
