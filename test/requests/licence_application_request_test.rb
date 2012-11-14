@@ -91,7 +91,29 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
     assert_equal "http://www.gov.uk/licence-artefact/south-ribble/apply=1", authority["actions"]["apply"].first["url"]
   end
 
-it "should not query the licence api if no licence identifier is present" do
+  it "should return local service details for a location specific licence without a snac code" do
+    stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
+    stub_local_service = FactoryGirl.create(:local_service, description: "Local Service description", lgsl_code: 123, providing_tier: %w{ county unitary })
+
+    licence_exists('123-2-1', {"isLocationSpecific" => true, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => []})
+
+    Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+
+    get '/licence-artefact.json'
+
+    parsed_response = JSON.parse(last_response.body)
+    local_service = parsed_response["details"]["licence"]["local_service"]
+
+    assert last_response.ok?
+
+    assert_equal "Local Service description", local_service["description"]
+    assert_equal ['county','unitary'], local_service["providing_tier"]
+    assert_equal 123, local_service["lgsl_code"]
+  end
+
+  it "should not query the licence api if no licence identifier is present" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
     stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: nil, state: 'published')
 

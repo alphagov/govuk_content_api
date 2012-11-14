@@ -339,7 +339,15 @@ class GovUkContentApi < Sinatra::Application
 
   def attach_license_data(artefact)
     statsd.time("#{@statsd_scope}.licence") do
-      artefact.licence = licence_application_api.details_for_licence(@artefact.edition.licence_identifier, params[:snac])
+      licence_api_response = licence_application_api.details_for_licence(artefact.edition.licence_identifier, params[:snac])
+      artefact.licence = licence_api_response.nil? ? nil : licence_api_response.to_hash
+    end
+
+    if artefact.licence and artefact.edition.licence_identifier
+      statsd.time("#{@statsd_scope}.licence.local_service") do
+        licence_lgsl_code = @artefact.edition.licence_identifier.split('-').first
+        artefact.licence['local_service'] = LocalService.where(:lgsl_code => licence_lgsl_code).first
+      end
     end
   rescue GdsApi::TimedOutException
     statsd.increment("#{@statsd_scope}.license_request_error.timed_out")
