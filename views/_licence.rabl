@@ -26,6 +26,9 @@ unless @artefact.licence["error"]
       [ ]
     end
   end
+  if @artefact.licence['local_service']
+    node(:local_service) {|artefact| artefact.licence['local_service'] }
+  end
 else
   node(:error) {|artefact| artefact.licence["error"] }
 end
