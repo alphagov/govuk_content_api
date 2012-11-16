@@ -11,6 +11,7 @@ node(:results) do
     {
       :id => artefact_url(r),
       :web_url => artefact_web_url(r),
+      :identifier => r.edition.business_support_identifier,
       :title => r.edition.title,
       :short_description => r.edition.short_description,
       :format => r.kind 
