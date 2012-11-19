@@ -14,7 +14,7 @@ node(:format) do |artefact|
     artefact.kind
   end
 end
-node(:details) { |artefact| partial("fields", object: artefact) }
+
 node(:updated_at) { |artefact|
   most_recent_updated_at(artefact).iso8601
 }
