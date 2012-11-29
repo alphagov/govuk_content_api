@@ -14,6 +14,7 @@ node(:format) do |artefact|
     artefact.kind
   end
 end
+node(:language) { |artefact| artefact.language }
 
 node(:updated_at) { |artefact|
   most_recent_updated_at(artefact).iso8601
