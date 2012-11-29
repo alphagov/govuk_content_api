@@ -148,13 +148,13 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal 'smart-answer', response["format"]
   end
 
-  it "should set the language field at the top-level of the artefact" do
+  it "should set the language field in the details node of the artefact" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
     get "/#{artefact.slug}.json"
 
     assert_equal 200, last_response.status
     response = JSON.parse(last_response.body)
-    assert_equal 'en', response["language"]
+    assert_equal 'en', response["details"]["language"]
   end
 
   describe "updated timestamp" do
