@@ -5,11 +5,11 @@ node :_response_info do
 end
 
 node(:description) { "Tags!" }
-node(:total) { @tags.count }
-node(:start_index) { 1 }
-node(:page_size) { @tags.count }
-node(:current_page) { 1 }
-node(:pages) { 1 }
+node(:total) { @page_info.total_count }
+node(:start_index) { @page_info.offset + 1 }
+node(:page_size) { @page_info.limit_value }
+node(:current_page) { @page_info.current_page }
+node(:pages) { @page_info.total_pages }
 node(:results) do
   @tags.map { |r|
     partial "_tag", object: r

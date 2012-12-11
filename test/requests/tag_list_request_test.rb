@@ -3,20 +3,22 @@ require 'test_helper'
 class TagListRequestTest < GovUkContentApiTest
   describe "/tags.json" do
     it "should load list of tags" do
-      Tag.expects(:all).returns([
-        Tag.new(tag_id: 'good-tag', tag_type: 'Section', description: 'Lots to say for myself', name: 'good tag'),
-        Tag.new(tag_id: 'better-tag', tag_type: 'Audience', description: 'Lots to say', name: 'better tag'),
-      ])
+      FactoryGirl.create_list(:tag, 2)
       get "/tags.json"
+
       assert last_response.ok?
       assert_status_field "ok", last_response
-      assert_equal 2, JSON.parse(last_response.body)['results'].count
+      response = JSON.parse(last_response.body)
+      assert_equal 2, response['results'].count
+
+      # Check pagination info
+      assert_has_values response, "total" => 2, "current_page" => 1,
+                                  "start_index" => 1, "pages" => 1
     end
 
     it "should filter all tags by type" do
-      Tag.expects(:where).with("tag_type" => 'Section').returns([
-        Tag.new(tag_id: 'good-tag', tag_type: 'Section', description: 'Lots to say for myself', name: 'good tag'),
-      ])
+      FactoryGirl.create(:tag, tag_type: "Section")
+      FactoryGirl.create(:tag, tag_type: "Keyword")
       get "/tags.json?type=Section"
       assert last_response.ok?
       assert_status_field "ok", last_response
@@ -41,6 +43,92 @@ class TagListRequestTest < GovUkContentApiTest
 
       expected_id = "http://www.test.gov.uk/api/tags/crime.json"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
+    end
+
+    it "paginates large numbers of results" do
+      # Mock out the pagination settings to avoid config changes breaking tests
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25)
+
+      get "/tags.json"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+      assert_equal 10, response['results'].count
+
+      assert_has_values response, "total" => 25, "current_page" => 1,
+                                  "start_index" => 1, "pages" => 3
+
+      # Check for a next page link
+      # Check for lack of a last page link
+    end
+
+    it "displays an intermediate page of results" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25)
+
+      get "/tags.json?page=2"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+      assert_has_values response, "total" => 25, "current_page" => 2,
+                                  "start_index" => 11, "pages" => 3
+
+      # Check for a next page link
+      # Check for a previous page link
+    end
+
+
+    it "displays subsequent pages of results" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25)
+
+      get "/tags.json?page=3"
+      response = JSON.parse(last_response.body)
+      assert last_response.ok?
+      assert_equal 5, response['results'].count
+
+      assert_has_values response, "total" => 25, "current_page" => 3,
+                                  "start_index" => 21, "pages" => 3
+
+      # Check for lack of a next page link
+      # Check for a previous page link
+    end
+
+    it "404s on too high a page number" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 30)
+      get "/tags.json?page=4"
+      assert last_response.not_found?
+    end
+
+    it "works when displaying the last page with a single item" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 31)
+      get "/tags.json?page=4"
+      assert last_response.ok?
+      assert_equal 1, JSON.parse(last_response.body)['results'].count
+    end
+
+    it "404s on a negative page number" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25)
+      get "/tags.json?page=-5"
+      assert last_response.not_found?
+    end
+
+    it "404s on a non-numeric page number" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25)
+      get "/tags.json?page=chickens"
+      assert last_response.not_found?
     end
   end
 end
