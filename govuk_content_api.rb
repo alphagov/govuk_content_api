@@ -11,7 +11,11 @@ require 'gds_api/rummager'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
+
+# Note: the artefact patch needs to be included before the Kaminari patch,
+# otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
+require 'config/kaminari'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
@@ -105,15 +109,38 @@ class GovUkContentApi < Sinatra::Application
     if params[:root_sections]
       options["parent_id"] = nil
     end
-    if options.length > 0
+
+    if params[:page]
+      begin
+        page_number = Integer(params[:page])
+      rescue ArgumentError
+        statsd.increment('request.tags.bad_page')
+        custom_404
+      end
+    else
+      page_number = 1
+    end
+
+    custom_404 if page_number < 1
+
+    tags = if options.length > 0
       statsd.time("#{@statsd_scope}.options.#{options}") do
-        @tags = Tag.where(options)
+        Tag.where(options)
       end
     else
       statsd.time("#{@statsd_scope}.all") do
-        @tags = Tag.all
+        Tag
       end
     end
+
+    tags = tags.page(page_number)
+
+    @tags = tags.to_a
+    @page_info = tags  # Just use the Criteria object in lieu of a Forwardable
+
+
+    # 404 if we've shot off the end of the results
+    custom_404 if tags.offset >= tags.count
 
     render :rabl, :tags, format: "json"
   end

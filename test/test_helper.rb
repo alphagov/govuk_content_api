@@ -41,6 +41,12 @@ module ResponseTestMethods
       assert parsed_response.has_key?(field), "Field #{field} is MISSING. Fields were: #{parsed_response.keys}"
     end
   end
+
+  def assert_has_values(parsed_response, value_hash)
+    value_hash.each do |key, value|
+      assert_equal value, parsed_response[key], "Incorrect value for key #{key.inspect}"
+    end
+  end
 end
 
 class GovUkContentApiTest < MiniTest::Spec
