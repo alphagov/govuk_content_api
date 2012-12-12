@@ -38,7 +38,6 @@ class GovUkContentApi < Sinatra::Application
     content_type :json
   end
 
-  # Render RABL
   get "/local_authorities.json" do
     search_param = params[:snac] || params[:name]
     @statsd_scope = "request.local_authorities.#{search_param}"
