@@ -248,9 +248,18 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/artefacts.json" do
-    statsd.time("request.artefacts") do
-      @artefacts = Artefact.live
+    artefacts = statsd.time("request.artefacts") do
+      Artefact.live
     end
+
+    begin
+      paginated_artefacts = paginated(artefacts, params[:page])
+    rescue InvalidPage
+      statsd.increment('request.tags.bad_page')
+      custom_404
+    end
+
+    @result_set = PaginatedResultSet.new(paginated_artefacts)
 
     render :rabl, :artefacts, format: "json"
   end

@@ -8,7 +8,7 @@ require "govuk_content_models/require_all"
 #
 # See also: <http://stackoverflow.com/questions/12747690/>
 
-paginated_models = [Tag]
+paginated_models = [Tag, Artefact]
 
 paginated_models.each do |model|
   model.send :include, Kaminari::MongoidExtension::Criteria

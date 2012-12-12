@@ -65,4 +65,33 @@ class ArtefactsRequestTest < GovUkContentApiTest
     assert_equal "http://www.test.gov.uk/bravo", result["web_url"]
     assert_equal "http://example.org/bravo.json", result["id"]
   end
+
+  it "should paginate when there are enough artefacts" do
+    # Stub this out to avoid configuration changes breaking tests
+    Artefact.stubs(:default_per_page).returns(10)
+
+    FactoryGirl.create_list(:artefact, 25, :state => "live")
+
+    get "/artefacts.json"
+
+    assert last_response.ok?
+    parsed_response = JSON.parse(last_response.body)
+    assert_equal 10, parsed_response["results"].count
+    assert_has_values parsed_response, "total" => 25, "current_page" => 1,
+                                       "pages" => 3
+  end
+
+  it "should display subsequent pages" do
+    Artefact.stubs(:default_per_page).returns(10)
+
+    FactoryGirl.create_list(:artefact, 25, :state => "live")
+
+    get "/artefacts.json?page=3"
+
+    assert last_response.ok?
+    parsed_response = JSON.parse(last_response.body)
+    assert_equal 5, parsed_response["results"].count
+    assert_has_values parsed_response, "total" => 25, "current_page" => 3,
+                                       "pages" => 3
+  end
 end
