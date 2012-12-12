@@ -16,6 +16,7 @@ require 'config/gds_sso_middleware'
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
 require 'config/kaminari'
+require 'config/rabl'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
@@ -132,6 +133,29 @@ class GovUkContentApi < Sinatra::Application
     return paginated_scope
   end
 
+  class PaginatedResultSet
+
+    extend Forwardable
+
+    # Delegate, delegate method, [local alias]
+    def_delegator :@scope, :total_count, :total
+    def_delegator :@scope, :total_pages, :pages
+    def_delegator :@scope, :limit_value, :page_size
+    def_delegator :@scope, :current_page
+
+    def initialize(scope)
+      @scope = scope
+    end
+
+    def results
+      @results ||= @scope.to_a
+    end
+
+    def start_index
+      @scope.offset + 1
+    end
+  end
+
   get "/tags.json" do
     @statsd_scope = "request.tags"
     options = {}
@@ -163,13 +187,7 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
-    @tags = paginated_tags.to_a
-
-    # This is to give the view access to the pagination information in the
-    # Kaminarified Criteria object. If we wanted to be extra-careful about
-    # which methods we exposed to the view, we could wrap this in a Forwardable
-    @page_info = paginated_tags
-
+    @result_set = PaginatedResultSet.new(paginated_tags)
     render :rabl, :tags, format: "json"
   end
 
