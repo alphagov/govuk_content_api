@@ -96,6 +96,42 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  # Exception raised when the page number requested is either non-numeric or
+  # out of the range of the results.
+  class InvalidPage < ArgumentError
+  end
+
+  # Paginate a result set according to a user-supplied page parameter. Pages
+  # are 1-indexed.
+  #
+  # If the page parameter is a non-integer string, or if it is too low or high,
+  # raise an InvalidPage exception.
+  #
+  # If the page parameter is nil (i.e. not in the request), default to 1.
+  def paginated(scope, page_param)
+    if page_param
+      begin
+        page_number = Integer(page_param)
+      rescue ArgumentError
+        raise InvalidPage, "Invalid page number: #{page_param.inspect}"
+      end
+    else
+      # If page parameter is nil (i.e. not supplied)
+      page_number = 1
+    end
+
+    raise InvalidPage, "Page number #{page_number} < 1" if page_number < 1
+
+    paginated_scope = scope.page(page_number)
+
+    # Raise an exception if we've shot off the end of the results
+    if paginated_scope.offset >= paginated_scope.count
+      raise InvalidPage, "Page number #{page_number} too high"
+    end
+
+    return paginated_scope
+  end
+
   get "/tags.json" do
     @statsd_scope = "request.tags"
     options = {}
@@ -109,19 +145,6 @@ class GovUkContentApi < Sinatra::Application
       options["parent_id"] = nil
     end
 
-    if params[:page]
-      begin
-        page_number = Integer(params[:page])
-      rescue ArgumentError
-        statsd.increment('request.tags.bad_page')
-        custom_404
-      end
-    else
-      page_number = 1
-    end
-
-    custom_404 if page_number < 1
-
     tags = if options.length > 0
       statsd.time("#{@statsd_scope}.options.#{options}") do
         Tag.where(options)
@@ -132,14 +155,20 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    tags = tags.page(page_number)
+    begin
+      paginated_tags = paginated(tags, params[:page])
+    rescue InvalidPage
+      # TODO: is it worth recording at a more granular level what's wrong?
+      statsd.increment('request.tags.bad_page')
+      custom_404
+    end
 
-    @tags = tags.to_a
-    @page_info = tags  # Just use the Criteria object in lieu of a Forwardable
+    @tags = paginated_tags.to_a
 
-
-    # 404 if we've shot off the end of the results
-    custom_404 if tags.offset >= tags.count
+    # This is to give the view access to the pagination information in the
+    # Kaminarified Criteria object. If we wanted to be extra-careful about
+    # which methods we exposed to the view, we could wrap this in a Forwardable
+    @page_info = paginated_tags
 
     render :rabl, :tags, format: "json"
   end
