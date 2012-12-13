@@ -161,7 +161,8 @@ class GovUkContentApi < Sinatra::Application
     end
     tag_ids = collect_tag_ids(params[:tag], params[:include_children])
     artefacts = sorted_artefacts_for_tag_ids(tag_ids, params[:sort])
-    @results = map_artefacts_and_add_editions(artefacts)
+    results = map_artefacts_and_add_editions(artefacts)
+    @result_set = FakePaginatedResultSet.new(results)
 
     render :rabl, :with_tag, format: "json"
   end
