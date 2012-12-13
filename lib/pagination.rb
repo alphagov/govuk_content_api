@@ -67,4 +67,40 @@ module Pagination
       @scope.offset + 1
     end
   end
+
+  # Wrapper class to mimic a PaginatedResultSet for non-paginated results.
+  #
+  # The `scope` parameter can be any object that can be converted to an array
+  # (one that responds to the `to_a` method).
+  class FakePaginatedResultSet
+
+    def initialize(scope)
+      @scope = scope
+    end
+
+    def results
+      @results ||= @scope.to_a
+    end
+
+    def start_index
+      1
+    end
+
+    def total
+      results.count
+    end
+
+    def total_pages
+      1
+    end
+
+    def page_size
+      total
+    end
+
+    def current_page
+      1
+    end
+  end
+
 end
