@@ -12,8 +12,9 @@ class FakePaginationTest < MiniTest::Spec
       assert_equal [1, 2, 3, 4, 5], p.results
       assert_equal 5, p.total
       assert_equal 1, p.start_index
-      assert_equal 1, p.total_pages
+      assert_equal 1, p.pages
       assert_equal 5, p.page_size
+      assert_equal 1, p.current_page
     end
 
     it "works with empty arrays" do
@@ -22,8 +23,9 @@ class FakePaginationTest < MiniTest::Spec
       assert_equal [], p.results
       assert_equal 0, p.total
       assert_equal 1, p.start_index
-      assert_equal 1, p.total_pages
+      assert_equal 1, p.pages
       assert_equal 0, p.page_size
+      assert_equal 1, p.current_page
     end
   end
 end

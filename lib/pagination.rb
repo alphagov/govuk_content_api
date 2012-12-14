@@ -90,7 +90,7 @@ module Pagination
       results.count
     end
 
-    def total_pages
+    def pages
       1
     end
 
