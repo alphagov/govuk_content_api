@@ -178,6 +178,8 @@ class GovUkContentApi < Sinatra::Application
       @results = []
     end
 
+    @result_set = FakePaginatedResultSet.new(@results)
+
     render :rabl, :licences, format: "json"
   end
 
