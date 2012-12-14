@@ -60,6 +60,8 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
+    @result_set = FakePaginatedResultSet.new(@local_authorities)
+
     render :rabl, :local_authorities, format: "json"
   end
 
