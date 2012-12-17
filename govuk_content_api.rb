@@ -130,16 +130,11 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = PaginatedResultSet.new(paginated_tags)
+    @result_set.links = page_links_from(@result_set) { |page_number|
+      tags_url(allowed_params, page_number)
+    }
 
-    links = []
-    unless @result_set.last_page?
-      links.push [tags_url(allowed_params, @result_set.current_page + 1), [["rel", "next"]]]
-    end
-    unless @result_set.first_page?
-      links.push [tags_url(allowed_params, @result_set.current_page - 1), [["rel", "previous"]]]
-    end
-
-    headers "Link" => LinkHeader.new(links).to_s
+    headers "Link" => LinkHeader.new(@result_set.links).to_s
     render :rabl, :tags, format: "json"
   end
 

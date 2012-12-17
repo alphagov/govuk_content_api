@@ -1,3 +1,5 @@
+require "link_header"
+
 module Pagination
   # Exception raised when the page number requested is either non-numeric or
   # out of the range of the results.
@@ -46,6 +48,8 @@ module Pagination
   #   p.results       # [#<Tag ...>, ...]
   #
   class PaginatedResultSet
+
+    attr_accessor :links
 
     extend Forwardable
 
@@ -114,4 +118,24 @@ module Pagination
     end
   end
 
+  # Generate an array of LinkHeader::Link objects from a paginated set.
+  #
+  # The block should be a function that takes a page number and returns a URL.
+  def page_links_from(result_set, &generate_link)
+    links = []
+    unless @result_set.last_page?
+      links.push LinkHeader::Link.new(
+        generate_link.call(@result_set.current_page + 1),
+        [["rel", "next"]]
+      )
+    end
+    unless @result_set.first_page?
+      links.push LinkHeader::Link.new(
+        generate_link.call(@result_set.current_page - 1),
+        [["rel", "previous"]]
+      )
+    end
+
+    links
+  end
 end
