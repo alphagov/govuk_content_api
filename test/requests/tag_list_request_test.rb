@@ -1,6 +1,24 @@
 require 'test_helper'
+require 'link_header'
+require 'uri'
 
 class TagListRequestTest < GovUkContentApiTest
+
+  # Check for a page with the given relationship in the Link header
+  def assert_link(rel, href, response = last_response)
+    link_header = LinkHeader.parse(response.headers["Link"])
+    link = link_header.find_link(["rel", rel])
+    assert link, "No link with rel '#{rel}' found"
+    assert_equal href, link.href
+  end
+
+  # Ensure there is no link with the given relationship in the Link header
+  def refute_link(rel, response = last_response)
+    link_header = LinkHeader.parse(response.headers["Link"])
+    link = link_header.find_link(["rel", rel])
+    refute link, "Unexpected link with rel '#{rel} found"
+  end
+
   describe "/tags.json" do
     it "should load list of tags" do
       FactoryGirl.create_list(:tag, 2)
@@ -60,8 +78,8 @@ class TagListRequestTest < GovUkContentApiTest
       assert_has_values response, "total" => 25, "current_page" => 1,
                                   "start_index" => 1, "pages" => 3
 
-      # Check for a next page link
-      # Check for lack of a last page link
+      assert_link "next", "http://example.org/tags.json?page=2"
+      refute_link "previous"
     end
 
     it "displays an intermediate page of results" do
@@ -76,8 +94,8 @@ class TagListRequestTest < GovUkContentApiTest
       assert_has_values response, "total" => 25, "current_page" => 2,
                                   "start_index" => 11, "pages" => 3
 
-      # Check for a next page link
-      # Check for a previous page link
+      assert_link "next", "http://example.org/tags.json?page=3"
+      assert_link "previous",  "http://example.org/tags.json?page=1"
     end
 
 
@@ -94,8 +112,8 @@ class TagListRequestTest < GovUkContentApiTest
       assert_has_values response, "total" => 25, "current_page" => 3,
                                   "start_index" => 21, "pages" => 3
 
-      # Check for lack of a next page link
-      # Check for a previous page link
+      refute_link "next"
+      assert_link "previous",  "http://example.org/tags.json?page=2"
     end
 
     it "404s on too high a page number" do
@@ -129,6 +147,24 @@ class TagListRequestTest < GovUkContentApiTest
       FactoryGirl.create_list(:tag, 25)
       get "/tags.json?page=chickens"
       assert last_response.not_found?
+    end
+
+    it "paginates correctly on filtered tag lists" do
+      Tag.stubs(:default_per_page).returns(10)
+
+      FactoryGirl.create_list(:tag, 25, tag_type: "section")
+      FactoryGirl.create_list(:tag, 20, tag_type: "keyword")
+
+      get "/tags.json?type=section&page=2"
+      response = JSON.parse(last_response.body)
+      assert last_response.ok?
+      assert_equal 10, response['results'].count
+
+      assert_has_values response, "total" => 25, "current_page" => 2,
+                                  "start_index" => 11, "pages" => 3
+
+      assert_link "next",  "http://example.org/tags.json?type=section&page=3"
+      assert_link "previous",  "http://example.org/tags.json?type=section&page=1"
     end
   end
 end

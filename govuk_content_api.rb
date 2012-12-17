@@ -109,6 +109,8 @@ class GovUkContentApi < Sinatra::Application
       options["parent_id"] = nil
     end
 
+    allowed_params = params.slice *%w(type parent_id root_sections)
+
     tags = if options.length > 0
       statsd.time("#{@statsd_scope}.options.#{options}") do
         Tag.where(options)
@@ -128,6 +130,16 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = PaginatedResultSet.new(paginated_tags)
+
+    links = []
+    unless @result_set.last_page?
+      links.push [tags_url(allowed_params, @result_set.current_page + 1), [["rel", "next"]]]
+    end
+    unless @result_set.first_page?
+      links.push [tags_url(allowed_params, @result_set.current_page - 1), [["rel", "previous"]]]
+    end
+
+    headers "Link" => LinkHeader.new(links).to_s
     render :rabl, :tags, format: "json"
   end
 

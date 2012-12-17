@@ -55,6 +55,9 @@ module Pagination
     def_delegator :@scope, :limit_value, :page_size
     def_delegator :@scope, :current_page
 
+    def_delegator :@scope, :last_page?
+    def_delegator :@scope, :first_page?
+
     def initialize(scope)
       @scope = scope
     end
@@ -100,6 +103,14 @@ module Pagination
 
     def current_page
       1
+    end
+
+    def first_page?
+      true
+    end
+
+    def last_page?
+      true
     end
   end
 
