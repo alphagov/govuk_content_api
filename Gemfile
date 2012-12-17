@@ -27,6 +27,7 @@ gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses'
 gem 'kaminari', '0.14.1'
+gem 'link_header', '0.0.5'
 
 group :test do
   gem 'database_cleaner', '0.7.2'

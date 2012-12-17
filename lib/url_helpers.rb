@@ -1,6 +1,13 @@
 require "cgi"
+require "uri"
 
 module URLHelpers
+  def tags_url(params = {}, page = nil)
+    sorted_params = Hash[params.sort]
+    url_params = page ? sorted_params.merge(page: page) : sorted_options
+    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
+  end
+
   def tag_url(tag)
     api_url("/tags/#{CGI.escape(tag.tag_id)}.json")
   end
