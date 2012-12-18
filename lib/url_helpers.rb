@@ -28,6 +28,14 @@ module URLHelpers
     Plek.current.find('www') + result['link']
   end
 
+  def artefacts_url(page = nil)
+    if page
+      api_url("/artefacts.json?" + URI.encode_www_form(page: page))
+    else
+      api_url("/artefacts.json")
+    end
+  end
+
   def artefact_url(artefact)
     api_url("/#{CGI.escape(artefact.slug)}.json")
   end
