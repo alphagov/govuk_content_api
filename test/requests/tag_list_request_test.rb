@@ -4,34 +4,6 @@ require 'uri'
 
 class TagListRequestTest < GovUkContentApiTest
 
-  # Check for a page with the given relationship in the Link header
-  def assert_link(rel, href, response = last_response)
-    link_header = LinkHeader.parse(response.headers["Link"])
-    link = link_header.find_link(["rel", rel])
-    assert link, "No link with rel '#{rel}' found"
-    assert_equal href, link.href
-
-    # Also check in _response_info
-    parsed_response = JSON.parse(response.body)
-    links = parsed_response.fetch("_response_info", {})["links"] || []
-    found_link = links.find { |link| link["rel"] == rel }
-    assert found_link, "No link with rel '#{rel}' found in _response_info"
-    assert_equal href, found_link["href"]
-  end
-
-  # Ensure there is no link with the given relationship in the Link header
-  def refute_link(rel, response = last_response)
-    link_header = LinkHeader.parse(response.headers["Link"])
-    link = link_header.find_link(["rel", rel])
-    refute link, "Unexpected link with rel '#{rel} found"
-
-    # Also check in _response_info
-    parsed_response = JSON.parse(response.body)
-    links = parsed_response.fetch("_response_info", {})["links"] || []
-    found_link = links.find { |link| link["rel"] == rel }
-    refute found_link, "Unexpected link with rel '#{rel} in _response_info"
-  end
-
   describe "/tags.json" do
     it "should load list of tags" do
       FactoryGirl.create_list(:tag, 2)

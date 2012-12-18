@@ -79,6 +79,9 @@ class ArtefactsRequestTest < GovUkContentApiTest
     assert_equal 10, parsed_response["results"].count
     assert_has_values parsed_response, "total" => 25, "current_page" => 1,
                                        "pages" => 3
+
+    assert_link "next",  "http://example.org/artefacts.json?page=2"
+    refute_link "previous"
   end
 
   it "should display subsequent pages" do
@@ -93,5 +96,8 @@ class ArtefactsRequestTest < GovUkContentApiTest
     assert_equal 5, parsed_response["results"].count
     assert_has_values parsed_response, "total" => 25, "current_page" => 3,
                                        "pages" => 3
+
+    assert_link "previous",  "http://example.org/artefacts.json?page=2"
+    refute_link "next"
   end
 end
