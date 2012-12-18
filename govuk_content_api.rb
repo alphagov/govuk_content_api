@@ -130,7 +130,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = PaginatedResultSet.new(paginated_tags)
-    @result_set.links = page_links_from(@result_set) { |page_number|
+    @result_set.populate_page_links { |page_number|
       tags_url(allowed_params, page_number)
     }
 

@@ -49,8 +49,6 @@ module Pagination
   #
   class PaginatedResultSet
 
-    attr_writer :links
-
     extend Forwardable
 
     # Delegate, delegate method, [local alias]
@@ -75,7 +73,29 @@ module Pagination
     end
 
     def links
-      @links || []
+      @links || [].freeze
+    end
+
+    # Populate the inter-page links on this result set.
+    #
+    # The `generate_link` block should take a page number and return a URL.
+    def populate_page_links(&generate_link)
+      @links = []
+
+      unless last_page?
+        links.push LinkHeader::Link.new(
+          generate_link.call(current_page + 1),
+          [["rel", "next"]]
+        )
+      end
+      unless first_page?
+        links.push LinkHeader::Link.new(
+          generate_link.call(current_page - 1),
+          [["rel", "previous"]]
+        )
+      end
+
+      @links.freeze
     end
   end
 
@@ -122,28 +142,7 @@ module Pagination
     end
 
     def links
-      []
+      [].freeze
     end
-  end
-
-  # Generate an array of LinkHeader::Link objects from a paginated set.
-  #
-  # The block should be a function that takes a page number and returns a URL.
-  def page_links_from(result_set, &generate_link)
-    links = []
-    unless @result_set.last_page?
-      links.push LinkHeader::Link.new(
-        generate_link.call(@result_set.current_page + 1),
-        [["rel", "next"]]
-      )
-    end
-    unless @result_set.first_page?
-      links.push LinkHeader::Link.new(
-        generate_link.call(@result_set.current_page - 1),
-        [["rel", "previous"]]
-      )
-    end
-
-    links
   end
 end
