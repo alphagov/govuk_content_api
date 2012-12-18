@@ -49,7 +49,7 @@ module Pagination
   #
   class PaginatedResultSet
 
-    attr_accessor :links
+    attr_writer :links
 
     extend Forwardable
 
@@ -72,6 +72,10 @@ module Pagination
 
     def start_index
       @scope.offset + 1
+    end
+
+    def links
+      @links || []
     end
   end
 
@@ -115,6 +119,10 @@ module Pagination
 
     def last_page?
       true
+    end
+
+    def links
+      []
     end
   end
 
