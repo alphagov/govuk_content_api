@@ -1,10 +1,11 @@
 require "cgi"
-require "uri"
 
 module URLHelpers
   def tags_url(params = {}, page = nil)
     sorted_params = Hash[params.sort]
     url_params = page ? sorted_params.merge(page: page) : sorted_options
+    # Not using activesupport's to_query here, because we want to control the
+    # order of parameters, specifically so that page comes last.
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
