@@ -10,7 +10,7 @@ module URLHelpers
   end
 
   def tag_url(tag)
-    api_url("/tags/#{CGI.escape(tag.tag_id)}.json")
+    api_url("/tags/#{CGI.escape(tag.tag_type)}/#{CGI.escape(tag.tag_id)}.json")
   end
 
   def with_tag_url(tag)

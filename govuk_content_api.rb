@@ -160,6 +160,15 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  get "/tags/:tag_type/:tag_id.json" do
+    @tag = Tag.where(tag_id: params[:tag_id], tag_type: params[:tag_type]).first
+    if @tag
+      render :rabl, :tag, format: "json"
+    else
+      custom_404
+    end
+  end
+
   get "/with_tag.json" do
     @statsd_scope = 'request.with_tag'
 

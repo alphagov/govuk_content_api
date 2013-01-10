@@ -31,7 +31,7 @@ class TagListRequestTest < GovUkContentApiTest
     it "should have full uri in id field in index action" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
-      expected_id = "http://example.org/tags/crime.json"
+      expected_id = "http://example.org/tags/section/crime.json"
       expected_url = "#{public_web_url}/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
       assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
@@ -44,7 +44,7 @@ class TagListRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get '/tags.json', {}, {'HTTP_API_PREFIX' => 'api'}
 
-      expected_id = "#{public_web_url}/api/tags/crime.json"
+      expected_id = "#{public_web_url}/api/tags/section/crime.json"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
     end
 
