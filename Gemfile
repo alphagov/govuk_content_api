@@ -14,7 +14,7 @@ else
   gem 'govuk_content_models', '2.5.0'
 end
 
-gem 'gds-sso', '2.0.1'
+gem 'gds-sso', '2.1.0'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
