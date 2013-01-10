@@ -12,7 +12,7 @@ class TravelAdviceTest < GovUkContentApiTest
       edition.parts.build(title: "Part Two", slug: 'part-two', body: "And some more stuff in part 2.")
       edition.save!
 
-      get '/travel-advice/aruba.json'
+      get '/travel-advice%2Faruba.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -41,7 +41,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
     it "should return basic country details for a country with no published advice" do
 
-      get '/travel-advice/angola.json'
+      get '/travel-advice%2Fangola.json'
       assert last_response.ok?
       
       parsed_response = JSON.parse(last_response.body)
@@ -56,7 +56,7 @@ class TravelAdviceTest < GovUkContentApiTest
     end
 
     it "should 404 for a non-existent country" do
-      get '/travel-advice/wibble.json'
+      get '/travel-advice%2Fwibble.json'
       assert last_response.not_found?
     end
   end

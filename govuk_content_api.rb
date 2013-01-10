@@ -183,47 +183,47 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :artefacts, format: "json"
   end
 
-  get "/travel-advice/:id.json" do
-    @statsd_scope = "request.travel-advice-artefact"
-    verify_unpublished_permission if params[:edition]
-
-    country = Country.find_by_slug(params[:id])
-    custom_404 unless country
-
-    statsd.time("#{@statsd_scope}") do
-      @artefact = Artefact.where(slug: "travel-advice/#{params[:id]}").first
-    end
-
-    if @artefact and @artefact.live?
-      @artefact.country = country
-    else
-      @artefact = build_blank_travel_advice_artefact(country)
-    end
-
-    attach_travel_advice_edition(@artefact, params[:edition])
-
-    render :rabl, :artefact, format: "json"
-  end
-
   get "/:id.json" do
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
-    statsd.time("#{@statsd_scope}") do
-      @artefact = Artefact.where(slug: params[:id]).first
-    end
+    slug = CGI.unescape(params[:id])
+    @artefact = load_artefact(slug)
 
     custom_404 unless @artefact
     handle_unpublished_artefact(@artefact) unless params[:edition]
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
+    elsif @artefact.kind == 'travel-advice'
+      attach_travel_advice_edition(@artefact, params[:edition])
     end
 
     render :rabl, :artefact, format: "json"
   end
 
   protected
+
+  def load_artefact(slug)
+    artefact = nil
+    statsd.time(@statsd_scope) do
+      artefact = Artefact.find_by_slug(slug)
+    end
+
+    if slug =~ %r{\Atravel-advice/(.*)\z}
+      country = Country.find_by_slug($1)
+      custom_404 unless country
+
+      if artefact and artefact.live?
+        artefact.country = country
+      else
+        artefact = build_blank_travel_advice_artefact(country)
+      end
+    end
+
+    artefact
+  end
+
   def map_editions_with_artefacts(editions)
     statsd.time("#{@statsd_scope}.map_editions_to_artefacts") do
       artefact_ids = editions.collect(&:panopticon_id)
@@ -397,6 +397,7 @@ class GovUkContentApi < Sinatra::Application
       :slug => "travel-advice/#{country.slug}",
       :name => country.name,
       :owning_app => 'travel-advice-publisher',
+      :state => 'live',
       :updated_at => Time.now
     )
     artefact.country = country
