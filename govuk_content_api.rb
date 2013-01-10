@@ -12,6 +12,7 @@ require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
 require 'artefact'
+require 'country'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
@@ -180,6 +181,28 @@ class GovUkContentApi < Sinatra::Application
     end
 
     render :rabl, :artefacts, format: "json"
+  end
+
+  get "/travel-advice/:id.json" do
+    @statsd_scope = "request.travel-advice-artefact"
+    verify_unpublished_permission if params[:edition]
+
+    country = Country.find_by_slug(params[:id])
+    custom_404 unless country
+
+    statsd.time("#{@statsd_scope}") do
+      @artefact = Artefact.where(slug: "travel-advice/#{params[:id]}").first
+    end
+
+    if @artefact and @artefact.live?
+      @artefact.country = country
+    else
+      @artefact = build_blank_travel_advice_artefact(country)
+    end
+
+    attach_travel_advice_edition(@artefact, params[:edition])
+
+    render :rabl, :artefact, format: "json"
   end
 
   get "/:id.json" do
@@ -366,6 +389,28 @@ class GovUkContentApi < Sinatra::Application
   rescue GdsApi::HTTPErrorResponse
     statsd.increment("#{@statsd_scope}.license_request_error.http")
     artefact.licence = { "error" => "http_error" }
+  end
+
+  def build_blank_travel_advice_artefact(country)
+    artefact = Artefact.new(
+      :kind => "travel-advice",
+      :slug => "travel-advice/#{country.slug}",
+      :name => country.name,
+      :owning_app => 'travel-advice-publisher',
+      :updated_at => Time.now
+    )
+    artefact.country = country
+    artefact
+  end
+
+  def attach_travel_advice_edition(artefact, version_number = nil)
+    statsd.time("#{@statsd_scope}.edition") do
+      artefact.edition = if version_number
+        artefact.country.editions.where(:version_number => version_number).first
+      else
+        artefact.country.editions.published.first
+      end
+    end
   end
 
   # Initialise statsd
