@@ -146,17 +146,18 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :tags, format: "json"
   end
 
-  get "/tags/:id.json" do
+  get "/tags/:tag_type_or_id.json" do
     @statsd_scope = "request.tag.#{params[:id]}"
-    statsd.time(@statsd_scope) do
-      @tag = Tag.where(tag_id: params[:id]).first
-    end
 
-    if @tag
-      render :rabl, :tag, format: "json"
-    else
-      custom_404
-    end
+    # Tags used to be accessed through /tags/tag_id.json, so we check here
+    # whether one exists to avoid breaking the Web. We only check for section
+    # tags, as at the time of change sections were the only tag type in use in
+    # production
+    section = Tag.by_tag_id(params[:tag_type_or_id], "section")
+    redirect(tag_url(section)) if section
+
+    # TODO: list tags by type
+    custom_404
   end
 
   get "/tags/:tag_type/:tag_id.json" do
