@@ -8,8 +8,7 @@ class TagRequestTest < GovUkContentApiTest
         tag_id: "good-tag", tag_type: "section",
         description: "Lots to say for myself", name: "Good tag"
       )
-      Tag.expects(:where).with(tag_type: "section", tag_id: "good-tag")
-         .returns([fake_tag])
+      Tag.expects(:by_tag_id).with("good-tag", "section").returns(fake_tag)
 
       get "/tags/section/good-tag.json"
       assert last_response.ok?
@@ -25,7 +24,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should return 404 if specific tag not found" do
-      Tag.expects(:where).with(tag_type: "section", tag_id: "bad-tag").returns([])
+      Tag.expects(:by_tag_id).with("bad-tag", "section").returns(nil)
       get "/tags/section/bad-tag.json"
       assert last_response.not_found?
       assert_status_field "not found", last_response
