@@ -179,4 +179,23 @@ class TagListRequestTest < GovUkContentApiTest
       end
     end
   end
+
+  describe "/tags/:tag_id.json" do
+    it "should redirect section tags from the old URLs" do
+      fake_section = Tag.new(tag_id: "crime", tag_type: "section")
+      Tag.expects(:by_tag_id).with("crime", "section").returns(fake_section)
+      get "/tags/crime.json"
+      assert last_response.redirect?, "Old tag request should redirect"
+      assert_equal(
+        "http://example.org/tags/section/crime.json",
+        last_response.location
+      )
+    end
+
+    it "should not redirect if it can't find a tag" do
+      Tag.expects(:by_tag_id).with("crime", "section").returns(nil)
+      get "/tags/crime.json"
+      assert last_response.not_found?
+    end
+  end
 end
