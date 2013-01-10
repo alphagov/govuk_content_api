@@ -60,3 +60,15 @@ class GovUkContentApiTest < MiniTest::Spec
     WebMock.reset!
   end
 end
+
+class MiniTest::Spec
+  before :each do
+    DatabaseCleaner.start
+  end
+
+  after :each do
+    DatabaseCleaner.clean
+  end
+end
+
+Country.data_path = File.expand_path("../fixtures/data/countries.yml", __FILE__)
