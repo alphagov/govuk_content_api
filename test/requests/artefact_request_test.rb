@@ -113,7 +113,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       ["crime-and-justice/batman", "Batman"]
     ]
     sections.each do |tag_id, title|
-      TagRepository.put(tag_id: tag_id, title: title, tag_type: "section")
+      FactoryGirl.create(:tag, tag_id: tag_id, title: title, tag_type: "section")
     end
     artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |slug, title| slug },
