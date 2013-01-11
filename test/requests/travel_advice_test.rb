@@ -6,8 +6,10 @@ class TravelAdviceTest < GovUkContentApiTest
 
     it "should return details for a country with published advice" do
       artefact = FactoryGirl.create(:artefact, slug: 'travel-advice/aruba', state: 'live',
-                                    kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice")
-      edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba', state: 'published')
+                                    kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
+                                    description: "This is the travel advice for people planning a visit to Aruba.")
+      edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba', state: 'published',
+                                  title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.")
       edition.parts.build(title: "Summary", slug: 'summary', body: "This is the summary\n------\n")
       edition.parts.build(title: "Part Two", slug: 'part-two', body: "And some more stuff in part 2.")
       edition.save!
@@ -19,9 +21,10 @@ class TravelAdviceTest < GovUkContentApiTest
 
       assert_base_artefact_fields(parsed_response)
       assert_equal 'travel-advice', parsed_response["format"]
-      assert_equal 'Aruba travel advice', parsed_response["title"]
+      assert_equal 'Travel advice for Aruba', parsed_response["title"]
 
       details = parsed_response["details"]
+      assert_equal 'This is the travel advice for people planning a visit to Aruba.', details['description']
       
       # Country details
       assert_equal({"name" => "Aruba", "slug" => "aruba"}, details["country"])
