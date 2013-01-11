@@ -210,6 +210,11 @@ class GovUkContentApi < Sinatra::Application
       artefact = Artefact.find_by_slug(slug)
     end
 
+    # Travel advice has a different required behaviour to other artefacts:
+    # The request should only 404 if the requested country doesn't exist.
+    #
+    # Otherwise if there is no live artefact, a mostly blank response should
+    # be returned that includes the country details.
     if slug =~ %r{\Atravel-advice/(.*)\z}
       country = Country.find_by_slug($1)
       custom_404 unless country
