@@ -198,4 +198,27 @@ class TagListRequestTest < GovUkContentApiTest
       assert last_response.not_found?
     end
   end
+
+  describe "/tags/:tag_type.json" do
+    it "should list all tags with a given type" do
+      fake_tags = %w(crime housing batman).map { |tag_id|
+        Tag.new(tag_id: tag_id, tag_type: "section", name: tag_id.capitalize)
+      }
+      Tag.expects(:where).with(tag_type: "section").returns(fake_tags)
+      Tag.expects(:by_tag_id).with("section", "section").returns(nil)
+
+      get "/tags/section.json"
+      assert last_response.ok?
+      assert_status_field "ok", last_response
+      response = JSON.parse(last_response.body)
+      assert_equal 3, response["results"].length
+    end
+
+    it "should 404 on an unknown tag type" do
+      Tag.expects(:by_tag_id).with("pie", "section").returns(nil)
+
+      get "/tags/pie.json"
+      assert last_response.not_found?
+    end
+  end
 end
