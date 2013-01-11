@@ -11,19 +11,21 @@ require 'gds_api/rummager'
 require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
+require 'pagination'
+
+# Note: the artefact patch needs to be included before the Kaminari patch,
+# otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
+require 'config/kaminari'
+require 'config/rabl'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
 
+  include Pagination
+
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
-
-  # Register RABL
-  Rabl.register!
-  Rabl.configure do |c|
-    c.json_engine = :yajl
-  end
 
   error Mongo::MongoDBError, Mongo::MongoRubyError do
     statsd.increment("mongo_error")
@@ -34,7 +36,6 @@ class GovUkContentApi < Sinatra::Application
     content_type :json
   end
 
-  # Render RABL
   get "/local_authorities.json" do
     search_param = params[:snac] || params[:name]
     @statsd_scope = "request.local_authorities.#{search_param}"
@@ -52,6 +53,8 @@ class GovUkContentApi < Sinatra::Application
     else
       custom_404
     end
+
+    @result_set = FakePaginatedResultSet.new(@local_authorities)
 
     render :rabl, :local_authorities, format: "json"
   end
@@ -105,16 +108,33 @@ class GovUkContentApi < Sinatra::Application
     if params[:root_sections]
       options["parent_id"] = nil
     end
-    if options.length > 0
+
+    allowed_params = params.slice *%w(type parent_id root_sections)
+
+    tags = if options.length > 0
       statsd.time("#{@statsd_scope}.options.#{options}") do
-        @tags = Tag.where(options)
+        Tag.where(options)
       end
     else
       statsd.time("#{@statsd_scope}.all") do
-        @tags = Tag.all
+        Tag
       end
     end
 
+    begin
+      paginated_tags = paginated(tags, params[:page])
+    rescue InvalidPage
+      # TODO: is it worth recording at a more granular level what's wrong?
+      statsd.increment('request.tags.bad_page')
+      custom_404
+    end
+
+    @result_set = PaginatedResultSet.new(paginated_tags)
+    @result_set.populate_page_links { |page_number|
+      tags_url(allowed_params, page_number)
+    }
+
+    headers "Link" => LinkHeader.new(@result_set.links).to_s
     render :rabl, :tags, format: "json"
   end
 
@@ -144,7 +164,8 @@ class GovUkContentApi < Sinatra::Application
     end
     tag_ids = collect_tag_ids(params[:tag], params[:include_children])
     artefacts = sorted_artefacts_for_tag_ids(tag_ids, params[:sort])
-    @results = map_artefacts_and_add_editions(artefacts)
+    results = map_artefacts_and_add_editions(artefacts)
+    @result_set = FakePaginatedResultSet.new(results)
 
     render :rabl, :with_tag, format: "json"
   end
@@ -157,6 +178,8 @@ class GovUkContentApi < Sinatra::Application
     else
       @results = []
     end
+
+    @result_set = FakePaginatedResultSet.new(@results)
 
     render :rabl, :licences, format: "json"
   end
@@ -175,9 +198,21 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/artefacts.json" do
-    statsd.time("request.artefacts") do
-      @artefacts = Artefact.live
+    artefacts = statsd.time("request.artefacts") do
+      Artefact.live
     end
+
+    begin
+      paginated_artefacts = paginated(artefacts, params[:page])
+    rescue InvalidPage
+      statsd.increment('request.tags.bad_page')
+      custom_404
+    end
+
+    @result_set = PaginatedResultSet.new(paginated_artefacts)
+    @result_set.populate_page_links { |page_number| artefacts_url(page_number) }
+
+    headers "Link" => LinkHeader.new(@result_set.links).to_s
 
     render :rabl, :artefacts, format: "json"
   end

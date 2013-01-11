@@ -1,17 +1,8 @@
-object false
+extends "paginated"
+object @result_set
 
-node :_response_info do
-  { status: "ok" }
-end
-
-node(:total) { @artefacts.count }
-node(:results) do
-  @artefacts.map do |a|
-    {
-      :id => artefact_url(a),
-      :web_url => artefact_web_url(a),
-      :title => a.name,
-      :format => a.kind,
-    }
-  end
+child(:results => "results") do
+  node(:id) { |a| artefact_url(a) }
+  node(:web_url) { |a| artefact_web_url(a) }
+  attributes :kind => :format, :name => :title
 end

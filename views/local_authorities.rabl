@@ -1,13 +1,7 @@
-object false
-
-node :_response_info do
-  { status: "ok" }
-end
+extends "paginated"
+object @result_set
 
 node(:description) { "Local Authorities" }
-node(:total) { @local_authorities.count }
-node(:results) do
-  @local_authorities.map { |authority|
-    partial "_local_authority", object: authority
-  }
+child(:results => "results") do
+  extends "_local_authority"
 end
