@@ -28,6 +28,8 @@ class GovUkContentApi < Sinatra::Application
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
 
+  TAG_TYPES = Artefact.tag_types.map(&:singularize)
+
   error Mongo::MongoDBError, Mongo::MongoRubyError do
     statsd.increment("mongo_error")
     raise
@@ -157,8 +159,13 @@ class GovUkContentApi < Sinatra::Application
     section = Tag.by_tag_id(params[:tag_type_or_id], "section")
     redirect(tag_url(section)) if section
 
-    # TODO: list tags by type
-    custom_404
+    # We respond with a 404 to unknown tag types, because the resource of "all
+    # tags of type <x>" does not exist when we don't recognise x
+    custom_404 unless TAG_TYPES.include? params[:tag_type_or_id]
+
+    tags = Tag.where(tag_type: params[:tag_type_or_id])
+    @result_set = FakePaginatedResultSet.new(tags)
+    render :rabl, :tags, format: "json"
   end
 
   get "/tags/:tag_type/:tag_id.json" do
