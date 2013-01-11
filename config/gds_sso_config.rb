@@ -3,5 +3,4 @@
   config.oauth_id       = 'abcdefghjasndjkasndcontentapi'
   config.oauth_secret   = 'secret'
   config.oauth_root_url = Plek.current.find("signon")
-  config.default_scope  = "Content API"
 end
