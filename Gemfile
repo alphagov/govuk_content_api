@@ -11,7 +11,7 @@ gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '2.5.0'
+  gem 'govuk_content_models', '2.5.1'
 end
 
 gem 'gds-sso', '2.1.0'
@@ -22,7 +22,7 @@ else
 end
 
 gem 'govspeak', '1.0.1'
-gem 'plek', '0.3.0'
+gem 'plek', '1.0.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses'
