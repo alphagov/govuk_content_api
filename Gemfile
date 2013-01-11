@@ -11,10 +11,10 @@ gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '2.5.0'
+  gem 'govuk_content_models', '4.0.0'
 end
 
-gem 'gds-sso', '2.1.0'
+gem 'gds-sso', '3.0.0'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else

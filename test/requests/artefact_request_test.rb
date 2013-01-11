@@ -305,7 +305,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
       it "should return 403 if using edition parameter, authenticated but lacking permission" do
         Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
-        Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => { "Content API" => [] }))
+        Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => []))
         get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_without_permission
         assert_equal 403, last_response.status
         assert_status_field "You must be authorized to use the edition parameter", last_response
@@ -314,7 +314,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       describe "user has permission" do
         it "should return draft data if using edition parameter, edition is draft" do
           Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
-          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => { "Content API" => ["access_unpublished"] }))
+          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
 
           get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
           assert_equal 200, last_response.status
@@ -324,7 +324,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
         it "should return draft data if using edition parameter, edition is draft and artefact is draft" do
           Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
-          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => { "Content API" => ["access_unpublished"] }))
+          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
 
           @artefact = FactoryGirl.create(:artefact, state: 'draft')
           @published = FactoryGirl.create(:edition, panopticon_id: @artefact.id, state: 'draft', version_number: 1)
