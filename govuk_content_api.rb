@@ -452,7 +452,7 @@ class GovUkContentApi < Sinatra::Application
     warden = request.env['warden']
     return if (ENV['RACK_ENV'] == "development") && ENV['REQUIRE_AUTH'].nil?
     if warden.authenticate?
-      if warden.user.has_permission?(GDS::SSO::Config.default_scope, "access_unpublished")
+      if warden.user.has_permission?("access_unpublished")
         return true
       else
         custom_error(403, "You must be authorized to use the edition parameter")
