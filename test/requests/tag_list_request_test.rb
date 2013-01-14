@@ -20,9 +20,9 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "should filter all tags by type" do
-      FactoryGirl.create(:tag, tag_type: "Section")
-      FactoryGirl.create(:tag, tag_type: "Keyword")
-      get "/tags.json?type=Section"
+      FactoryGirl.create(:tag, tag_type: "section")
+      FactoryGirl.create(:tag, tag_type: "keyword")
+      get "/tags.json?type=section"
       assert last_response.ok?
       assert_status_field "ok", last_response
       assert_equal 1, JSON.parse(last_response.body)['results'].count
