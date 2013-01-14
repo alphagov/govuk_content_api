@@ -6,6 +6,9 @@ configure do
   if File.exists?(mongoid_config_file)
     ::Mongoid.load!(mongoid_config_file)
   end
+
+  # Disable pagination until our clients are all ready for it
+  disable :pagination
 end
 
 configure :production do
