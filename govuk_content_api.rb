@@ -121,20 +121,28 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    begin
-      paginated_tags = paginated(tags, params[:page])
-    rescue InvalidPage
-      # TODO: is it worth recording at a more granular level what's wrong?
-      statsd.increment('request.tags.bad_page')
-      custom_404
+    if settings.pagination
+      begin
+        paginated_tags = paginated(tags, params[:page])
+      rescue InvalidPage
+        # TODO: is it worth recording at a more granular level what's wrong?
+        statsd.increment('request.tags.bad_page')
+        custom_404
+      end
+
+      @result_set = PaginatedResultSet.new(paginated_tags)
+      @result_set.populate_page_links { |page_number|
+        tags_url(allowed_params, page_number)
+      }
+
+      headers "Link" => LinkHeader.new(@result_set.links).to_s
+    else
+      # If the scope is Tag, we need to use Tag.all instead, because the class
+      # itself is not a Mongo Criteria object
+      tags_scope = tags.is_a?(Class) ? tags.all : tags
+      @result_set = FakePaginatedResultSet.new(tags_scope)
     end
 
-    @result_set = PaginatedResultSet.new(paginated_tags)
-    @result_set.populate_page_links { |page_number|
-      tags_url(allowed_params, page_number)
-    }
-
-    headers "Link" => LinkHeader.new(@result_set.links).to_s
     render :rabl, :tags, format: "json"
   end
 
@@ -202,17 +210,20 @@ class GovUkContentApi < Sinatra::Application
       Artefact.live
     end
 
-    begin
-      paginated_artefacts = paginated(artefacts, params[:page])
-    rescue InvalidPage
-      statsd.increment('request.tags.bad_page')
-      custom_404
+    if settings.pagination
+      begin
+        paginated_artefacts = paginated(artefacts, params[:page])
+      rescue InvalidPage
+        statsd.increment('request.tags.bad_page')
+        custom_404
+      end
+
+      @result_set = PaginatedResultSet.new(paginated_artefacts)
+      @result_set.populate_page_links { |page_number| artefacts_url(page_number) }
+      headers "Link" => LinkHeader.new(@result_set.links).to_s
+    else
+      @result_set = FakePaginatedResultSet.new(artefacts)
     end
-
-    @result_set = PaginatedResultSet.new(paginated_artefacts)
-    @result_set.populate_page_links { |page_number| artefacts_url(page_number) }
-
-    headers "Link" => LinkHeader.new(@result_set.links).to_s
 
     render :rabl, :artefacts, format: "json"
   end
