@@ -11,7 +11,7 @@
 #   tag_type.singular
 class TagTypes
   def initialize(plurals)
-    @types = plurals.map { |p| TagType.new(p.singularize, p) }
+    @types = plurals.map { |p| TagType.new(p.singularize, p).freeze }
   end
 
   def from_plural(plural)
@@ -23,11 +23,5 @@ class TagTypes
   end
 end
 
-class TagType
-  attr_reader :singular, :plural
-
-  def initialize(singular, plural)
-    @singular, @plural = singular, plural
-  end
-end
+TagType = Struct.new("TagType", :singular, :plural)
 
