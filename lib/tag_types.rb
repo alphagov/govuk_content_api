@@ -10,8 +10,14 @@
 #   tag_type = types.from_plural "badgers"
 #   tag_type.singular
 class TagTypes
+  include Enumerable
+
   def initialize(plurals)
     @types = plurals.map { |p| TagType.new(p.singularize, p).freeze }
+  end
+
+  def each(&block)
+    @types.each(&block)
   end
 
   def from_plural(plural)
