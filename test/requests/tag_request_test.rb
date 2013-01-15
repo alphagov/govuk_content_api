@@ -1,48 +1,6 @@
 require 'test_helper'
 
 class TagRequestTest < GovUkContentApiTest
-  describe "/tags.json" do
-    it "should load list of tags" do
-      Tag.expects(:all).returns([
-        Tag.new(tag_id: 'good-tag', tag_type: 'Section', description: 'Lots to say for myself', name: 'good tag'),
-        Tag.new(tag_id: 'better-tag', tag_type: 'Audience', description: 'Lots to say', name: 'better tag'),
-      ])
-      get "/tags.json"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-      assert_equal 2, JSON.parse(last_response.body)['results'].count
-    end
-
-    it "should filter all tags by type" do
-      Tag.expects(:where).with("tag_type" => 'Section').returns([
-        Tag.new(tag_id: 'good-tag', tag_type: 'Section', description: 'Lots to say for myself', name: 'good tag'),
-      ])
-      get "/tags.json?type=Section"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-      assert_equal 1, JSON.parse(last_response.body)['results'].count
-    end
-
-    it "should have full uri in id field in index action" do
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
-      get "/tags.json"
-      expected_id = "http://example.org/tags/crime.json"
-      expected_url = "http://www.test.gov.uk/browse/crime"
-      assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
-      assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
-      assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
-    end
-
-    it "provides a public API URL when requested through that route" do
-      # We identify public API URLs by the presence of an HTTP_API_PREFIX
-      # environment variable, set by the internal proxy
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
-      get '/tags.json', {}, {'HTTP_API_PREFIX' => 'api'}
-
-      expected_id = "http://www.test.gov.uk/api/tags/crime.json"
-      assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
-    end
-  end
 
   describe "/tags/:id.json" do
     it "should load a specific tag" do
@@ -55,7 +13,7 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal "Lots to say for myself", response["details"]["description"]
       assert_equal "http://example.org/tags/good-tag.json", response["id"]
       assert_equal nil, response["web_url"]
-      assert_equal "http://www.test.gov.uk/browse/good-tag", response["content_with_tag"]["web_url"]
+      assert_equal "http://www.dev.gov.uk/browse/good-tag", response["content_with_tag"]["web_url"]
     end
 
     it "should return 404 if specific tag not found" do
@@ -105,7 +63,7 @@ class TagRequestTest < GovUkContentApiTest
 
       assert last_response.ok?
       response = JSON.parse(last_response.body)
-      assert_equal "http://www.test.gov.uk/browse/crime/batman", response["content_with_tag"]["web_url"]
+      assert_equal "http://www.dev.gov.uk/browse/crime/batman", response["content_with_tag"]["web_url"]
     end
 
     describe "has a parent tag" do
@@ -127,7 +85,7 @@ class TagRequestTest < GovUkContentApiTest
           },
           "content_with_tag" => {
             "id" => "http://example.org/with_tag.json?tag=crime-and-prison",
-            "web_url" => "http://www.test.gov.uk/browse/crime-and-prison"
+            "web_url" => "http://www.dev.gov.uk/browse/crime-and-prison"
           },
           "parent" => nil,
           "title" => @parent.title

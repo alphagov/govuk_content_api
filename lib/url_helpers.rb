@@ -1,6 +1,14 @@
 require "cgi"
 
 module URLHelpers
+  def tags_url(params = {}, page = nil)
+    sorted_params = Hash[params.sort]
+    url_params = page ? sorted_params.merge(page: page) : sorted_options
+    # Not using activesupport's to_query here, because we want to control the
+    # order of parameters, specifically so that page comes last.
+    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
+  end
+
   def tag_url(tag)
     api_url("/tags/#{CGI.escape(tag.tag_id)}.json")
   end
@@ -19,6 +27,14 @@ module URLHelpers
 
   def search_result_web_url(result)
     Plek.current.find('www') + result['link']
+  end
+
+  def artefacts_url(page = nil)
+    if page
+      api_url("/artefacts.json?" + URI.encode_www_form(page: page))
+    else
+      api_url("/artefacts.json")
+    end
   end
 
   def artefact_url(artefact)

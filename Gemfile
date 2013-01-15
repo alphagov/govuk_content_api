@@ -14,7 +14,7 @@ else
   gem 'govuk_content_models', '4.1.0'
 end
 
-gem 'gds-sso', '3.0.0'
+gem 'gds-sso', '3.0.1'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
@@ -22,10 +22,12 @@ else
 end
 
 gem 'govspeak', '1.0.1'
-gem 'plek', '0.3.0'
+gem 'plek', '1.0.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses'
+gem 'kaminari', '0.14.1'
+gem 'link_header', '0.0.5'
 
 group :test do
   gem 'database_cleaner', '0.7.2'

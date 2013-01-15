@@ -62,7 +62,65 @@ class ArtefactsRequestTest < GovUkContentApiTest
     assert_equal %w(id web_url title format).sort, result.keys.sort
     assert_equal "Bravo", result["title"]
     assert_equal "guide", result["format"]
-    assert_equal "http://www.test.gov.uk/bravo", result["web_url"]
+    assert_equal "http://www.dev.gov.uk/bravo", result["web_url"]
     assert_equal "http://example.org/bravo.json", result["id"]
+  end
+
+  describe "with pagination" do
+    def setup
+      # Stub this out to avoid configuration changes breaking tests
+      app.stubs(:pagination).returns(true)
+      Artefact.stubs(:default_per_page).returns(10)
+    end
+
+    it "should paginate when there are enough artefacts" do
+      FactoryGirl.create_list(:artefact, 25, :state => "live")
+
+      get "/artefacts.json"
+
+      assert last_response.ok?
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal 10, parsed_response["results"].count
+      assert_has_values parsed_response, "total" => 25, "current_page" => 1,
+                                         "pages" => 3
+
+      assert_link "next",  "http://example.org/artefacts.json?page=2"
+      refute_link "previous"
+    end
+
+    it "should display subsequent pages" do
+      FactoryGirl.create_list(:artefact, 25, :state => "live")
+
+      get "/artefacts.json?page=3"
+
+      assert last_response.ok?
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal 5, parsed_response["results"].count
+      assert_has_values parsed_response, "total" => 25, "current_page" => 3,
+                                         "pages" => 3
+
+      assert_link "previous",  "http://example.org/artefacts.json?page=2"
+      refute_link "next"
+    end
+  end
+
+  describe "without pagination" do
+    def setup
+      app.stubs(:pagination).returns(false)
+    end
+
+    it "should display large numbers of artefacts" do
+      FactoryGirl.create_list(:artefact, 25, :state => "live")
+
+      get "/artefacts.json"
+
+      assert last_response.ok?
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal 25, parsed_response["results"].count
+      assert_has_values parsed_response, "total" => 25, "current_page" => 1,
+                                         "pages" => 1
+      refute_link "next"
+      refute_link "previous"
+    end
   end
 end
