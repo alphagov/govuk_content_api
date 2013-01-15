@@ -18,6 +18,7 @@ require 'pagination'
 require 'artefact'
 require 'config/kaminari'
 require 'config/rabl'
+require 'country'
 
 class GovUkContentApi < Sinatra::Application
   helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
@@ -232,21 +233,48 @@ class GovUkContentApi < Sinatra::Application
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
-    statsd.time("#{@statsd_scope}") do
-      @artefact = Artefact.where(slug: params[:id]).first
-    end
+    slug = CGI.unescape(params[:id])
+    @artefact = load_artefact(slug)
 
     custom_404 unless @artefact
     handle_unpublished_artefact(@artefact) unless params[:edition]
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
+    elsif @artefact.kind == 'travel-advice'
+      attach_travel_advice_edition(@artefact, params[:edition])
     end
 
     render :rabl, :artefact, format: "json"
   end
 
   protected
+
+  def load_artefact(slug)
+    artefact = nil
+    statsd.time(@statsd_scope) do
+      artefact = Artefact.find_by_slug(slug)
+    end
+
+    # Travel advice has a different required behaviour to other artefacts:
+    # The request should only 404 if the requested country doesn't exist.
+    #
+    # Otherwise if there is no live artefact, a mostly blank response should
+    # be returned that includes the country details.
+    if slug =~ %r{\Atravel-advice/(.*)\z}
+      country = Country.find_by_slug($1)
+      custom_404 unless country
+
+      if artefact and artefact.live?
+        artefact.country = country
+      else
+        artefact = build_blank_travel_advice_artefact(country)
+      end
+    end
+
+    artefact
+  end
+
   def map_editions_with_artefacts(editions)
     statsd.time("#{@statsd_scope}.map_editions_to_artefacts") do
       artefact_ids = editions.collect(&:panopticon_id)
@@ -412,6 +440,29 @@ class GovUkContentApi < Sinatra::Application
   rescue GdsApi::HTTPErrorResponse
     statsd.increment("#{@statsd_scope}.license_request_error.http")
     artefact.licence = { "error" => "http_error" }
+  end
+
+  def build_blank_travel_advice_artefact(country)
+    artefact = Artefact.new(
+      :kind => "travel-advice",
+      :slug => "travel-advice/#{country.slug}",
+      :name => country.name,
+      :owning_app => 'travel-advice-publisher',
+      :state => 'live',
+      :updated_at => Time.now
+    )
+    artefact.country = country
+    artefact
+  end
+
+  def attach_travel_advice_edition(artefact, version_number = nil)
+    statsd.time("#{@statsd_scope}.edition") do
+      artefact.edition = if version_number
+        artefact.country.editions.where(:version_number => version_number).first
+      else
+        artefact.country.editions.published.first
+      end
+    end
   end
 
   # Initialise statsd
