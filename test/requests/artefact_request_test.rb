@@ -129,7 +129,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     # Note that this will check the ordering too
     sections.zip(parsed_artefact["tags"]).each do |section, tag_info|
       assert_equal section[1], tag_info["title"]
-      tag_path = "/tags/section/#{CGI.escape(section[0])}.json"
+      tag_path = "/tags/sections/#{CGI.escape(section[0])}.json"
       assert_equal tag_path, URI.parse(tag_info["id"]).path
       assert_equal nil, tag_info["web_url"]
       assert_equal "section", tag_info["details"]["type"]

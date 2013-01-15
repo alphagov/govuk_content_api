@@ -12,6 +12,7 @@ require_relative "config"
 require 'statsd'
 require 'config/gds_sso_middleware'
 require 'pagination'
+require 'tag_types'
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -27,7 +28,7 @@ class GovUkContentApi < Sinatra::Application
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
 
-  TAG_TYPES = Artefact.tag_types.map(&:singularize)
+  TAG_TYPES = TagTypes.new(Artefact.tag_types)
 
   error Mongo::MongoDBError, Mongo::MongoRubyError do
     statsd.increment("mongo_error")
@@ -151,24 +152,37 @@ class GovUkContentApi < Sinatra::Application
   get "/tags/:tag_type_or_id.json" do
     @statsd_scope = "request.tag.#{params[:id]}"
 
-    # Tags used to be accessed through /tags/tag_id.json, so we check here
-    # whether one exists to avoid breaking the Web. We only check for section
-    # tags, as at the time of change sections were the only tag type in use in
-    # production
-    section = Tag.by_tag_id(params[:tag_type_or_id], "section")
-    redirect(tag_url(section)) if section
+    tag_type = TAG_TYPES.from_plural(params[:tag_type_or_id])
 
     # We respond with a 404 to unknown tag types, because the resource of "all
     # tags of type <x>" does not exist when we don't recognise x
-    custom_404 unless TAG_TYPES.include? params[:tag_type_or_id]
+    unless tag_type
 
-    tags = Tag.where(tag_type: params[:tag_type_or_id])
+      # Redirect from a singular tag type to its plural
+      # e.g. /tags/section.json => /tags/sections.json
+      tag_type = TAG_TYPES.from_singular(params[:tag_type_or_id])
+      redirect(tag_type_url(tag_type)) if tag_type
+
+      # Tags used to be accessed through /tags/tag_id.json, so we check here
+      # whether one exists to avoid breaking the Web. We only check for section
+      # tags, as at the time of change sections were the only tag type in use
+      # in production
+      section = Tag.by_tag_id(params[:tag_type_or_id], "section")
+      redirect(tag_url(section)) if section
+
+      custom_404
+    end
+
+    tags = Tag.where(tag_type: tag_type.singular)
     @result_set = FakePaginatedResultSet.new(tags)
     render :rabl, :tags, format: "json"
   end
 
   get "/tags/:tag_type/:tag_id.json" do
-    @tag = Tag.by_tag_id(params[:tag_id], params[:tag_type])
+    tag_type = TAG_TYPES.from_plural(params[:tag_type])
+    custom_404 unless tag_type
+
+    @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
     if @tag
       render :rabl, :tag, format: "json"
     else

@@ -9,8 +9,19 @@ module URLHelpers
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
+  def tag_type_url(tag_type)
+    if tag_type.respond_to? :plural
+      plural_tag_type = tag_type.plural
+    else
+      # Fall back on the inflector if we have to
+      plural_tag_type = tag_type.pluralize
+    end
+    api_url("/tags/#{CGI.escape(plural_tag_type)}.json")
+  end
+
   def tag_url(tag)
-    api_url("/tags/#{CGI.escape(tag.tag_type)}/#{CGI.escape(tag.tag_id)}.json")
+    plural_tag_type = tag.tag_type.pluralize
+    api_url("/tags/#{CGI.escape(plural_tag_type)}/#{CGI.escape(tag.tag_id)}.json")
   end
 
   def with_tag_url(tag)
