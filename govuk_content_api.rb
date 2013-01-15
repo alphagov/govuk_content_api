@@ -188,7 +188,8 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
-    tags = Tag.where(tag_type: tag_type.singular)
+    @tag_type_name = tag_type.singular
+    tags = Tag.where(tag_type: @tag_type_name)
     @result_set = FakePaginatedResultSet.new(tags)
     render :rabl, :tags, format: "json"
   end
