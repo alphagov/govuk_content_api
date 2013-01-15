@@ -26,8 +26,8 @@ class TagTypesTest < MiniTest::Spec
     it "returns immutable values" do
       types = TagTypes.new(["badgers", "carrots"])
       t = types.from_plural("badgers")
-      assert_raises NoMethodError do t.plural = "pies" end
-      assert_raises NoMethodError do t.singular = "pie" end
+      assert_raises RuntimeError do t.plural = "pies" end
+      assert_raises RuntimeError do t.singular = "pie" end
     end
   end
 end
