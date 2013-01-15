@@ -50,7 +50,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal response_artefact.name, related_info["title"]
       artefact_path = "/#{CGI.escape(response_artefact.slug)}.json"
       assert_equal artefact_path, URI.parse(related_info["id"]).path
-      assert_equal "http://www.test.gov.uk/#{response_artefact.slug}", related_info["web_url"]
+      assert_equal "http://www.dev.gov.uk/#{response_artefact.slug}", related_info["web_url"]
     end
   end
 
@@ -135,7 +135,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "section", tag_info["details"]["type"]
       # Temporary hack until the browse pages are rebuilt
       expected_section_slug = section[0]
-      assert_equal "http://www.test.gov.uk/browse/#{expected_section_slug}", tag_info["content_with_tag"]["web_url"]
+      assert_equal "http://www.dev.gov.uk/browse/#{expected_section_slug}", tag_info["content_with_tag"]["web_url"]
     end
   end
 
@@ -347,7 +347,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
       assert_status_field "ok", last_response
       assert_equal "http://example.org/#{artefact.slug}.json", parsed_response["id"]
-      assert_equal "http://www.test.gov.uk/#{artefact.slug}", parsed_response["web_url"]
+      assert_equal "http://www.dev.gov.uk/#{artefact.slug}", parsed_response["web_url"]
       assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
       assert_equal "1234", parsed_response["details"]["need_id"]
       assert_equal edition.updated_at.iso8601, parsed_response["updated_at"]
@@ -423,7 +423,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
       assert_equal 200, last_response.status
       expected_first_part = {
-        "web_url" => "http://www.test.gov.uk/#{artefact.slug}/part-one",
+        "web_url" => "http://www.dev.gov.uk/#{artefact.slug}/part-one",
         "slug" => "part-one",
         "order" => 1,
         "title" => "Part One",

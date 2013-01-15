@@ -32,7 +32,7 @@ class TagListRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
       expected_id = "http://example.org/tags/crime.json"
-      expected_url = "http://www.test.gov.uk/browse/crime"
+      expected_url = "http://www.dev.gov.uk/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
       assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
       assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
@@ -44,7 +44,7 @@ class TagListRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get '/tags.json', {}, {'HTTP_API_PREFIX' => 'api'}
 
-      expected_id = "http://www.test.gov.uk/api/tags/crime.json"
+      expected_id = "http://www.dev.gov.uk/api/tags/crime.json"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
     end
 
