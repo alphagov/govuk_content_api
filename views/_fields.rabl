@@ -63,3 +63,10 @@ end
 node(:expectations, :if => lambda { |artefact| artefact.edition.respond_to?(:expectations) }) do |artefact|
   artefact.edition.expectations.map(&:text)
 end
+
+node(:country, :if => lambda { |artefact| artefact.country.is_a?(Country) }) do |artefact|
+  {
+    "name" => artefact.country.name,
+    "slug" => artefact.country.slug,
+  }
+end
