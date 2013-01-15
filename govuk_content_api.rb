@@ -13,6 +13,7 @@ require 'statsd'
 require 'config/gds_sso_middleware'
 require 'pagination'
 require 'tag_types'
+require 'ostruct'
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -29,7 +30,9 @@ class GovUkContentApi < Sinatra::Application
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
 
-  TAG_TYPES = TagTypes.new(Artefact.tag_types)
+  def known_tag_types
+    @known_tag_types ||= TagTypes.new(Artefact.tag_types)
+  end
 
   error Mongo::MongoDBError, Mongo::MongoRubyError do
     statsd.increment("mongo_error")
@@ -150,10 +153,22 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :tags, format: "json"
   end
 
+  get "/tag_types.json" do
+    tag_types = known_tag_types.map { |tag_type|
+      OpenStruct.new(
+        id: tag_type_url(tag_type),
+        type: tag_type.singular,
+        total: Tag.where(tag_type: tag_type.singular).count
+      )
+    }
+    @result_set = FakePaginatedResultSet.new(tag_types)
+    render :rabl, :tag_types, format: "json"
+  end
+
   get "/tags/:tag_type_or_id.json" do
     @statsd_scope = "request.tag.#{params[:id]}"
 
-    tag_type = TAG_TYPES.from_plural(params[:tag_type_or_id])
+    tag_type = known_tag_types.from_plural(params[:tag_type_or_id])
 
     # We respond with a 404 to unknown tag types, because the resource of "all
     # tags of type <x>" does not exist when we don't recognise x
@@ -161,7 +176,7 @@ class GovUkContentApi < Sinatra::Application
 
       # Redirect from a singular tag type to its plural
       # e.g. /tags/section.json => /tags/sections.json
-      tag_type = TAG_TYPES.from_singular(params[:tag_type_or_id])
+      tag_type = known_tag_types.from_singular(params[:tag_type_or_id])
       redirect(tag_type_url(tag_type)) if tag_type
 
       # Tags used to be accessed through /tags/tag_id.json, so we check here
@@ -180,7 +195,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type/:tag_id.json" do
-    tag_type = TAG_TYPES.from_plural(params[:tag_type])
+    tag_type = known_tag_types.from_plural(params[:tag_type])
     custom_404 unless tag_type
 
     @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
