@@ -191,6 +191,25 @@ class GovUkContentApi < Sinatra::Application
 
     @tag_type_name = tag_type.singular
     tags = Tag.where(tag_type: @tag_type_name)
+
+    if @tag_type_name == "section"
+      # Extra functionality for sections: roots and parents
+      if params[:parent_id] && params[:root_section]
+        custom_404  # Doesn't make sense to have both of these parameters
+      end
+      if params[:parent_id]
+        # Look up parent tag and add to criteria
+        if Tag.by_tag_id(params[:parent_id], "section")
+          tags = tags.where(parent_id: params[:parent_id])
+        else
+          custom_404
+        end
+      end
+      if params[:root_sections]
+        tags = tags.where(parent_id: nil)
+      end
+    end
+
     @result_set = FakePaginatedResultSet.new(tags)
     render :rabl, :tags, format: "json"
   end

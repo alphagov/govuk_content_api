@@ -236,4 +236,50 @@ class TagListRequestTest < GovUkContentApiTest
       assert last_response.not_found?
     end
   end
+
+  describe "/tags/sections.json" do
+    def setup
+      %w(crime housing batman).each do |tag_id|
+        FactoryGirl.create :tag, tag_id: tag_id, title: tag_id.capitalize
+      end
+
+      %w(joker scarecrow bane).each do |tag_id|
+        FactoryGirl.create(
+          :tag,
+          tag_id: tag_id,
+          title: tag_id.capitalize,
+          parent_id: "crime"
+        )
+      end
+    end
+
+    def assert_tag_titles(tag_titles)
+      response = JSON.parse(last_response.body)
+      # NOTE: doesn't check that the tags are in the order given
+      assert_equal(
+        tag_titles.sort,
+        response["results"].map { |tag| tag["title"] }.sort
+      )
+    end
+
+    it "should list all root-level sections" do
+      get "/tags/sections.json?root_sections=true"
+      assert_tag_titles %w(Crime Housing Batman)
+    end
+
+    it "should list all sections with a given parent" do
+      get "/tags/sections.json?parent_id=crime"
+      assert_tag_titles %w(Joker Scarecrow Bane)
+    end
+
+    it "should 404 on an unknown parent section" do
+      get "/tags/sections.json?parent_id=horses"
+      assert last_response.not_found?
+    end
+
+    it "should display an empty list if there are no sub-sections" do
+      get "/tags/sections.json?parent_id=housing"
+      assert_tag_titles []
+    end
+  end
 end
