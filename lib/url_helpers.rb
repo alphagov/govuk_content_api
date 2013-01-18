@@ -78,6 +78,6 @@ module URLHelpers
   end
 
   def country_web_url(country)
-    "#{Plek.current.find('www')}/travel-advice/#{country.slug}"
+    "#{ENV["GOVUK_WEBSITE_ROOT"]}/travel-advice/#{country.slug}"
   end
 end
