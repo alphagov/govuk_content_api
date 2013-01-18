@@ -225,19 +225,75 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  # Show the artefacts with a given tag
+  #
+  # Examples:
+  #
+  #   /with_tag.json?section=crime
+  #    - all artefacts in the Crime section
+  #   /with_tag.json?section=crime&include_children=1
+  #    - all artefacts in the Crime section and any subsections
+  #   /with_tag.json?section=crime&sort=curated
+  #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
     @statsd_scope = 'request.with_tag'
 
-    custom_404 if params[:tag].nil? || params[:tag].empty?
+    modifiers = %w(include_children sort)
+
+    unless params[:tag].blank?
+      # Old-style tag URLs without types specified
+
+      # If comma-separated tags given, we've stopped supporting that for now
+      if params[:tag].include? ","
+        custom_404
+      end
+
+      # If we can unambiguously determine the tag, redirect to its correct URL
+      possible_tags = Tag.where(tag_id: params[:tag]).to_a
+      if possible_tags.count == 1
+        # Convert the modifier keys to strings first, because otherwise they
+        # don't work with Hash#slice in the way you might expect, as the
+        # keys in `params` are actually strings
+        modifier_params = params.slice(*modifiers)
+        redirect with_tag_url(possible_tags, modifier_params)
+      else
+        custom_404
+      end
+    end
+
+    requested_tags = known_tag_types.each_with_object([]) do |tag_type, req|
+      unless params[tag_type.singular].blank?
+        req << Tag.by_tag_id(params[tag_type.singular], tag_type.singular)
+      end
+    end
+
+    # If any of the tags weren't found, that's enough to 404
+    custom_404 if requested_tags.any? &:nil?
+
+    # For now, we only support retrieving by a single tag
+    custom_404 unless requested_tags.size == 1
 
     if params[:include_children].to_i > 1
       custom_error(501, "Include children only supports a depth of 1.")
+    elsif params[:include_children].to_i == 1
+      requested_tags = include_children(requested_tags)
     end
+
     if params[:sort]
       custom_404 unless ["curated", "alphabetical"].include?(params[:sort])
     end
-    tag_ids = collect_tag_ids(params[:tag], params[:include_children])
-    artefacts = sorted_artefacts_for_tag_ids(tag_ids, params[:sort])
+
+    tag_id = requested_tags.first.tag_id
+    tag_type = requested_tags.first.tag_type
+    @description = "All content with the '#{tag_id}' #{tag_type}"
+    if params[:include_children]
+      @description += " and subsections"
+    end
+
+    artefacts = sorted_artefacts_for_tag_ids(
+      requested_tags.map(&:tag_id),
+      params[:sort]
+    )
     results = map_artefacts_and_add_editions(artefacts)
     @result_set = FakePaginatedResultSet.new(results)
 
@@ -342,19 +398,11 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
-  def collect_tag_ids(tag_list, include_children)
-    tag_ids = params[:tag].split(',')
-    # TODO: Can this be done with a single query?
-    tags = tag_ids.map { |ti| Tag.where(tag_id: ti).first }.compact
-
-    custom_404 unless tags.length == tag_ids.length
-
-    if params[:include_children]
-      tags = Tag.any_in(parent_id: tag_ids)
-      tag_ids = tag_ids + tags.map(&:tag_id)
-    end
-
-    tag_ids
+  def include_children(tags)
+    # Given a list of tags, return a list of those tags and their children
+    child_tags = Tag.any_in(parent_id: tags.map(&:tag_id))
+    # TODO: remove duplicates?
+    tags + child_tags
   end
 
   def sorted_artefacts_for_tag_ids(tag_ids, sort)

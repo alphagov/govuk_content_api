@@ -93,7 +93,7 @@ class TagRequestTest < GovUkContentApiTest
             "type" => "section"
           },
           "content_with_tag" => {
-            "id" => "http://example.org/with_tag.json?tag=crime-and-prison",
+            "id" => "http://example.org/with_tag.json?section=crime-and-prison",
             "web_url" => "http://www.test.gov.uk/browse/crime-and-prison"
           },
           "parent" => nil,
