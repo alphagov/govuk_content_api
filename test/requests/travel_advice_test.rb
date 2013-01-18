@@ -10,12 +10,12 @@ class TravelAdviceTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 14, parsed_response["total"]
-      assert_equal 14, parsed_response["countries"].length
+      assert_equal 14, parsed_response["results"].length
 
-      assert_equal "Afghanistan", parsed_response["countries"].first["name"]
-      assert_equal "afghanistan", parsed_response["countries"].first["identifier"]
-      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["countries"].first["id"]
-      assert_equal "http://www.dev.gov.uk/travel-advice/afghanistan", parsed_response["countries"].first["web_url"]
+      assert_equal "Afghanistan", parsed_response["results"].first["name"]
+      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
+      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["results"].first["id"]
+      assert_equal "http://www.dev.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
     end
   end
 

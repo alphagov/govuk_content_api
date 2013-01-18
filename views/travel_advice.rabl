@@ -6,7 +6,7 @@ end
 
 node(:total) { @countries.count }
 
-node(:countries) do
+node(:results) do
   @countries.map do |c|
     {
       :id => country_url(c),
