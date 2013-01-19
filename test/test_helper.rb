@@ -6,6 +6,7 @@ if ENV["USE_SIMPLECOV"]
 end
 
 ENV['RACK_ENV'] = 'test'
+ENV['GOVUK_WEBSITE_ROOT'] ||= 'www.gov.uk'
 
 $LOAD_PATH << File.expand_path('../../', __FILE__)
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
@@ -83,6 +84,10 @@ class GovUkContentApiTest < MiniTest::Spec
 
   def app
     GovUkContentApi
+  end
+
+  def public_web_url
+    ENV['GOVUK_WEBSITE_ROOT']
   end
 
   def setup

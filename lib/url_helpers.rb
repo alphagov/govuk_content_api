@@ -51,7 +51,7 @@ module URLHelpers
 
   def api_url(uri)
     if env['HTTP_API_PREFIX'] && env['HTTP_API_PREFIX'] != ''
-      Plek.current.find('www') + "/#{env['HTTP_API_PREFIX']}#{uri}"
+      ENV['GOVUK_WEBSITE_ROOT'] + "/#{env['HTTP_API_PREFIX']}#{uri}"
     else
       url(uri)
     end
@@ -59,14 +59,14 @@ module URLHelpers
 
   def base_web_url(artefact)
     if ["production", "test"].include?(ENV["RACK_ENV"])
-      @_base_web_url ||= Plek.current.find('www')
+      @_base_web_url ||= ENV['GOVUK_WEBSITE_ROOT']
     else
       Plek.current.find(artefact.rendering_app || artefact.owning_app)
     end
   end
 
   def base_web_search_url
-    @_base_web_search_url ||= Plek.current.find('www')
+    @_base_web_search_url ||= ENV['GOVUK_WEBSITE_ROOT']
   end
 
   def local_authority_url(authority)
