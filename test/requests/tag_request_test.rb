@@ -13,7 +13,7 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal "Lots to say for myself", response["details"]["description"]
       assert_equal "http://example.org/tags/good-tag.json", response["id"]
       assert_equal nil, response["web_url"]
-      assert_equal "http://www.dev.gov.uk/browse/good-tag", response["content_with_tag"]["web_url"]
+      assert_equal "#{public_web_url}/browse/good-tag", response["content_with_tag"]["web_url"]
     end
 
     it "should return 404 if specific tag not found" do
@@ -63,7 +63,7 @@ class TagRequestTest < GovUkContentApiTest
 
       assert last_response.ok?
       response = JSON.parse(last_response.body)
-      assert_equal "http://www.dev.gov.uk/browse/crime/batman", response["content_with_tag"]["web_url"]
+      assert_equal "#{public_web_url}/browse/crime/batman", response["content_with_tag"]["web_url"]
     end
 
     describe "has a parent tag" do
@@ -85,7 +85,7 @@ class TagRequestTest < GovUkContentApiTest
           },
           "content_with_tag" => {
             "id" => "http://example.org/with_tag.json?tag=crime-and-prison",
-            "web_url" => "http://www.dev.gov.uk/browse/crime-and-prison"
+            "web_url" => "#{public_web_url}/browse/crime-and-prison"
           },
           "parent" => nil,
           "title" => @parent.title

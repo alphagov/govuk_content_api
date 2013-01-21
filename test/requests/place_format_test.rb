@@ -96,7 +96,7 @@ class PlaceFormatTest < GovUkContentApiTest
     end
 
     it "should set an error key if the call to Imminence errors" do
-      stub_request(:get, "http://imminence.dev.gov.uk/places/batman-place.json").
+      stub_request(:get, Plek.new.find('imminence') + "/places/batman-place.json").
           with(:query => {"lat" => 1234, "lng" => 4321, "limit" => "5"}).
           to_timeout
       get '/batman-place.json?latitude=1234&longitude=4321'
