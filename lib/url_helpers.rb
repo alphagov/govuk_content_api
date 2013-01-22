@@ -18,7 +18,7 @@ module URLHelpers
   end
 
   def with_tag_web_url(tag)
-    "#{base_web_search_url}/browse/#{tag.tag_id}"
+    public_web_url("/browse/#{tag.tag_id}")
   end
 
   def search_result_url(result)
@@ -26,7 +26,7 @@ module URLHelpers
   end
 
   def search_result_web_url(result)
-    Plek.current.find('www') + result['link']
+    public_web_url(result['link'])
   end
 
   def artefacts_url(page = nil)
@@ -51,22 +51,25 @@ module URLHelpers
 
   def api_url(uri)
     if env['HTTP_API_PREFIX'] && env['HTTP_API_PREFIX'] != ''
-      Plek.current.find('www') + "/#{env['HTTP_API_PREFIX']}#{uri}"
+      public_web_url("/#{env['HTTP_API_PREFIX']}#{uri}")
     else
       url(uri)
     end
   end
 
+  def public_web_url(path = '')
+    ENV['GOVUK_WEBSITE_ROOT'] + path
+  end
+
+  # When running in development mode we may want the URL for the item
+  # as served directly by the app that provides it. This method applies
+  # that switch
   def base_web_url(artefact)
     if ["production", "test"].include?(ENV["RACK_ENV"])
-      @_base_web_url ||= Plek.current.find('www')
+      public_web_url
     else
       Plek.current.find(artefact.rendering_app || artefact.owning_app)
     end
-  end
-
-  def base_web_search_url
-    @_base_web_search_url ||= Plek.current.find('www')
   end
 
   def local_authority_url(authority)
