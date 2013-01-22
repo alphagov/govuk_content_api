@@ -15,7 +15,7 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "Afghanistan", parsed_response["results"].first["name"]
       assert_equal "afghanistan", parsed_response["results"].first["identifier"]
       assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["results"].first["id"]
-      assert_equal "http://www.dev.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
+      assert_equal "https://www.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
     end
   end
 
