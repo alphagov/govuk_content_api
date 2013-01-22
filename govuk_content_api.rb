@@ -206,6 +206,11 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :business_support_schemes, format: "json"
   end
 
+  get "/travel-advice.json" do
+    @countries = Country.all
+    render :rabl, :travel_advice, format: "json"
+  end
+
   get "/artefacts.json" do
     artefacts = statsd.time("request.artefacts") do
       Artefact.live

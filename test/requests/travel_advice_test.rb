@@ -2,6 +2,23 @@ require_relative '../test_helper'
 
 class TravelAdviceTest < GovUkContentApiTest
 
+  describe "loading a list of travel advice countries" do
+    it "should return an alphabetical list of countries" do
+      get '/travel-advice.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal 14, parsed_response["total"]
+      assert_equal 14, parsed_response["results"].length
+
+      assert_equal "Afghanistan", parsed_response["results"].first["name"]
+      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
+      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["results"].first["id"]
+      assert_equal "https://www.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
+    end
+  end
+
   describe "loading data for a travel advice country page" do
 
     it "should return details for a country with published advice" do
