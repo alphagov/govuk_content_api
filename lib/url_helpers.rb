@@ -75,4 +75,12 @@ module URLHelpers
   def local_authority_url(authority)
     api_url("/local_authorities/#{CGI.escape(authority.snac)}.json")
   end
+
+  def country_url(country)
+    api_url(CGI.escape "travel-advice/#{country.slug}.json")
+  end
+
+  def country_web_url(country)
+    "#{ENV["GOVUK_WEBSITE_ROOT"]}/travel-advice/#{country.slug}"
+  end
 end
