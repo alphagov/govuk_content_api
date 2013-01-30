@@ -26,8 +26,9 @@ class TravelAdviceTest < GovUkContentApiTest
                                     kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
                                     description: "This is the travel advice for people planning a visit to Aruba.")
       edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba', state: 'published',
-                                  title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.")
-      edition.parts.build(title: "Summary", slug: 'summary', body: "This is the summary\n------\n")
+                                  title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.",
+                                  summary: "This is the summary\n------\n")
+      edition.parts.build(title: "Part One", slug: 'part-one', body: "This is part one\n------\n")
       edition.parts.build(title: "Part Two", slug: 'part-two', body: "And some more stuff in part 2.")
       edition.save!
 
@@ -42,6 +43,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
       details = parsed_response["details"]
       assert_equal 'This is the travel advice for people planning a visit to Aruba.', details['description']
+      assert_equal '<h2>This is the summary</h2>', details['summary'].strip
       
       # Country details
       assert_equal({"name" => "Aruba", "slug" => "aruba"}, details["country"])
@@ -50,9 +52,9 @@ class TravelAdviceTest < GovUkContentApiTest
       parts = details["parts"]
       assert_equal 2, parts.length
 
-      assert_equal "Summary", parts[0]["title"]
-      assert_equal "summary", parts[0]["slug"]
-      assert_equal "<h2>This is the summary</h2>", parts[0]["body"].strip
+      assert_equal "Part One", parts[0]["title"]
+      assert_equal "part-one", parts[0]["slug"]
+      assert_equal "<h2>This is part one</h2>", parts[0]["body"].strip
 
       assert_equal "Part Two", parts[1]["title"]
       assert_equal "part-two", parts[1]["slug"]
