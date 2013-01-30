@@ -8,7 +8,7 @@ node(:language) { |artefact| artefact.language }
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
-    :business_support_identifier, :max_employees, :organiser].each do |field|
+    :business_support_identifier, :max_employees, :organiser, :summary].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     if artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
       format_content(artefact.edition.send(field))
