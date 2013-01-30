@@ -194,7 +194,7 @@ class GovUkContentApi < Sinatra::Application
 
     if @tag_type_name == "section"
       # Extra functionality for sections: roots and parents
-      if params[:parent_id] && params[:root_section]
+      if params[:parent_id] && params[:root_sections]
         custom_404  # Doesn't make sense to have both of these parameters
       end
       if params[:parent_id]

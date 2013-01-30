@@ -272,6 +272,11 @@ class TagListRequestTest < GovUkContentApiTest
       assert_tag_titles %w(Joker Scarecrow Bane)
     end
 
+    it "should reject requests for root sections with a given parent" do
+      get "/tags/sections.json?root_sections=true&parent_id=crime"
+      assert last_response.not_found?
+    end
+
     it "should 404 on an unknown parent section" do
       get "/tags/sections.json?parent_id=horses"
       assert last_response.not_found?
