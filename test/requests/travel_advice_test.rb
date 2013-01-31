@@ -27,7 +27,8 @@ class TravelAdviceTest < GovUkContentApiTest
                                     description: "This is the travel advice for people planning a visit to Aruba.")
       edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba', state: 'published',
                                   title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.",
-                                  summary: "This is the summary\n------\n")
+                                  summary: "This is the summary\n------\n",
+                                  alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
       edition.parts.build(title: "Part One", slug: 'part-one', body: "This is part one\n------\n")
       edition.parts.build(title: "Part Two", slug: 'part-two', body: "And some more stuff in part 2.")
       edition.save!
@@ -44,7 +45,8 @@ class TravelAdviceTest < GovUkContentApiTest
       details = parsed_response["details"]
       assert_equal 'This is the travel advice for people planning a visit to Aruba.', details['description']
       assert_equal '<h2>This is the summary</h2>', details['summary'].strip
-      
+      assert_equal ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"], details['alert_status']
+
       # Country details
       assert_equal({"name" => "Aruba", "slug" => "aruba"}, details["country"])
 
