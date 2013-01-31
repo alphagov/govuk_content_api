@@ -207,7 +207,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/travel-advice.json" do
-    @countries = Country.all
+    @countries = attach_alert_status_to_countries Country.all
     render :rabl, :travel_advice, format: "json"
   end
 
@@ -445,6 +445,13 @@ class GovUkContentApi < Sinatra::Application
   rescue GdsApi::HTTPErrorResponse
     statsd.increment("#{@statsd_scope}.license_request_error.http")
     artefact.licence = { "error" => "http_error" }
+  end
+
+  def attach_alert_status_to_countries(countries)
+    alert_status = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e.alert_status] }]
+    countries.map do |country|
+      country.tap {|c| c.alert_status = alert_status[c.slug] }
+    end
   end
 
   def build_blank_travel_advice_artefact(country)

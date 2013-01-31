@@ -17,6 +17,30 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["results"].first["id"]
       assert_equal "https://www.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
     end
+
+    it "should attach alert statuses to a country where a published edition is present" do
+      edition = FactoryGirl.create(:travel_advice_edition, country_slug: 'afghanistan', state: 'published',
+                                  alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
+      get '/travel-advice.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
+      assert_equal ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"], parsed_response["results"].first["alert_status"]
+    end
+
+    it "should attach not alert statuses to a country where a published edition is not present" do
+      edition = FactoryGirl.create(:travel_advice_edition, country_slug: 'afghanistan', state: 'draft',
+                                  alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
+      get '/travel-advice.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
+      assert_equal nil, parsed_response["results"].first["alert_status"]
+    end
   end
 
   describe "loading data for a travel advice country page" do
@@ -67,7 +91,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
       get '/travel-advice%2Fangola.json'
       assert last_response.ok?
-      
+
       parsed_response = JSON.parse(last_response.body)
 
       assert_base_artefact_fields(parsed_response)

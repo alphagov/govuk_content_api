@@ -12,7 +12,8 @@ node(:results) do
       :id => country_url(c),
       :name => c.name,
       :identifier => c.slug,
-      :web_url => country_web_url(c)
+      :web_url => country_web_url(c),
+      :alert_status => c.alert_status
     }
   end
 end
