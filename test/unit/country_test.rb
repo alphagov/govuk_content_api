@@ -27,6 +27,15 @@ describe Country do
     end
   end
 
+  describe "Country.edition=" do
+    it "allows the edition to be set" do
+      country = Country.new({})
+      country.edition = ['foo','bar','baz']
+
+      assert_equal ['foo','bar','baz'], country.edition
+    end
+  end
+
   describe "finding editions for a country" do
     before do
       @country = Country.all.first
