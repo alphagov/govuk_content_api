@@ -27,12 +27,12 @@ describe Country do
     end
   end
 
-  describe "Country.alert_status=" do
-    it "allows the alert status to be set" do
+  describe "Country.edition=" do
+    it "allows the edition to be set" do
       country = Country.new({})
-      country.alert_status = ['foo','bar','baz']
+      country.edition = ['foo','bar','baz']
 
-      assert_equal ['foo','bar','baz'], country.alert_status
+      assert_equal ['foo','bar','baz'], country.edition
     end
   end
 
