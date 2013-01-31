@@ -27,6 +27,15 @@ describe Country do
     end
   end
 
+  describe "Country.alert_status=" do
+    it "allows the alert status to be set" do
+      country = Country.new({})
+      country.alert_status = ['foo','bar','baz']
+
+      assert_equal ['foo','bar','baz'], country.alert_status
+    end
+  end
+
   describe "finding editions for a country" do
     before do
       @country = Country.all.first

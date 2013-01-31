@@ -1,6 +1,7 @@
 class Country
 
   attr_reader :name, :slug
+  attr_accessor :alert_status
 
   def initialize(attrs)
     @name = attrs['name']
