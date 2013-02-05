@@ -42,17 +42,17 @@ describe Country do
     end
 
     it "should return all TravelAdviceEditions with the matching country_slug" do
-      e1 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => @country.slug)
-      e2 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => "wibble")
-      e3 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => @country.slug)
+      e1 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => @country.slug)
+      e2 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => "wibble")
+      e3 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => @country.slug)
 
       assert_equal [e1, e3].sort, @country.editions.to_a.sort
     end
 
     it "should order them by descending version_number" do
-      e1 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => @country.slug, :version_number => 1)
-      e3 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => @country.slug, :version_number => 3)
-      e2 = FactoryGirl.create(:travel_advice_edition, :state => 'archived', :country_slug => @country.slug, :version_number => 2)
+      e1 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => @country.slug, :version_number => 1)
+      e3 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => @country.slug, :version_number => 3)
+      e2 = FactoryGirl.create(:archived_travel_advice_edition, :country_slug => @country.slug, :version_number => 2)
 
       assert_equal [e3, e2, e1], @country.editions.to_a
     end

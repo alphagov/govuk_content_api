@@ -19,7 +19,7 @@ class TravelAdviceTest < GovUkContentApiTest
     end
 
     it "should attach an edition to a country where a published edition is present" do
-      edition = FactoryGirl.create(:travel_advice_edition, country_slug: 'afghanistan', state: 'published',
+      edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan',
                                   alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
       get '/travel-advice.json'
       assert last_response.ok?
@@ -32,7 +32,7 @@ class TravelAdviceTest < GovUkContentApiTest
     end
 
     it "should not attach an edition to a country where a published edition is not present" do
-      edition = FactoryGirl.create(:travel_advice_edition, country_slug: 'afghanistan', state: 'draft',
+      edition = FactoryGirl.create(:draft_travel_advice_edition, country_slug: 'afghanistan',
                                   alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
       get '/travel-advice.json'
       assert last_response.ok?
@@ -51,13 +51,14 @@ class TravelAdviceTest < GovUkContentApiTest
       artefact = FactoryGirl.create(:artefact, slug: 'travel-advice/aruba', state: 'live',
                                     kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
                                     description: "This is the travel advice for people planning a visit to Aruba.")
-      edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba', state: 'published',
+      edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba',
                                   title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.",
                                   summary: "This is the summary\n------\n",
                                   alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
       edition.parts.build(title: "Part One", slug: 'part-one', body: "This is part one\n------\n")
       edition.parts.build(title: "Part Two", slug: 'part-two', body: "And some more stuff in part 2.")
       edition.save!
+      edition.publish!
 
       get '/travel-advice%2Faruba.json'
       assert last_response.ok?
