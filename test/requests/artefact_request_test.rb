@@ -54,6 +54,18 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
   end
 
+  it "should include related artefacts in their related order, not the natural order" do
+    a = FactoryGirl.create(:artefact, name: "A", state: 'live')
+    b = FactoryGirl.create(:artefact, name: "B", state: 'live')
+
+    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [b, a], state: 'live')
+
+    get "/#{artefact.slug}.json"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert_equal ["B", "A"], parsed_response["related"].map { |r| r["title"] }
+  end
+
   it "should exclude unpublished related artefacts" do
     related_artefacts = [
       FactoryGirl.create(:artefact, state: 'draft'),

@@ -10,7 +10,7 @@ module ContentApiArtefactExtensions
   end
 
   def live_related_artefacts
-    related_artefacts.live
+    ordered_related_artefacts(related_artefacts.live)
   end
 end
 
