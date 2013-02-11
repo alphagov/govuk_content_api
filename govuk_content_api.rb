@@ -207,7 +207,15 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/travel-advice.json" do
-    @countries = attach_edition_to_countries Country.all
+    statsd.time("request.travel_advice") do
+      editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
+      @countries = Country.all.map do |country|
+        country.tap {|c| c.edition = editions[c.slug] }
+      end.reject do |country|
+        country.edition.nil?
+      end
+    end
+
     render :rabl, :travel_advice, format: "json"
   end
 
@@ -421,13 +429,6 @@ class GovUkContentApi < Sinatra::Application
   rescue GdsApi::HTTPErrorResponse
     statsd.increment("#{@statsd_scope}.license_request_error.http")
     artefact.licence = { "error" => "http_error" }
-  end
-
-  def attach_edition_to_countries(countries)
-    editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
-    countries.map do |country|
-      country.tap {|c| c.edition = editions[c.slug] }
-    end
   end
 
   def attach_travel_advice_country_and_edition(artefact, version_number = nil)
