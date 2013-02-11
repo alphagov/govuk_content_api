@@ -90,20 +90,9 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "<p>And some more stuff in part 2.</p>", parts[1]["body"].strip
     end
 
-    it "should return basic country details for a country with no published advice" do
-
+    it "should 404 for a country with no published advice" do
       get '/travel-advice%2Fangola.json'
-      assert last_response.ok?
-
-      parsed_response = JSON.parse(last_response.body)
-
-      assert_base_artefact_fields(parsed_response)
-      assert_equal 'travel-advice', parsed_response["format"]
-      assert_equal "Angola", parsed_response["title"]
-
-      details = parsed_response["details"]
-
-      assert_equal({"name" => "Angola", "slug" => "angola"}, details["country"])
+      assert last_response.not_found?
     end
 
     it "should 404 for a non-existent country" do

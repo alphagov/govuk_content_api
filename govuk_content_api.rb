@@ -238,8 +238,9 @@ class GovUkContentApi < Sinatra::Application
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
-    slug = CGI.unescape(params[:id])
-    @artefact = load_artefact(slug)
+    statsd.time(@statsd_scope) do
+      @artefact = Artefact.find_by_slug(CGI.unescape(params[:id]))
+    end
 
     custom_404 unless @artefact
     handle_unpublished_artefact(@artefact) unless params[:edition]
@@ -247,38 +248,13 @@ class GovUkContentApi < Sinatra::Application
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
     elsif @artefact.kind == 'travel-advice'
-      attach_travel_advice_edition(@artefact, params[:edition])
+      attach_travel_advice_country_and_edition(@artefact, params[:edition])
     end
 
     render :rabl, :artefact, format: "json"
   end
 
   protected
-
-  def load_artefact(slug)
-    artefact = nil
-    statsd.time(@statsd_scope) do
-      artefact = Artefact.find_by_slug(slug)
-    end
-
-    # Travel advice has a different required behaviour to other artefacts:
-    # The request should only 404 if the requested country doesn't exist.
-    #
-    # Otherwise if there is no live artefact, a mostly blank response should
-    # be returned that includes the country details.
-    if slug =~ %r{\Atravel-advice/(.*)\z}
-      country = Country.find_by_slug($1)
-      custom_404 unless country
-
-      if artefact and artefact.live?
-        artefact.country = country
-      else
-        artefact = build_blank_travel_advice_artefact(country)
-      end
-    end
-
-    artefact
-  end
 
   def map_editions_with_artefacts(editions)
     statsd.time("#{@statsd_scope}.map_editions_to_artefacts") do
@@ -454,20 +430,12 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
-  def build_blank_travel_advice_artefact(country)
-    artefact = Artefact.new(
-      :kind => "travel-advice",
-      :slug => "travel-advice/#{country.slug}",
-      :name => country.name,
-      :owning_app => 'travel-advice-publisher',
-      :state => 'live',
-      :updated_at => Time.now
-    )
-    artefact.country = country
-    artefact
-  end
+  def attach_travel_advice_country_and_edition(artefact, version_number = nil)
+    if artefact.slug =~ %r{\Atravel-advice/(.*)\z}
+      artefact.country = Country.find_by_slug($1)
+    end
+    custom_404 unless artefact.country
 
-  def attach_travel_advice_edition(artefact, version_number = nil)
     statsd.time("#{@statsd_scope}.edition") do
       artefact.edition = if version_number
         artefact.country.editions.where(:version_number => version_number).first
