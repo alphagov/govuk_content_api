@@ -3,45 +3,56 @@ require_relative '../test_helper'
 class TravelAdviceTest < GovUkContentApiTest
 
   describe "loading a list of travel advice countries" do
-    it "should return an alphabetical list of countries" do
+    it "should return an alphabetical list of countries with published editions" do
+      edition1 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan')
+      edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
+      edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
+
       get '/travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal 14, parsed_response["total"]
-      assert_equal 14, parsed_response["results"].length
+      assert_equal 3, parsed_response["total"]
+      assert_equal 3, parsed_response["results"].length
 
-      assert_equal "Afghanistan", parsed_response["results"].first["name"]
-      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
-      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", parsed_response["results"].first["id"]
-      assert_equal "https://www.gov.uk/travel-advice/afghanistan", parsed_response["results"].first["web_url"]
+      assert_equal ["Afghanistan", "Andorra", "Angola"], parsed_response["results"].map {|c| c["name"]}
+
+      first = parsed_response["results"].first
+      assert_equal "Afghanistan", first["name"]
+      assert_equal "afghanistan", first["identifier"]
+      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", first["id"]
+      assert_equal "https://www.gov.uk/travel-advice/afghanistan", first["web_url"]
+      assert_equal edition1.updated_at.xmlschema, first["updated_at"]
     end
 
-    it "should attach an edition to a country where a published edition is present" do
-      edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan',
-                                  alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
+    it "should not include countries without published editions" do
+      edition1 = FactoryGirl.create(:archived_travel_advice_edition, country_slug: 'afghanistan')
+      edition2 = FactoryGirl.create(:draft_travel_advice_edition, country_slug: 'angola')
+      edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
+
       get '/travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
-      assert_equal edition.updated_at, parsed_response["results"].first["updated_at"]
-      assert_equal ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"], parsed_response["results"].first["alert_status"]
+      assert_equal 1, parsed_response["results"].length
+      assert_equal ["Andorra"], parsed_response["results"].map {|c| c["name"]}
     end
 
-    it "should not attach an edition to a country where a published edition is not present" do
-      edition = FactoryGirl.create(:draft_travel_advice_edition, country_slug: 'afghanistan',
+    it "should not include published editions for a non-existent country" do
+      edition1 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan',
                                   alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
+      edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
+      edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'narnia')
+
       get '/travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal "afghanistan", parsed_response["results"].first["identifier"]
-      assert_equal nil, parsed_response["results"].first["alert_status"]
-      assert_equal nil, parsed_response["results"].first["updated_at"]
+      assert_equal 2, parsed_response["results"].length
+      assert_equal ["Afghanistan", "Angola"], parsed_response["results"].map {|c| c["name"]}
     end
   end
 
@@ -90,20 +101,9 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "<p>And some more stuff in part 2.</p>", parts[1]["body"].strip
     end
 
-    it "should return basic country details for a country with no published advice" do
-
+    it "should 404 for a country with no published advice" do
       get '/travel-advice%2Fangola.json'
-      assert last_response.ok?
-
-      parsed_response = JSON.parse(last_response.body)
-
-      assert_base_artefact_fields(parsed_response)
-      assert_equal 'travel-advice', parsed_response["format"]
-      assert_equal "Angola", parsed_response["title"]
-
-      details = parsed_response["details"]
-
-      assert_equal({"name" => "Angola", "slug" => "angola"}, details["country"])
+      assert last_response.not_found?
     end
 
     it "should 404 for a non-existent country" do
