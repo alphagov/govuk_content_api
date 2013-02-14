@@ -206,7 +206,7 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :business_support_schemes, format: "json"
   end
 
-  get "/travel-advice.json" do
+  get "/foreign-travel-advice.json" do
     statsd.time("request.travel_advice") do
       editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
       @countries = Country.all.map do |country|
@@ -432,7 +432,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def attach_travel_advice_country_and_edition(artefact, version_number = nil)
-    if artefact.slug =~ %r{\Atravel-advice/(.*)\z}
+    if artefact.slug =~ %r{\Aforeign-travel-advice/(.*)\z}
       artefact.country = Country.find_by_slug($1)
     end
     custom_404 unless artefact.country
