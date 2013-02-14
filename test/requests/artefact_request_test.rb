@@ -170,35 +170,44 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   describe "updated timestamp" do
+
+    before do
+      @older_timestamp = DateTime.ordinal(2013, 1, 1, 12, 00)
+      @newer_timestamp = DateTime.ordinal(2013, 2, 2, 2, 22)
+    end
+
     it "should set the updated_at field at the top-level from the artefact if there's no edition" do
       artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
+      artefact.update_attribute(:updated_at, @newer_timestamp)
       get "/#{artefact.slug}.json"
 
       assert_equal 200, last_response.status
       response = JSON.parse(last_response.body)
-      assert_equal artefact.updated_at.iso8601, response["updated_at"]
+      assert_equal @newer_timestamp.iso8601, response["updated_at"]
     end
 
     it "should set the updated_at field from the artefact if it's most recently updated" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
+      artefact.update_attribute(:updated_at, @newer_timestamp)
       edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published')
-      edition.update_attribute(:updated_at, 3.days.ago)
+      edition.update_attribute(:updated_at, @older_timestamp)
       get "/#{artefact.slug}.json"
 
       assert_equal 200, last_response.status
       response = JSON.parse(last_response.body)
-      assert_equal artefact.updated_at.iso8601, response["updated_at"]
+      assert_equal @newer_timestamp.iso8601, response["updated_at"]
     end
 
     it "should set the updated_at field from the edition if it's most recently updated" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
+      artefact.update_attribute(:updated_at, @older_timestamp)
       edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published')
-      artefact.update_attribute(:updated_at, 3.days.ago)
+      edition.update_attribute(:updated_at, @newer_timestamp)
       get "/#{artefact.slug}.json"
 
       assert_equal 200, last_response.status
       response = JSON.parse(last_response.body)
-      assert_equal edition.updated_at.iso8601, response["updated_at"]
+      assert_equal @newer_timestamp.iso8601, response["updated_at"]
     end
   end
 
