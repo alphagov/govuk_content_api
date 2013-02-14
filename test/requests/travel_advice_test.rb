@@ -8,7 +8,7 @@ class TravelAdviceTest < GovUkContentApiTest
       edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
       edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
 
-      get '/travel-advice.json'
+      get '/foreign-travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -21,8 +21,8 @@ class TravelAdviceTest < GovUkContentApiTest
       first = parsed_response["results"].first
       assert_equal "Afghanistan", first["name"]
       assert_equal "afghanistan", first["identifier"]
-      assert_equal "http://example.org/travel-advice%2Fafghanistan.json", first["id"]
-      assert_equal "https://www.gov.uk/travel-advice/afghanistan", first["web_url"]
+      assert_equal "http://example.org/foreign-travel-advice%2Fafghanistan.json", first["id"]
+      assert_equal "https://www.gov.uk/foreign-travel-advice/afghanistan", first["web_url"]
       assert_equal edition1.updated_at.xmlschema, first["updated_at"]
     end
 
@@ -31,7 +31,7 @@ class TravelAdviceTest < GovUkContentApiTest
       edition2 = FactoryGirl.create(:draft_travel_advice_edition, country_slug: 'angola')
       edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
 
-      get '/travel-advice.json'
+      get '/foreign-travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -46,7 +46,7 @@ class TravelAdviceTest < GovUkContentApiTest
       edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
       edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'narnia')
 
-      get '/travel-advice.json'
+      get '/foreign-travel-advice.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -59,7 +59,7 @@ class TravelAdviceTest < GovUkContentApiTest
   describe "loading data for a travel advice country page" do
 
     it "should return details for a country with published advice" do
-      artefact = FactoryGirl.create(:artefact, slug: 'travel-advice/aruba', state: 'live',
+      artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
                                     kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
                                     description: "This is the travel advice for people planning a visit to Aruba.")
       edition = FactoryGirl.build(:travel_advice_edition, country_slug: 'aruba',
@@ -71,7 +71,7 @@ class TravelAdviceTest < GovUkContentApiTest
       edition.save!
       edition.publish!
 
-      get '/travel-advice%2Faruba.json'
+      get '/foreign-travel-advice%2Faruba.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -102,12 +102,12 @@ class TravelAdviceTest < GovUkContentApiTest
     end
 
     it "should 404 for a country with no published advice" do
-      get '/travel-advice%2Fangola.json'
+      get '/foreign-travel-advice%2Fangola.json'
       assert last_response.not_found?
     end
 
     it "should 404 for a non-existent country" do
-      get '/travel-advice%2Fwibble.json'
+      get '/foreign-travel-advice%2Fwibble.json'
       assert last_response.not_found?
     end
   end
