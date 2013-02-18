@@ -101,7 +101,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
     ]
     curated_list.save!
 
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
 
     assert_result_titles ["Bat 3", "Bat", "Bat 2"]
   end
@@ -113,7 +113,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
       artefact_ids: [@live_artefacts[2], @live_artefacts[1]].map(&:_id)
     )
 
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
     assert_result_titles ["Bat 3", "Bat 2", "Bat"]
   end
 
@@ -124,7 +124,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
       artefact_ids: [@live_artefacts[2]._id]
     )
 
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
     assert_result_titles ["Bat 3", "Bat", "Bat 2"]
   end
 
@@ -134,20 +134,20 @@ class CuratedListOrderingTest < GovUkContentApiTest
       sections: [@tag.tag_id],
       artefact_ids: [@live_artefacts[1]._id, @other_section_artefact._id]
     )
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
     assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
     assert_equal "Bat 2", result_titles[0]
   end
 
   it "should return all live things if no curated list is found" do
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
 
     assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
   end
 
   it "should return all live things if the list is empty" do
     curated_list = FactoryGirl.create(:curated_list, sections: [@tag.tag_id])
-    get "/with_tag.json?tag=batman&sort=curated"
+    get "/with_tag.json?section=batman&sort=curated"
     assert_result_titles ["Bat", "Bat 2", "Bat 3"], check_order: false
   end
 end
