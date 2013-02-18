@@ -9,12 +9,30 @@ module URLHelpers
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
-  def tag_url(tag)
-    api_url("/tags/#{CGI.escape(tag.tag_id)}.json")
+  def tag_type_url(tag_type)
+    api_url("/tags/#{CGI.escape(plural_tag_type(tag_type))}.json")
   end
 
-  def with_tag_url(tag)
-    api_url("/with_tag.json?tag=#{CGI.escape(tag.tag_id)}")
+  def tag_url(tag)
+    plural = plural_tag_type(tag.tag_type)
+    api_url("/tags/#{CGI.escape(plural)}/#{CGI.escape(tag.tag_id)}.json")
+  end
+
+  def with_tag_url(tag_or_tags, params = {})
+    tags = tag_or_tags.is_a?(Array) ? tag_or_tags : [tag_or_tags]
+    tags_by_type = tags.group_by &:tag_type
+    if tags_by_type.values.any? { |t| t.count > 1 }
+      raise ArgumentError, "Cannot search by multiple tags of one type"
+    end
+
+    # e.g. {"section" => "crime", "keyword" => "robbery"}
+    tag_query = Hash[tags_by_type.map { |tag_type, tags_of_type|
+      [tag_type, tags_of_type.first.tag_id]
+    }]
+
+    tag_query = Hash[tag_query.sort].merge(Hash[params.sort])
+
+    api_url("/with_tag.json?#{URI.encode_www_form(tag_query)}")
   end
 
   def with_tag_web_url(tag)
@@ -82,5 +100,16 @@ module URLHelpers
 
   def country_web_url(country)
     public_web_url "/foreign-travel-advice/#{country.slug}"
+  end
+
+private
+
+  def plural_tag_type(tag_type)
+    if tag_type.respond_to? :plural
+      plural_tag_type = tag_type.plural
+    else
+      # Fall back on the inflector if we have to
+      plural_tag_type = tag_type.pluralize
+    end
   end
 end
