@@ -328,19 +328,6 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :business_support_schemes, format: "json"
   end
 
-  get "/foreign-travel-advice.json" do
-    statsd.time("request.travel_advice") do
-      editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
-      @countries = Country.all.map do |country|
-        country.tap {|c| c.edition = editions[c.slug] }
-      end.reject do |country|
-        country.edition.nil?
-      end
-    end
-
-    render :rabl, :travel_advice, format: "json"
-  end
-
   get "/artefacts.json" do
     artefacts = statsd.time("request.artefacts") do
       Artefact.live
@@ -377,6 +364,8 @@ class GovUkContentApi < Sinatra::Application
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
+    elsif @artefact.slug == 'foreign-travel-advice'
+      load_travel_advice_countries
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
     end
@@ -556,6 +545,17 @@ class GovUkContentApi < Sinatra::Application
         artefact.country.editions.where(:version_number => version_number).first
       else
         artefact.country.editions.published.first
+      end
+    end
+  end
+
+  def load_travel_advice_countries
+    statsd.time("#{@statsd_scope}.travel_advice_countries") do
+      editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
+      @countries = Country.all.map do |country|
+        country.tap {|c| c.edition = editions[c.slug] }
+      end.reject do |country|
+        country.edition.nil?
       end
     end
   end

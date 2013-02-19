@@ -2,8 +2,29 @@ require_relative '../test_helper'
 
 class TravelAdviceTest < GovUkContentApiTest
 
-  describe "loading a list of travel advice countries" do
-    it "should return an alphabetical list of countries with published editions" do
+  describe "loading the travel-advice index artefact" do
+    before do
+      @artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                     :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend',
+                                     :name => 'Foreign travel advice', :description => 'Oh I do want to live beside the seaside!')
+    end
+
+    it "should return the normal artefact fields" do
+      get '/foreign-travel-advice.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_base_artefact_fields(parsed_response)
+      assert_equal 'Foreign travel advice', parsed_response['title']
+
+      details = parsed_response["details"]
+      expected_fields = ['description', 'need_id']
+      assert_has_expected_fields(details, expected_fields)
+      assert_equal 'Oh I do want to live beside the seaside!', details['description']
+    end
+
+    it "should include an alphabetical list of countries with published editions" do
       edition1 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan')
       edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
       edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
@@ -13,12 +34,13 @@ class TravelAdviceTest < GovUkContentApiTest
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal 3, parsed_response["total"]
-      assert_equal 3, parsed_response["results"].length
+      countries = parsed_response['details']['countries']
 
-      assert_equal ["Afghanistan", "Andorra", "Angola"], parsed_response["results"].map {|c| c["name"]}
+      assert_equal 3, countries.length
 
-      first = parsed_response["results"].first
+      assert_equal ["Afghanistan", "Andorra", "Angola"], countries.map {|c| c["name"]}
+
+      first = countries.first
       assert_equal "Afghanistan", first["name"]
       assert_equal "afghanistan", first["identifier"]
       assert_equal "http://example.org/foreign-travel-advice%2Fafghanistan.json", first["id"]
@@ -36,8 +58,9 @@ class TravelAdviceTest < GovUkContentApiTest
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal 1, parsed_response["results"].length
-      assert_equal ["Andorra"], parsed_response["results"].map {|c| c["name"]}
+      countries = parsed_response['details']['countries']
+      assert_equal 1, countries.length
+      assert_equal ["Andorra"], countries.map {|c| c["name"]}
     end
 
     it "should not include published editions for a non-existent country" do
@@ -51,8 +74,9 @@ class TravelAdviceTest < GovUkContentApiTest
 
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal 2, parsed_response["results"].length
-      assert_equal ["Afghanistan", "Angola"], parsed_response["results"].map {|c| c["name"]}
+      countries = parsed_response['details']['countries']
+      assert_equal 2, countries.length
+      assert_equal ["Afghanistan", "Angola"], countries.map {|c| c["name"]}
     end
   end
 

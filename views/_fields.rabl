@@ -70,3 +70,15 @@ node(:country, :if => lambda { |artefact| artefact.country.is_a?(Country) }) do 
     "slug" => artefact.country.slug,
   }
 end
+
+node(:countries, :if => lambda { |artefact| artefact.slug == 'foreign-travel-advice' }) do |artefact|
+  @countries.map do |c|
+    {
+      :id => country_url(c),
+      :name => c.name,
+      :identifier => c.slug,
+      :web_url => country_web_url(c),
+      :updated_at => c.edition.updated_at
+    }
+  end
+end
