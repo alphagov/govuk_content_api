@@ -38,6 +38,7 @@ group :test do
   gem 'minitest', '3.4.0'
   gem 'ci_reporter', '1.7.0'
   gem 'webmock', '~> 1.8', require: false
+  gem 'timecop', '0.5.9.2'
 end
 
 group :development do

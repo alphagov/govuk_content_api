@@ -18,6 +18,7 @@ require 'database_cleaner'
 require 'mocha'
 require 'factory_girl'
 require 'webmock/minitest'
+require 'timecop'
 require 'govuk_content_api'
 require 'govuk_content_models/test_helpers/factories'
 
@@ -97,6 +98,7 @@ class GovUkContentApiTest < MiniTest::Spec
   def teardown
     DatabaseCleaner.clean
     WebMock.reset!
+    Timecop.return
   end
 end
 
@@ -107,6 +109,7 @@ class MiniTest::Spec
 
   after :each do
     DatabaseCleaner.clean
+    Timecop.return
   end
 end
 
