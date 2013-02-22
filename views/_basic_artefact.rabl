@@ -16,5 +16,5 @@ node(:format) do |artefact|
 end
 
 node(:updated_at) { |artefact|
-  most_recent_updated_at(artefact).iso8601
+  presented_updated_date(artefact).iso8601
 }

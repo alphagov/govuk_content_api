@@ -8,7 +8,8 @@ node(:language) { |artefact| artefact.language }
     :video_summary, :video_url, :licence_identifier, :licence_short_description, :licence_overview,
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
-    :business_support_identifier, :max_employees, :organiser, :summary, :alert_status].each do |field|
+    :business_support_identifier, :max_employees, :organiser, :summary, :alert_status,
+    :change_description].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     if artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
       format_content(artefact.edition.send(field))
@@ -78,7 +79,8 @@ node(:countries, :if => lambda { |artefact| artefact.slug == 'foreign-travel-adv
       :name => c.name,
       :identifier => c.slug,
       :web_url => country_web_url(c),
-      :updated_at => c.edition.updated_at
+      :updated_at => (c.edition.published_at || c.edition.updated_at).iso8601,
+      :change_description => format_content(c.edition.change_description)
     }
   end
 end
