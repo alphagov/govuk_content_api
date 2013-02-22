@@ -547,6 +547,7 @@ class GovUkContentApi < Sinatra::Application
         artefact.country.editions.published.first
       end
     end
+    custom_404 unless artefact.edition
   end
 
   def load_travel_advice_countries

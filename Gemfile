@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-source 'https://gems.gemfury.com/vo6ZrmjBQu5szyywDszE/'
+source 'https://BnrJb6FZyzspBboNJzYZ@gem.fury.io/govuk/'
 
 gem 'unicorn', '~> 4.3.1'
 gem 'rake', '0.9.2.2'
@@ -11,7 +11,7 @@ gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '4.7.0'
+  gem 'govuk_content_models', '4.9.1'
 end
 
 gem 'gds-sso', '3.0.1'
@@ -38,6 +38,7 @@ group :test do
   gem 'minitest', '3.4.0'
   gem 'ci_reporter', '1.7.0'
   gem 'webmock', '~> 1.8', require: false
+  gem 'timecop', '0.5.9.2'
 end
 
 group :development do
