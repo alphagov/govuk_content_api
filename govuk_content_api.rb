@@ -548,6 +548,12 @@ class GovUkContentApi < Sinatra::Application
       end
     end
     custom_404 unless artefact.edition
+    artefact.assets = [:image, :document].each_with_object({}) do |key, assets|
+      if asset_id = artefact.edition.send("#{key}_id")
+        asset = asset_manager_api.asset(asset_id)
+        assets[key] = asset if asset
+      end
+    end
   end
 
   def load_travel_advice_countries

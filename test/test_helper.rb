@@ -79,6 +79,17 @@ module ResponseTestMethods
   end
 end
 
+class MiniTest::Spec
+  before :each do
+    DatabaseCleaner.start
+  end
+
+  after :each do
+    DatabaseCleaner.clean
+    Timecop.return
+  end
+end
+
 class GovUkContentApiTest < MiniTest::Spec
   include Rack::Test::Methods
   include ResponseTestMethods
@@ -89,27 +100,6 @@ class GovUkContentApiTest < MiniTest::Spec
 
   def public_web_url
     ENV['GOVUK_WEBSITE_ROOT']
-  end
-
-  def setup
-    DatabaseCleaner.start
-  end
-
-  def teardown
-    DatabaseCleaner.clean
-    WebMock.reset!
-    Timecop.return
-  end
-end
-
-class MiniTest::Spec
-  before :each do
-    DatabaseCleaner.start
-  end
-
-  after :each do
-    DatabaseCleaner.clean
-    Timecop.return
   end
 end
 

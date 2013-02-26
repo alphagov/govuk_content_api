@@ -65,6 +65,15 @@ node(:expectations, :if => lambda { |artefact| artefact.edition.respond_to?(:exp
   artefact.edition.expectations.map(&:text)
 end
 
+node(nil, :if => lambda { |artefact| artefact.assets }) do |artefact|
+  artefact.assets.each_with_object({}) do |(key, details), assets|
+    assets[key] = {
+      "web_url" => details["file_url"],
+      "content_type" => details["content_type"],
+    }
+  end
+end
+
 node(:country, :if => lambda { |artefact| artefact.country.is_a?(Country) }) do |artefact|
   {
     "name" => artefact.country.name,
