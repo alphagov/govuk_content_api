@@ -5,7 +5,7 @@ module ContentApiArtefactExtensions
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :edition, :licence, :places, :country
+    attr_accessor :edition, :licence, :places, :assets, :country
     scope :live, where(state: 'live')
   end
 
