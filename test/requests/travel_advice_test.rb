@@ -196,6 +196,34 @@ class TravelAdviceTest < GovUkContentApiTest
         document_details = parsed_response["details"]["document"]
         assert_equal "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000002/cookie-monster.pdf", document_details["web_url"]
       end
+
+      it "should authenticate with asset-manager if configured" do
+        ::API_CLIENT_CREDENTIALS = {:bearer_token => "foobar"}
+        GovUkContentApi.instance_variable_set('@asset_manager_api', nil)
+
+        artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher')
+        edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba',
+                                     :image_id => "512c9019686c82191d000003")
+
+        asset_manager_has_an_asset("512c9019686c82191d000003", {
+          "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000003",
+          "name" => "darth-on-a-cat.jpg",
+          "content_type" => "image/jpeg",
+          "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000003/darth-on-a-cat.jpg",
+        })
+
+        get '/foreign-travel-advice%2Faruba.json'
+        assert last_response.ok?
+
+        assert_requested(:get, %r{\A#{ASSET_MANAGER_ENDPOINT}}, :headers => {"Authorization" => "Bearer foobar"})
+      end
+
+      after do
+        if Object.const_defined?(:API_CLIENT_CREDENTIALS)
+          Object.instance_eval { remove_const(:API_CLIENT_CREDENTIALS) }
+        end
+      end
     end
 
     it "should return draft data when authenticated" do
