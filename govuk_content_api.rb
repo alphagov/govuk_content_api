@@ -567,6 +567,11 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  def asset_manager_api
+    options = Object::const_defined?(:API_CLIENT_CREDENTIALS) ? API_CLIENT_CREDENTIALS : {}
+    super(options)
+  end
+
   # Initialise statsd
   def statsd
     @statsd ||= Statsd.new("localhost").tap do |c|
