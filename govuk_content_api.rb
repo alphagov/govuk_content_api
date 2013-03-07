@@ -554,6 +554,12 @@ class GovUkContentApi < Sinatra::Application
         assets[key] = asset if asset
       end
     end
+
+    travel_index = Artefact.find_by_slug("foreign-travel-advice")
+    unless travel_index.nil?
+      artefact.extra_related_artefacts = travel_index.live_related_artefacts
+    end
+
   end
 
   def load_travel_advice_countries

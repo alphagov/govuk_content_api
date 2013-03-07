@@ -84,7 +84,104 @@ class TravelAdviceTest < GovUkContentApiTest
     end
   end
 
+
   describe "loading data for a travel advice country page" do
+
+    describe "loading related links data" do
+
+      it "should include related links from the foreign-travel-advice index page" do
+
+        index_related_artefacts = [
+          FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
+        ]
+
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                       :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
+
+
+        aruba_related_artefacts = [
+          FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Pasties", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-4", name: "Sausages", state: 'live')
+        ]
+        aruba_artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher', related_artefacts: aruba_related_artefacts)
+
+        aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
+
+
+        get '/foreign-travel-advice%2Faruba.json'
+        assert last_response.ok?
+
+        parsed_response = JSON.parse(last_response.body)
+
+        assert_equal 4, parsed_response["related"].length
+
+      end
+
+      it "should not include links that are drafts" do
+        index_related_artefacts = [
+          FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Burgers", state: 'draft')
+        ]
+
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                       :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
+
+
+        aruba_related_artefacts = [
+          FactoryGirl.create(:artefact, slug: "related-artefact-4", name: "Pasties", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-5", name: "Sausages", state: 'live'),
+          FactoryGirl.create(:artefact, slug: "related-artefact-6", name: "Burritos", state: 'draft')
+        ]
+        aruba_artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher', related_artefacts: aruba_related_artefacts)
+
+        aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
+
+
+        get '/foreign-travel-advice%2Faruba.json'
+        assert last_response.ok?
+
+        parsed_response = JSON.parse(last_response.body)
+
+        assert_equal 4, parsed_response["related"].length
+
+      end
+
+
+      it "should not duplicate related links if they are on both the home page and the country page" do
+        shared_artefact = FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: "live")
+        index_related_artefacts = [
+          shared_artefact,
+          FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
+        ]
+
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                       :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
+        aruba_related_artefacts = [
+          shared_artefact,
+          FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Sausages", state: 'live')
+        ]
+        aruba_artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher', related_artefacts: aruba_related_artefacts)
+
+        aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
+
+
+        get '/foreign-travel-advice%2Faruba.json'
+        assert last_response.ok?
+
+        parsed_response = JSON.parse(last_response.body)
+
+        related_links = parsed_response["related"]
+
+        assert_equal ["Pies", "Sausages", "Cake"], related_links.map {|l| l["title"] }
+      end
+
+    end
+
 
     it "should return details for a country with published advice" do
       artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
