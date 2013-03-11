@@ -551,7 +551,7 @@ class GovUkContentApi < Sinatra::Application
     artefact.assets = [:image, :document].each_with_object({}) do |key, assets|
       if asset_id = artefact.edition.send("#{key}_id")
         asset = asset_manager_api.asset(asset_id)
-        assets[key] = asset if asset
+        assets[key] = asset if asset and asset["state"] == "clean"
       end
     end
 
