@@ -76,7 +76,7 @@ module URLHelpers
   end
 
   def public_web_url(path = '')
-    ENV['GOVUK_WEBSITE_ROOT'] + path
+    Plek.current.website_root + path
   end
 
   # When running in development mode we may want the URL for the item

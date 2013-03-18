@@ -22,7 +22,7 @@ else
 end
 
 gem 'govspeak', '1.0.1'
-gem 'plek', '1.1.0'
+gem 'plek', '1.3.1'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses'
