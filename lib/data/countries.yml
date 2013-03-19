@@ -61,8 +61,6 @@
   slug: brazil
 - name: British Antarctic Territory
   slug: british-antarctic-territory
-- name: British Consulate General Cape Town
-  slug: british-consulate-general-cape-town
 - name: British Indian Ocean Territory
   slug: british-indian-ocean-territory
 - name: British Virgin Islands
@@ -101,12 +99,10 @@
   slug: comoros
 - name: Congo
   slug: congo
-- name: Congo (Democratic Republic)
-  slug: congo-democratic-republic
 - name: Costa Rica
   slug: costa-rica
-- name: "Côte d'Ivoire (Ivory Coast)"
-  slug: cote-d-ivoire-ivory-coast
+- name: "Côte d'Ivoire"
+  slug: cote-d-ivoire
 - name: Croatia
   slug: croatia
 - name: Cuba
@@ -117,12 +113,14 @@
   slug: cyprus
 - name: Czech Republic
   slug: czech-republic
+- name: Democratic Republic of Congo
+  slug: democratic-republic-of-congo
 - name: Denmark
   slug: denmark
 - name: Djibouti
   slug: djibouti
-- name: Dominica, Commonwealth of
-  slug: commonwealth-of-dominica
+- name: Dominica
+  slug: dominica
 - name: Dominican Republic
   slug: dominican-republic
 - name: Ecuador
@@ -179,9 +177,11 @@
   slug: guyana
 - name: Haiti
   slug: haiti
+- name: Holy See
+  slug: holy-see
 - name: Honduras
   slug: honduras
-- name: Hong Kong (SAR of China)
+- name: Hong Kong
   slug: hong-kong
 - name: Hungary
   slug: hungary
@@ -205,6 +205,8 @@
   slug: jamaica
 - name: Japan
   slug: japan
+- name: Jerusalem
+  slug: jerusalem
 - name: Jordan
   slug: jordan
 - name: Kazakhstan
@@ -213,8 +215,6 @@
   slug: kenya
 - name: Kiribati
   slug: kiribati
-- name: Korea
-  slug: korea
 - name: Kosovo
   slug: kosovo
 - name: Kuwait
@@ -305,6 +305,8 @@
   slug: north-korea
 - name: Norway
   slug: norway
+- name: The Occupied Palestinian Territories
+  slug: the-occupied-palestinian-territories
 - name: Oman
   slug: oman
 - name: Pakistan
@@ -321,8 +323,8 @@
   slug: peru
 - name: Philippines
   slug: philippines
-- name: Pitcairn
-  slug: pitcairn
+- name: Pitcairn Island
+  slug: pitcairn-island
 - name: Poland
   slug: poland
 - name: Portugal
@@ -333,8 +335,8 @@
   slug: reunion
 - name: Romania
   slug: romania
-- name: Russian Federation
-  slug: russian-federation
+- name: Russia
+  slug: russia
 - name: Rwanda
   slug: rwanda
 - name: Samoa
@@ -365,8 +367,10 @@
   slug: somalia
 - name: South Africa
   slug: south-africa
-- name: South Georgia and South Sandwich Islands
+- name: South Georgia and the South Sandwich Islands
   slug: south-georgia-and-south-sandwich-islands
+- name: South Korea
+  slug: south-korea
 - name: South Sudan
   slug: south-sudan
 - name: Spain
@@ -431,8 +435,8 @@
   slug: ukraine
 - name: United Arab Emirates
   slug: united-arab-emirates
-- name: United States
-  slug: united-states
+- name: USA
+  slug: usa
 - name: Uruguay
   slug: uruguay
 - name: Uzbekistan
