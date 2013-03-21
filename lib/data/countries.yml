@@ -21,8 +21,6 @@
   slug: armenia
 - name: Aruba
   slug: aruba
-- name: Ascension Island
-  slug: ascension-island
 - name: Australia
   slug: australia
 - name: Austria
@@ -377,8 +375,8 @@
   slug: spain
 - name: Sri Lanka
   slug: sri-lanka
-- name: St Helena
-  slug: st-helena
+- name: St Helena, Ascension and Tristan da Cunha
+  slug: st-helena-ascension-and-tristan-da-cunha
 - name: St Kitts and Nevis
   slug: st-kitts-and-nevis
 - name: St Lucia
@@ -417,8 +415,6 @@
   slug: tonga
 - name: Trinidad and Tobago
   slug: trinidad-and-tobago
-- name: Tristan da Cunha
-  slug: tristan-da-cunha
 - name: Tunisia
   slug: tunisia
 - name: Turkey
