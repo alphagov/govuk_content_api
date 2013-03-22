@@ -553,7 +553,8 @@ class GovUkContentApi < Sinatra::Application
         begin
           asset = asset_manager_api.asset(asset_id)
           assets[key] = asset if asset and asset["state"] == "clean"
-        rescue GdsApi::BaseError
+        rescue GdsApi::BaseError => e
+          logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
         end
       end
     end
