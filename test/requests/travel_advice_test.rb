@@ -135,6 +135,26 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "<p>And some more stuff in part 2.</p>", parts[1]["body"].strip
     end
 
+    it "should work with % encoded slugs" do
+      artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                    kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
+                                    description: "This is the travel advice for people planning a visit to Aruba.")
+      edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba',
+                                  title: "Travel advice for Aruba", overview: "This is the travel advice for people planning a visit to Aruba.",
+                                  change_description: "Some stuff changed",
+                                  summary: "This is the summary\n------\n",
+                                  alert_status: ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"])
+
+      get '/foreign-travel-advice%2Faruba.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_base_artefact_fields(parsed_response)
+      assert_equal 'travel-advice', parsed_response["format"]
+      assert_equal 'Travel advice for Aruba', parsed_response["title"]
+    end
+
     describe "loading related links data" do
 
       it "should include related links from the foreign-travel-advice index page" do
