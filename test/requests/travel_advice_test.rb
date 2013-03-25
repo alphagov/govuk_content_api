@@ -351,6 +351,25 @@ class TravelAdviceTest < GovUkContentApiTest
         assert_requested(:get, %r{\A#{ASSET_MANAGER_ENDPOINT}}, :headers => {"Authorization" => "Bearer foobar"})
       end
 
+      it "should not include details if asset manager is unavailable or returns an error" do
+        artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
+                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher')
+        edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba',
+                                     :image_id => "512c9019686c82191d000001",
+                                     :document_id => "512c9019686c82191d000002")
+
+        stub_request(:get, "http://asset-manager.dev.gov.uk/assets/512c9019686c82191d000001").to_timeout
+        stub_request(:get, "http://asset-manager.dev.gov.uk/assets/512c9019686c82191d000002").to_return(:body => "Error", :status => 500)
+
+        get '/foreign-travel-advice%2Faruba.json'
+        assert last_response.ok?
+
+        parsed_response = JSON.parse(last_response.body)
+
+        refute parsed_response["details"].has_key?("image")
+        refute parsed_response["details"].has_key?("document")
+      end
+
       after do
         if Object.const_defined?(:API_CLIENT_CREDENTIALS)
           Object.instance_eval { remove_const(:API_CLIENT_CREDENTIALS) }

@@ -550,8 +550,12 @@ class GovUkContentApi < Sinatra::Application
     custom_404 unless artefact.edition
     artefact.assets = [:image, :document].each_with_object({}) do |key, assets|
       if asset_id = artefact.edition.send("#{key}_id")
-        asset = asset_manager_api.asset(asset_id)
-        assets[key] = asset if asset and asset["state"] == "clean"
+        begin
+          asset = asset_manager_api.asset(asset_id)
+          assets[key] = asset if asset and asset["state"] == "clean"
+        rescue GdsApi::BaseError => e
+          logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
+        end
       end
     end
 
