@@ -103,7 +103,7 @@ class TravelAdviceTest < GovUkContentApiTest
         edition.publish!
       end
 
-      get '/foreign-travel-advice%2Faruba.json'
+      get '/foreign-travel-advice/aruba.json'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -158,7 +158,7 @@ class TravelAdviceTest < GovUkContentApiTest
         aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
 
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -189,7 +189,7 @@ class TravelAdviceTest < GovUkContentApiTest
         aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
 
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -218,7 +218,7 @@ class TravelAdviceTest < GovUkContentApiTest
         aruba_edition = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba')
 
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -253,7 +253,7 @@ class TravelAdviceTest < GovUkContentApiTest
           "state" => "clean",
         })
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -284,7 +284,7 @@ class TravelAdviceTest < GovUkContentApiTest
           "state" => "clean",
         })
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -318,7 +318,7 @@ class TravelAdviceTest < GovUkContentApiTest
           "state" => "infected",
         })
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         parsed_response = JSON.parse(last_response.body)
@@ -345,7 +345,7 @@ class TravelAdviceTest < GovUkContentApiTest
           "state" => "clean",
         })
 
-        get '/foreign-travel-advice%2Faruba.json'
+        get '/foreign-travel-advice/aruba.json'
         assert last_response.ok?
 
         assert_requested(:get, %r{\A#{ASSET_MANAGER_ENDPOINT}}, :headers => {"Authorization" => "Bearer foobar"})
@@ -371,7 +371,7 @@ class TravelAdviceTest < GovUkContentApiTest
       Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
       Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
 
-      get '/foreign-travel-advice%2Faruba.json?edition=1'
+      get '/foreign-travel-advice/aruba.json?edition=1'
       assert last_response.ok?
 
       parsed_response = JSON.parse(last_response.body)
@@ -407,17 +407,17 @@ class TravelAdviceTest < GovUkContentApiTest
       edition.parts.build(title: "Part One", slug: 'part-one', body: "This is part one\n------\n")
       edition.save!
 
-      get '/foreign-travel-advice%2Faruba.json'
+      get '/foreign-travel-advice/aruba.json'
       assert last_response.not_found?
     end
 
     it "should 404 for a country with no published advice" do
-      get '/foreign-travel-advice%2Fangola.json'
+      get '/foreign-travel-advice/angola.json'
       assert last_response.not_found?
     end
 
     it "should 404 for a non-existent country" do
-      get '/foreign-travel-advice%2Fwibble.json'
+      get '/foreign-travel-advice/wibble.json'
       assert last_response.not_found?
     end
   end

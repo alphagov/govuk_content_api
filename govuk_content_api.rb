@@ -351,12 +351,12 @@ class GovUkContentApi < Sinatra::Application
     render :rabl, :artefacts, format: "json"
   end
 
-  get "/:id.json" do
+  get "/*.json" do |id|
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
     statsd.time(@statsd_scope) do
-      @artefact = Artefact.find_by_slug(CGI.unescape(params[:id]))
+      @artefact = Artefact.find_by_slug(id)
     end
 
     custom_404 unless @artefact
