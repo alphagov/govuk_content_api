@@ -82,7 +82,7 @@ node(:country, :if => lambda { |artefact| artefact.country.is_a?(Country) }) do 
   }
 end
 
-node(:countries, :if => lambda { |artefact| artefact.slug == 'foreign-travel-advice' }) do |artefact|
+node(:countries, :if => lambda { |artefact| @countries and artefact.slug == 'foreign-travel-advice' }) do |artefact|
   @countries.map do |c|
     {
       :id => country_url(c),
