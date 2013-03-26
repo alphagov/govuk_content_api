@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class ArtefactWithTagsRequestTest < GovUkContentApiTest
 
@@ -79,6 +79,16 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   it "should return an array of results" do
     farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
     FactoryGirl.create(:artefact, owning_app: "smart-answers", keywords: ['farmers'], state: 'live')
+
+    get "/with_tag.json?keyword=farmers"
+
+    assert last_response.ok?
+    assert_equal 1, JSON.parse(last_response.body)["results"].count
+  end
+
+  it "should not be broken by the foreign-travel-advice special handling" do
+    farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
+    FactoryGirl.create(:artefact, slug: 'foreign-travel-advice', owning_app: "travel-advice-publisher", keywords: ['farmers'], state: 'live')
 
     get "/with_tag.json?keyword=farmers"
 
