@@ -90,7 +90,7 @@ node(:countries, :if => lambda { |artefact| @countries and artefact.slug == 'for
       :identifier => c.slug,
       :web_url => country_web_url(c),
       :updated_at => (c.edition.published_at || c.edition.updated_at).iso8601,
-      :change_description => format_content(c.edition.change_description)
+      :change_description => c.edition.change_description
     }
   end
 end
