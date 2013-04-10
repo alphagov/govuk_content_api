@@ -22,6 +22,13 @@ end
 
 enable :dump_errors, :raise_errors
 
+if ! in_development || ENV["API_CACHE"]
+  use Rack::Cache,
+    YAML.load(
+    :metastore => "heap:/",
+    :entitystore => "heap:/"
+end
+
 unless in_development
   log = File.new("log/sinatra.log", "a")
   STDOUT.reopen(log)

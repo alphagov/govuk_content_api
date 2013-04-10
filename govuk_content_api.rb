@@ -27,6 +27,9 @@ class GovUkContentApi < Sinatra::Application
 
   include Pagination
 
+  DEFAULT_CACHE_TIME = 15.minutes.to_i
+  LONG_CACHE_TIME = 1.hour.to_i
+
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
 
@@ -104,6 +107,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags.json" do
+    expires DEFAULT_CACHE_TIME
+
     @statsd_scope = "request.tags"
     options = {}
     if params[:type]
@@ -154,6 +159,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tag_types.json" do
+    expires LONG_CACHE_TIME
+
     tag_types = known_tag_types.map { |tag_type|
       OpenStruct.new(
         id: tag_type_url(tag_type),
@@ -166,6 +173,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type_or_id.json" do
+    expires DEFAULT_CACHE_TIME
+
     @statsd_scope = "request.tag.#{params[:id]}"
 
     tag_type = known_tag_types.from_plural(params[:tag_type_or_id])
@@ -215,6 +224,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type/:tag_id.json" do
+    expires DEFAULT_CACHE_TIME
+
     tag_type = known_tag_types.from_plural(params[:tag_type])
     custom_404 unless tag_type
 
@@ -237,6 +248,8 @@ class GovUkContentApi < Sinatra::Application
   #   /with_tag.json?section=crime&sort=curated
   #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
+    expires DEFAULT_CACHE_TIME
+
     @statsd_scope = 'request.with_tag'
 
     modifiers = %w(include_children sort)
@@ -329,6 +342,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/artefacts.json" do
+    expires DEFAULT_CACHE_TIME
+
     artefacts = statsd.time("request.artefacts") do
       Artefact.live
     end
@@ -352,6 +367,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/*.json" do |id|
+    expires DEFAULT_CACHE_TIME
+
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
