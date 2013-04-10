@@ -23,10 +23,11 @@ end
 enable :dump_errors, :raise_errors
 
 if ! in_development || ENV["API_CACHE"]
-  use Rack::Cache,
-    YAML.load(
-    :metastore => "heap:/",
-    :entitystore => "heap:/"
+  cache_config_file_path = File.expand_path(
+    "rack-cache.yml",
+    File.dirname(__FILE__)
+  )
+  use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
 end
 
 unless in_development
