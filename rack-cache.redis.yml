@@ -1,0 +1,3 @@
+verbose: true
+metastore: "redis://localhost:6379/0/contentapi-meta"
+entitystore: "redis://localhost:6379/0/contentapi-entity"
