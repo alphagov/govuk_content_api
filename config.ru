@@ -30,7 +30,12 @@ if ! in_development || ENV["API_CACHE"]
     "rack-cache.yml",
     File.dirname(__FILE__)
   )
-  use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
+  if File.exists? cache_config_file_path
+    use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
+  else
+    # TODO: make this a fatal error once we have a config file in deployment
+    puts "Cache config file does not exist: caching disabled"
+  end
 end
 
 unless in_development
