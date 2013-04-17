@@ -11,6 +11,9 @@ Bundler.require(:default, ENV['RACK_ENV'])
 
 require "logger"
 
+require "rack/cache"
+require "redis-rack-cache"
+
 in_development = ENV['RACK_ENV'] == 'development'
 in_preview = ENV['FACTER_govuk_platform'] == 'preview'
 
@@ -21,6 +24,19 @@ else
 end
 
 enable :dump_errors, :raise_errors
+
+if ! in_development || ENV["API_CACHE"]
+  cache_config_file_path = File.expand_path(
+    "rack-cache.yml",
+    File.dirname(__FILE__)
+  )
+  if File.exists? cache_config_file_path
+    use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
+  else
+    # TODO: make this a fatal error once we have a config file in deployment
+    puts "Cache config file does not exist: caching disabled"
+  end
+end
 
 unless in_development
   log = File.new("log/sinatra.log", "a")
