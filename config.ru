@@ -39,7 +39,7 @@ if ! in_development || ENV["API_CACHE"]
 end
 
 unless in_development
-  log = File.new("log/sinatra.log", "a")
+  log = File.new("log/production.log", "a")
   STDOUT.reopen(log)
   STDERR.reopen(log)
 end
