@@ -28,7 +28,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
     it "should include an alphabetical list of countries with published editions" do
       edition1 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'afghanistan',
-                                    change_description: "Some stuff changed", published_at: 2.days.ago)
+                                    change_description: "Some stuff changed", published_at: 2.days.ago, synonyms: ["bar", "foo"])
       edition2 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'angola')
       edition3 = FactoryGirl.create(:published_travel_advice_edition, country_slug: 'andorra')
 
@@ -50,6 +50,7 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "https://www.gov.uk/foreign-travel-advice/afghanistan", first["web_url"]
       assert_equal edition1.published_at.xmlschema, first["updated_at"]
       assert_equal "Some stuff changed", first["change_description"]
+      assert_equal ["bar", "foo"], first["synonyms"]
     end
 
     it "should not include countries without published editions" do
