@@ -44,7 +44,11 @@ module URLHelpers
   end
 
   def search_result_web_url(result)
-    public_web_url(result['link'])
+    if result['link'].start_with?("http")
+      result['link']
+    else
+      public_web_url(result['link'])
+    end
   end
 
   def artefacts_url(page = nil)
