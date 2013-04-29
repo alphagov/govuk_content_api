@@ -67,16 +67,6 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
       )
     end
 
-    it "should preserve the include_children options when redirecting" do
-      batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
-      get "/with_tag.json?tag=batman&include_children=1"
-      assert last_response.redirect?
-      assert_equal(
-        "http://example.org/with_tag.json?section=batman&include_children=1",
-        last_response.location
-      )
-    end
-
     it "should not allow filtering by multiple tags" do
       farmers = FactoryGirl.create(:tag, tag_id: 'crime', title: 'Crime', tag_type: 'section')
       business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
@@ -150,39 +140,6 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
 
         assert last_response.ok?, "request failed: #{last_response.status}"
         assert_equal 0, JSON.parse(last_response.body)["results"].count
-      end
-
-      describe "including chiuldren in results" do
-        before :each do
-          @foo = FactoryGirl.create(:tag, tag_id: 'foo', title: 'Business', tag_type: 'section', parent_id: "business")
-          @bar = FactoryGirl.create(:tag, tag_id: 'bar', title: 'Bar', tag_type: 'section', parent_id: nil)
-          @business_artefact = FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['business'], state: 'live')
-          @foo_artefact = FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['foo'], state: 'live')
-          @bar_artefact = FactoryGirl.create(:artefact, owning_app: "smart-answers", sections: ['bar'], state: 'live')
-        end
-
-        it "should not include any children by default" do
-          get "/with_tag.json?section=business"
-
-          assert last_response.ok?
-          parsed_response = JSON.parse(last_response.body)
-          assert_equal 1, parsed_response["results"].count
-          assert_equal "http://example.org/#{@business_artefact.slug}.json", parsed_response["results"][0]["id"]
-        end
-
-        it "should return include children in array of results" do
-          get "/with_tag.json?section=business&include_children=1"
-
-          assert last_response.ok?
-          assert_equal 2, JSON.parse(last_response.body)["results"].count
-        end
-
-        it "should return 501 if more than 1 child requested" do
-          get "/with_tag.json?section=business&include_children=2"
-
-          assert_equal 501, last_response.status
-          assert_status_field "Include children only supports a depth of 1.", last_response
-        end
       end
     end
 

@@ -243,8 +243,6 @@ class GovUkContentApi < Sinatra::Application
   #
   #   /with_tag.json?section=crime
   #    - all artefacts in the Crime section
-  #   /with_tag.json?section=crime&include_children=1
-  #    - all artefacts in the Crime section and any subsections
   #   /with_tag.json?section=crime&sort=curated
   #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
@@ -252,7 +250,7 @@ class GovUkContentApi < Sinatra::Application
 
     @statsd_scope = 'request.with_tag'
 
-    modifiers = %w(include_children sort)
+    modifiers = %w(sort)
 
     unless params[:tag].blank?
       # Old-style tag URLs without types specified
@@ -287,12 +285,6 @@ class GovUkContentApi < Sinatra::Application
     # For now, we only support retrieving by a single tag
     custom_404 unless requested_tags.size == 1
 
-    if params[:include_children].to_i > 1
-      custom_error(501, "Include children only supports a depth of 1.")
-    elsif params[:include_children].to_i == 1
-      requested_tags = include_children(requested_tags)
-    end
-
     if params[:sort]
       custom_404 unless ["curated", "alphabetical"].include?(params[:sort])
     end
@@ -300,12 +292,9 @@ class GovUkContentApi < Sinatra::Application
     tag_id = requested_tags.first.tag_id
     tag_type = requested_tags.first.tag_type
     @description = "All content with the '#{tag_id}' #{tag_type}"
-    if params[:include_children]
-      @description += " and subsections"
-    end
 
-    artefacts = sorted_artefacts_for_tag_ids(
-      requested_tags.map(&:tag_id),
+    artefacts = sorted_artefacts_for_tag_id(
+      tag_id,
       params[:sort]
     )
     results = map_artefacts_and_add_editions(artefacts)
@@ -421,16 +410,9 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
-  def include_children(tags)
-    # Given a list of tags, return a list of those tags and their children
-    child_tags = Tag.any_in(parent_id: tags.map(&:tag_id))
-    # TODO: remove duplicates?
-    tags + child_tags
-  end
-
-  def sorted_artefacts_for_tag_ids(tag_ids, sort)
-    statsd.time("#{@statsd_scope}.multi.#{tag_ids.length}") do
-      artefacts = Artefact.live.any_in(tag_ids: tag_ids)
+  def sorted_artefacts_for_tag_id(tag_id, sort)
+    statsd.time("#{@statsd_scope}.#{tag_id}") do
+      artefacts = Artefact.live.where(tag_ids: tag_id)
 
       # Load in the curated list and use it as an ordering for the top items in
       # the list. Any artefacts not present in the list go on the end, in
@@ -456,7 +438,7 @@ class GovUkContentApi < Sinatra::Application
       # list is empty
 
       if sort == "curated"
-        curated_list = CuratedList.any_in(tag_ids: [tag_ids.first]).first
+        curated_list = CuratedList.where(tag_ids: [tag_id]).first
         first_ids = curated_list ? curated_list.artefact_ids : []
       else
         # Just fall back on alphabetical order
