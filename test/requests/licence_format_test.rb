@@ -7,7 +7,7 @@ class LicenceFormatsTest < GovUkContentApiTest
   def create_stub_licence
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
     FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id,
-      licence_identifier: '123-2-1', state: 'published')
+      licence_identifier: '123-2-1', licence_short_description: "A licence for stuff", state: 'published')
   end
 
   it "should return an empty list if not given any IDs" do
@@ -42,6 +42,8 @@ class LicenceFormatsTest < GovUkContentApiTest
     assert_equal 1, parsed_response['results'].count
     assert_equal stub_licence.licence_identifier,
       parsed_response['results'].first['details']['licence_identifier']
+    assert_equal stub_licence.licence_short_description,
+      parsed_response['results'].first['details']['licence_short_description']
 
     assert_has_values parsed_response, "total" => 1, "current_page" => 1,
                                        "pages" => 1
