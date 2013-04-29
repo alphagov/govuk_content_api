@@ -106,4 +106,24 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
     assert_equal 'http://www.nhs.uk/ehic', parsed_response["results"].first['web_url']
   end
+
+  it "should omit id values for recommended-links (off-site links)" do
+    rummager_response = [
+      {
+        "title" => "EHIC - NHS Choices",
+        "description" => "Apply for a free European Health Insurance Card (EHIC) or renew your card for emergency healthcare in Europe",
+        "format" => "recommended-link",
+        "link" => "http://www.nhs.uk/ehic",
+        "indexable_content" => "ehic, e111, european health insurance card, european health card, travel abroad, travel insurance",
+        "es_score" => 3.3209536,
+        "highlight" => nil,
+        "presentation_format" => "recommended_link",
+        "humanized_format" => "Recommended links"}
+    ]
+    GdsApi::Rummager.any_instance.stubs(:search).returns(rummager_response)
+    get "/search.json?q=ehic"
+
+    parsed_response = JSON.parse(last_response.body)
+    assert_equal nil, parsed_response["results"].first['id']
+  end
 end

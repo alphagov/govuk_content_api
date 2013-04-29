@@ -40,7 +40,11 @@ module URLHelpers
   end
 
   def search_result_url(result)
-    api_url(result['link']) + ".json"
+    if result['link'].start_with?("http")
+      nil
+    else
+      api_url(result['link']) + ".json"
+    end
   end
 
   def search_result_web_url(result)
