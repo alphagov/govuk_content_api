@@ -40,11 +40,19 @@ module URLHelpers
   end
 
   def search_result_url(result)
-    api_url(result['link']) + ".json"
+    if result['link'].start_with?("http")
+      nil
+    else
+      api_url(result['link']) + ".json"
+    end
   end
 
   def search_result_web_url(result)
-    public_web_url(result['link'])
+    if result['link'].start_with?("http")
+      result['link']
+    else
+      public_web_url(result['link'])
+    end
   end
 
   def artefacts_url(page = nil)
