@@ -3,8 +3,11 @@ object @result_set
 
 node(:description) { @description }
 
-node(:results) do
-  @result_set.results.map { |r|
-    partial "_full_artefact", object: r
-  }
+child(:results => "results") do
+  extends "_basic_artefact"
+  node :details do |artefact|
+    {
+      "description" => artefact.description,
+    }
+  end
 end
