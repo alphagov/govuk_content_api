@@ -261,9 +261,6 @@ class GovUkContentApi < Sinatra::Application
       # If we can unambiguously determine the tag, redirect to its correct URL
       possible_tags = Tag.where(tag_id: params[:tag]).to_a
       if possible_tags.count == 1
-        # Convert the modifier keys to strings first, because otherwise they
-        # don't work with Hash#slice in the way you might expect, as the
-        # keys in `params` are actually strings
         modifier_params = params.slice('sort')
         redirect with_tag_url(possible_tags, modifier_params)
       else
