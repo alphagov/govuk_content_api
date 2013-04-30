@@ -250,8 +250,6 @@ class GovUkContentApi < Sinatra::Application
 
     @statsd_scope = 'request.with_tag'
 
-    modifiers = %w(sort)
-
     unless params[:tag].blank?
       # Old-style tag URLs without types specified
 
@@ -266,7 +264,7 @@ class GovUkContentApi < Sinatra::Application
         # Convert the modifier keys to strings first, because otherwise they
         # don't work with Hash#slice in the way you might expect, as the
         # keys in `params` are actually strings
-        modifier_params = params.slice(*modifiers)
+        modifier_params = params.slice('sort')
         redirect with_tag_url(possible_tags, modifier_params)
       else
         custom_404
