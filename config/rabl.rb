@@ -10,4 +10,9 @@ Rabl.configure do |config|
   # '{"tag": { ... }' block.
   config.include_json_root = false
   config.include_child_root = false
+
+  # Cache template source (i.e. only read once off disk) in non-development
+  # environments. You can also explicitly set RABL_CACHE=1 to turn on template
+  # source caching.
+  config.cache_sources = ENV['RABL_CACHE'] || ENV['RACK_ENV'] != 'development'
 end
