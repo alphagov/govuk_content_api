@@ -10,7 +10,7 @@ node(:need_extended_font) { |artefact| artefact.need_extended_font }
     :lgsl_code, :lgil_override, :minutes_to_complete, :place_type,
     :eligibility, :evaluation, :additional_information,
     :business_support_identifier, :max_employees, :organiser, :summary, :alert_status,
-    :change_description].each do |field|
+    :change_description, :reviewed_at].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     if artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
       format_content(artefact.edition.send(field))
