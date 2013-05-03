@@ -354,6 +354,14 @@ class ArtefactRequestTest < GovUkContentApiTest
           assert_equal 200, last_response.status
           JSON.parse(last_response.body)
         end
+
+        it "should 404 if a non-existent edition is requested" do
+          Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
+          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
+
+          get "/#{@artefact.slug}.json?edition=3", {}, bearer_token_for_user_with_permission
+          assert_equal 404, last_response.status
+        end
       end
     end
 

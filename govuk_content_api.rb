@@ -486,6 +486,9 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
+    if version_number && artefact.edition.nil?
+      custom_404
+    end
     if artefact.edition && version_number.nil?
       if artefact.edition.state == 'archived'
         custom_410
