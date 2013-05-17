@@ -9,9 +9,15 @@ describe "ContentFormatHelpers" do
   end
 
   describe "DataApi insertion" do
-    it "should silently convert [DataApi:<id>] into nothing if there is no Data with id = <id>" do
+    it "should silently convert [DataApi:<id>] into nothing if there is no data" do
       DataApi.stubs(:find_by_id).with("4f8583b5e5a4e46a64000002").returns(nil)
       assert_equal "\n", format_content("[DataApi:4f8583b5e5a4e46a64000002]")
+    end
+
+    it "should replace [DataApi:<id>] with the relevant value if there is data" do
+      DataApi.stubs(:find_by_id).with("4f8583b5e5a4e46a64000002").returns("20%")
+      assert_equal "<p>The vat rate is 20%</p>\n",
+                   format_content("The vat rate is [DataApi:4f8583b5e5a4e46a64000002]")
     end
   end
 end
