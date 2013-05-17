@@ -1,7 +1,7 @@
 require "data_api"
 
 module ContentFormatHelpers
-  EMBEDDED_DATA_API_REGEXP = /\[DataApi\:([0-9])\]/
+  EMBEDDED_DATA_API_REGEXP = /\[DataApi\:([0-9a-fA-F]{24})\]/
 
   def format_content(string, format = nil)
     return string if format == "govspeak"
