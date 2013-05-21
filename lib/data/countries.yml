@@ -303,8 +303,6 @@
   slug: north-korea
 - name: Norway
   slug: norway
-- name: The Occupied Palestinian Territories
-  slug: the-occupied-palestinian-territories
 - name: Oman
   slug: oman
 - name: Pakistan
@@ -407,6 +405,8 @@
   slug: tanzania
 - name: Thailand
   slug: thailand
+- name: The Occupied Palestinian Territories
+  slug: the-occupied-palestinian-territories
 - name: Timor-Leste
   slug: timor-leste
 - name: Togo
