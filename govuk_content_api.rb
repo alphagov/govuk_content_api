@@ -365,7 +365,6 @@ class GovUkContentApi < Sinatra::Application
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
-      attach_caption_data(@artefact) if @artefact.kind == 'video'
     elsif @artefact.slug == 'foreign-travel-advice'
       load_travel_advice_countries
     elsif @artefact.kind == 'travel-advice'
@@ -500,6 +499,7 @@ class GovUkContentApi < Sinatra::Application
 
     attach_place_data(@artefact) if @artefact.edition.format == "Place" && params[:latitude] && params[:longitude]
     attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
+    attach_assets(@artefact, :caption_file) if @artefact.edition.is_a?(VideoEdition)
   end
 
   def attach_place_data(artefact)
@@ -546,33 +546,11 @@ class GovUkContentApi < Sinatra::Application
       end
     end
     custom_404 unless artefact.edition
-    artefact.assets = [:image, :document].each_with_object({}) do |key, assets|
-      if asset_id = artefact.edition.send("#{key}_id")
-        begin
-          asset = asset_manager_api.asset(asset_id)
-          assets[key] = asset if asset and asset["state"] == "clean"
-        rescue GdsApi::BaseError => e
-          logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
-        end
-      end
-    end
+    attach_assets(artefact, :image, :document)
 
     travel_index = Artefact.find_by_slug("foreign-travel-advice")
     unless travel_index.nil?
       artefact.extra_related_artefacts = travel_index.live_related_artefacts
-    end
-  end
-
-  def attach_caption_data(artefact)
-    artefact.assets = [:caption_file].each_with_object({}) do |key, assets|
-      if asset_id = artefact.edition.send("#{key}_id")
-        begin
-          asset = asset_manager_api.asset(asset_id)
-          assets[key] = asset if asset and asset["state"] == "clean"
-        rescue GdsApi::BaseError => e
-          logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
-        end
-      end
     end
   end
 
@@ -583,6 +561,20 @@ class GovUkContentApi < Sinatra::Application
         country.tap {|c| c.edition = editions[c.slug] }
       end.reject do |country|
         country.edition.nil?
+      end
+    end
+  end
+
+  def attach_assets(artefact, *fields)
+    artefact.assets ||= {}
+    fields.each do |key|
+      if asset_id = artefact.edition.send("#{key}_id")
+        begin
+          asset = asset_manager_api.asset(asset_id)
+          artefact.assets[key] = asset if asset and asset["state"] == "clean"
+        rescue GdsApi::BaseError => e
+          logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
+        end
       end
     end
   end
