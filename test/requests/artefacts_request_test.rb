@@ -1,8 +1,6 @@
 require_relative '../test_helper'
-require 'gds_api/test_helpers/asset_manager'
 
 class ArtefactsRequestTest < GovUkContentApiTest
-  include GdsApi::TestHelpers::AssetManager
 
   it "should return empty array with no artefacts" do
     get "/artefacts.json"
@@ -123,35 +121,6 @@ class ArtefactsRequestTest < GovUkContentApiTest
                                          "pages" => 1
       refute_link "next"
       refute_link "previous"
-    end
-  end
-
-  describe "loading assets from asset-manager" do
-    it "should include a caption field" do
-      artefact = FactoryGirl.create(:artefact, :slug => "a-video", :state => "live",
-                                    :kind => "video", :owning_app => "publisher")
-      edition = FactoryGirl.create(:video_edition, :slug => artefact.slug,
-                                   :panopticon_id => artefact.id, :state => "published",
-                                   :caption_file_id => "512c9019686c82191d000001")
-
-      asset_manager_has_an_asset("512c9019686c82191d000001", {
-        "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000001",
-        "name" => "captions-file.xml",
-        "content_type" => "application/xml",
-        "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/captions-file.xml",
-        "state" => "clean",
-      })
-
-      get "/a-video.json"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-
-      parsed_response = JSON.parse(last_response.body)
-      caption_file_info = {
-        "web_url"=>"https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/captions-file.xml",
-        "content_type"=>"application/xml"
-      }
-      assert_equal caption_file_info, parsed_response["details"]["caption_file"]
     end
   end
 end
