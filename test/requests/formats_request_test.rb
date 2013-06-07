@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 require "gds_api/test_helpers/licence_application"
 require "gds_api/test_helpers/asset_manager"
 
@@ -179,6 +179,15 @@ class FormatsRequestTest < GovUkContentApiTest
         assert_base_artefact_fields(parsed_response)
 
         refute parsed_response["details"].has_key?("caption_file")
+      end
+
+      it "should not blow up with an type mismatch between the artefact and edition" do
+        # This can happen when a format is being changed, and the draft edition is being preview
+        edition = FactoryGirl.create(:answer_edition, :slug => @artefact.slug,
+                                     :panopticon_id => @artefact.id, :state => "published")
+
+        get '/batman.json'
+        assert last_response.ok?
       end
     end
   end
