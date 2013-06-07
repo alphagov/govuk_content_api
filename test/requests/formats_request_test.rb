@@ -1,8 +1,10 @@
-require 'test_helper'
+require_relative '../test_helper'
 require "gds_api/test_helpers/licence_application"
+require "gds_api/test_helpers/asset_manager"
 
 class FormatsRequestTest < GovUkContentApiTest
   include GdsApi::TestHelpers::LicenceApplication
+  include GdsApi::TestHelpers::AssetManager
 
   def setup
     super
@@ -111,26 +113,83 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "overview", fields['parts'][0]['slug']
   end
 
-  it "should work with video_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
-    video_edition = FactoryGirl.create(:video_edition, title: 'Video killed the radio star', panopticon_id: artefact.id, slug: artefact.slug,
-                                       video_summary: 'I am a video summary', video_url: 'http://somevideourl.com',
-                                       body: "Video description\n------", state: 'published')
+  describe "video editions" do
+    before :each do
+      @artefact = FactoryGirl.create(:artefact, slug: 'batman', kind: 'video', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    end
 
-    get '/batman.json'
-    parsed_response = JSON.parse(last_response.body)
+    it "should work with basic video_edition" do
+      video_edition = FactoryGirl.create(:video_edition, title: 'Video killed the radio star', panopticon_id: @artefact.id, slug: @artefact.slug,
+                                         video_summary: 'I am a video summary', video_url: 'http://somevideourl.com',
+                                         body: "Video description\n------", state: 'published')
 
-    assert last_response.ok?
-    assert_base_artefact_fields(parsed_response)
+      get '/batman.json'
+      parsed_response = JSON.parse(last_response.body)
 
-    fields = parsed_response["details"]
+      assert last_response.ok?
+      assert_base_artefact_fields(parsed_response)
 
-    expected_fields = %w(alternative_title description video_url video_summary body)
+      fields = parsed_response["details"]
 
-    assert_has_expected_fields(fields, expected_fields)
-    assert_equal "I am a video summary", fields["video_summary"]
-    assert_equal "http://somevideourl.com", fields["video_url"]
-    assert_equal "<h2>Video description</h2>\n", fields["body"]
+      expected_fields = %w(alternative_title description video_url video_summary body)
+
+      assert_has_expected_fields(fields, expected_fields)
+      assert_equal "I am a video summary", fields["video_summary"]
+      assert_equal "http://somevideourl.com", fields["video_url"]
+      assert_equal "<h2>Video description</h2>\n", fields["body"]
+    end
+
+    describe "loading the caption_file from asset-manager" do
+      it "should include the caption_file details" do
+        edition = FactoryGirl.create(:video_edition, :slug => @artefact.slug,
+                                     :panopticon_id => @artefact.id, :state => "published",
+                                     :caption_file_id => "512c9019686c82191d000001")
+
+        asset_manager_has_an_asset("512c9019686c82191d000001", {
+          "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000001",
+          "name" => "captions-file.xml",
+          "content_type" => "application/xml",
+          "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/captions-file.xml",
+          "state" => "clean",
+        })
+
+        get "/batman.json"
+        assert last_response.ok?
+        assert_status_field "ok", last_response
+
+        parsed_response = JSON.parse(last_response.body)
+        caption_file_info = {
+          "web_url"=>"https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/captions-file.xml",
+          "content_type"=>"application/xml"
+        }
+        assert_equal caption_file_info, parsed_response["details"]["caption_file"]
+      end
+
+      it "should gracefully handle failure to reach asset-manager" do
+        edition = FactoryGirl.create(:video_edition, :slug => @artefact.slug,
+                                     :panopticon_id => @artefact.id, :state => "published",
+                                     :caption_file_id => "512c9019686c82191d000001")
+
+        stub_request(:get, "http://asset-manager.dev.gov.uk/assets/512c9019686c82191d000001").to_return(:body => "Error", :status => 500)
+
+        get '/batman.json'
+        assert last_response.ok?
+
+        parsed_response = JSON.parse(last_response.body)
+        assert_base_artefact_fields(parsed_response)
+
+        refute parsed_response["details"].has_key?("caption_file")
+      end
+
+      it "should not blow up with an type mismatch between the artefact and edition" do
+        # This can happen when a format is being changed, and the draft edition is being preview
+        edition = FactoryGirl.create(:answer_edition, :slug => @artefact.slug,
+                                     :panopticon_id => @artefact.id, :state => "published")
+
+        get '/batman.json'
+        assert last_response.ok?
+      end
+    end
   end
 
   it "should work with licence_edition" do
