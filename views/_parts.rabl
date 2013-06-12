@@ -6,7 +6,7 @@ node do |artefact|
               slug: p.slug,
               order: p.order,
               title: p.title,
-              body: format_content(p.body)
+              body: process_content(p.body)
             }
     list_parts.push(part)
   end

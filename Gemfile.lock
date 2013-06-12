@@ -53,7 +53,7 @@ GEM
       activesupport (>= 3.0.0)
     faraday (0.8.4)
       multipart-post (~> 1.1)
-    gds-api-adapters (5.3.0)
+    gds-api-adapters (7.2.0)
       link_header
       lrucache (~> 0.1.1)
       null_logger
@@ -98,7 +98,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     metaclass (0.0.1)
-    mime-types (1.19)
+    mime-types (1.23)
     minitest (3.4.0)
     mocha (0.12.4)
       metaclass (~> 0.0.1)
@@ -225,7 +225,7 @@ DEPENDENCIES
   ci_reporter (= 1.7.0)
   database_cleaner (= 0.7.2)
   factory_girl (= 3.6.1)
-  gds-api-adapters (= 5.3.0)
+  gds-api-adapters (= 7.2.0)
   gds-sso (= 3.0.1)
   govspeak (= 1.0.1)
   govuk_content_models (= 5.0.0)
