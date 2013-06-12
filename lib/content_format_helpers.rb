@@ -1,9 +1,9 @@
 
 # This has an implicit requirement on GdsApi::Helpers being included.
-# They App includes them before this class.
+# The App includes them before this class.
 module ContentFormatHelpers
 
-  EMBEDDED_FACT_REGEXP = /\[fact\:([a-z0-9-]+)\]/i
+  EMBEDDED_FACT_REGEXP = /\[fact\:([a-z0-9-]+)\]/i # e.g. [fact:vat-rates]
 
   def process_content(string)
     unless params[:content_format] == "govspeak"
