@@ -81,7 +81,7 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should return 503 if connection times out" do
-    GdsApi::Rummager.any_instance.stubs(:search).raises(GdsApi::Rummager::SearchTimeout)
+    GdsApi::Rummager.any_instance.stubs(:search).raises(GdsApi::TimedOutException)
     get "/search.json?q=government"
 
     assert_equal 503, last_response.status

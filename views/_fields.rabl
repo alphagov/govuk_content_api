@@ -13,7 +13,7 @@ node(:need_extended_font) { |artefact| artefact.need_extended_font }
     :change_description, :reviewed_at].each do |field|
   node(field, :if => lambda { |artefact| artefact.edition.respond_to?(field) }) do |artefact|
     if artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
-      format_content(artefact.edition.send(field))
+      process_content(artefact.edition.send(field))
     else
       artefact.edition.send(field)
     end
