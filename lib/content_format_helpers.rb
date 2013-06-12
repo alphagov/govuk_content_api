@@ -1,8 +1,9 @@
-require 'gds_api/fact_cave'
 
+# This has an implicit requirement on GdsApi::Helpers being included.
+# They App includes them before this class.
 module ContentFormatHelpers
 
-  EMBEDDED_FACT_REGEXP = /\[Fact\:([\w-]+)\]/
+  EMBEDDED_FACT_REGEXP = /\[fact\:([a-z0-9-]+)\]/i
 
   def process_content(string)
     unless params[:content_format] == "govspeak"
@@ -15,15 +16,11 @@ private
 
   def interpolate_fact_values(string)
     string.gsub(EMBEDDED_FACT_REGEXP) do |match|
-      if fact = fact_cave.fact($1)
+      if fact = fact_cave_api.fact($1)
         fact.details.value
       else
         ''
       end
     end
-  end
-
-  def fact_cave
-    GdsApi::FactCave.new(Plek.current.find('fact-cave'))
   end
 end
