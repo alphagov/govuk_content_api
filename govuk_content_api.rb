@@ -100,7 +100,7 @@ class GovUkContentApi < Sinatra::Application
       end
 
       render :rabl, :search, format: "json"
-    rescue GdsApi::Rummager::SearchServiceError, GdsApi::Rummager::SearchTimeout
+    rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
       statsd.increment('request.search.unavailable')
       halt 503, render(:rabl, :unavailable, format: "json")
     end
