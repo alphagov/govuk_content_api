@@ -33,73 +33,102 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_status_field "gone", last_response
   end
 
-  it "should return related artefacts" do
-    related_artefacts = [
-      FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
-      FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
-    ]
+  describe "returning related artefacts" do
+    it "should return related artefacts" do
+      related_artefacts = [
+        FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
+        FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
+      ]
 
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, state: 'live')
+      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, state: 'live')
 
-    get "/#{artefact.slug}.json"
-    parsed_response = JSON.parse(last_response.body)
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
 
-    assert_equal 200, last_response.status
+      assert_equal 200, last_response.status
 
-    assert_status_field "ok", last_response
-    assert_equal 2, parsed_response["related"].length
+      assert_status_field "ok", last_response
+      assert_equal 2, parsed_response["related"].length
 
-    related_artefacts.zip(parsed_response["related"]).each do |response_artefact, related_info|
-      assert_equal response_artefact.name, related_info["title"]
-      artefact_path = "/#{CGI.escape(response_artefact.slug)}.json"
-      assert_equal artefact_path, URI.parse(related_info["id"]).path
-      assert_equal "#{public_web_url}/#{response_artefact.slug}", related_info["web_url"]
+      related_artefacts.zip(parsed_response["related"]).each do |response_artefact, related_info|
+        assert_equal response_artefact.name, related_info["title"]
+        artefact_path = "/#{CGI.escape(response_artefact.slug)}.json"
+        assert_equal artefact_path, URI.parse(related_info["id"]).path
+        assert_equal "#{public_web_url}/#{response_artefact.slug}", related_info["web_url"]
+      end
+    end
+
+    it "should include related artefacts in their related order, not the natural order" do
+      a = FactoryGirl.create(:artefact, name: "A", state: 'live')
+      b = FactoryGirl.create(:artefact, name: "B", state: 'live')
+
+      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [b, a], state: 'live')
+
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal ["B", "A"], parsed_response["related"].map { |r| r["title"] }
+    end
+
+    it "should exclude unpublished related artefacts" do
+      related_artefacts = [
+        FactoryGirl.create(:artefact, state: 'draft'),
+        live = FactoryGirl.create(:artefact, state: 'live'),
+        FactoryGirl.create(:artefact, state: 'archived')
+      ]
+
+      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts,
+          state: 'live', slug: "workaround")
+
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal 200, last_response.status
+
+      assert_status_field "ok", last_response
+      assert_equal 1, parsed_response["related"].length
+
+      assert_equal "http://example.org/#{live.slug}.json", parsed_response['related'][0]["id"]
+    end
+
+    it "should return an empty list if there are no related artefacts" do
+      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [], state: 'live')
+
+      get "/#{artefact.slug}.json"
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal 200, last_response.status
+
+      assert_status_field "ok", last_response
+      assert_equal [], parsed_response["related"]
     end
   end
 
-  it "should include related artefacts in their related order, not the natural order" do
-    a = FactoryGirl.create(:artefact, name: "A", state: 'live')
-    b = FactoryGirl.create(:artefact, name: "B", state: 'live')
+  describe "returning related external links" do
+    before :each do
+      @artefact = FactoryGirl.create(:non_publisher_artefact, :state => 'live')
+    end
 
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [b, a], state: 'live')
+    it "should return an array of external links" do
+      @artefact.external_links.build(:title => "Fooey", :url => "http://www.example.com/fooey")
+      @artefact.external_links.build(:title => "Gooey", :url => "https://www.example.org/index.html?id=gooey")
+      @artefact.external_links.build(:title => "Kablooie", :url => "https://www.example.com/kablooie")
+      @artefact.save!
 
-    get "/#{artefact.slug}.json"
-    parsed_response = JSON.parse(last_response.body)
+      get "/#{@artefact.slug}.json"
+      assert_equal 200, last_response.status
+      parsed_response = JSON.parse(last_response.body)
 
-    assert_equal ["B", "A"], parsed_response["related"].map { |r| r["title"] }
-  end
+      assert_equal %w(Fooey Gooey Kablooie), parsed_response["related_external_links"].map {|l| l["title"] }
+    end
 
-  it "should exclude unpublished related artefacts" do
-    related_artefacts = [
-      FactoryGirl.create(:artefact, state: 'draft'),
-      live = FactoryGirl.create(:artefact, state: 'live'),
-      FactoryGirl.create(:artefact, state: 'archived')
-    ]
+    it "should return empty array is there are no external links" do
+      get "/#{@artefact.slug}.json"
+      assert_equal 200, last_response.status
+      parsed_response = JSON.parse(last_response.body)
 
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts,
-        state: 'live', slug: "workaround")
-
-    get "/#{artefact.slug}.json"
-    parsed_response = JSON.parse(last_response.body)
-
-    assert_equal 200, last_response.status
-
-    assert_status_field "ok", last_response
-    assert_equal 1, parsed_response["related"].length
-
-    assert_equal "http://example.org/#{live.slug}.json", parsed_response['related'][0]["id"]
-  end
-
-  it "should return an empty list if there are no related artefacts" do
-    artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [], state: 'live')
-
-    get "/#{artefact.slug}.json"
-    parsed_response = JSON.parse(last_response.body)
-
-    assert_equal 200, last_response.status
-
-    assert_status_field "ok", last_response
-    assert_equal [], parsed_response["related"]
+      assert_equal [], parsed_response["related_external_links"]
+    end
   end
 
   it "should not look for edition if publisher not owner" do
