@@ -19,3 +19,12 @@ end
 child @artefact.live_related_artefacts => :related do
   extends "_basic_artefact"
 end
+
+node(:related_external_links) do
+  @artefact.external_links.map do |link|
+    {
+      :title => link.title,
+      :url => link.url,
+    }
+  end
+end
