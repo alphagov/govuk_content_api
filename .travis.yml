@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 1.9.2
+env:
+  - GOVUK_APP_DOMAIN=dev.gov.uk
+services:
+  - mongodb
+script:
+  - bundle exec rake ci:setup:minitest test
+bundler_args: --without=development
+branches:
+  except:
+    - release
+notifications:
+  email: false
