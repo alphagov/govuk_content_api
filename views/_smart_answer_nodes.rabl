@@ -8,6 +8,7 @@ node do |artefact|
       :options => n.options.map { |o|
         {
           :label => o.label,
+          :slug => o.slug,
           :next => o.next,
         }
       },

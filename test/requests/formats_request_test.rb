@@ -331,6 +331,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "question", question1["kind"]
     assert_equal "what-is-your-name", question1["slug"]
     assert_equal ["Sir Lancelot of Camelot", "Sir Robin of Camelot", "Sir Galahad of Camelot"], question1["options"].map {|o| o["label"]}
+    assert_equal ["sir-lancelot-of-camelot", "sir-robin-of-camelot", "sir-galahad-of-camelot"], question1["options"].map {|o| o["slug"]}
     assert_equal ["what-is-your-favorite-colour", "what-is-the-capital-of-assyria", "what-is-your-favorite-colour"], question1["options"].map {|o| o["next"]}
 
     outcome1 = nodes[3]
