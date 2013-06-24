@@ -24,6 +24,10 @@ node(:parts, :if => lambda { |artefact| artefact.edition.respond_to?(:order_part
   partial("parts", object: artefact)
 end
 
+node(:nodes, :if => lambda { |artefact| artefact.edition.is_a?(SimpleSmartAnswerEdition) }) do |artefact|
+  partial("smart_answer_nodes", object: artefact)
+end
+
 node(:licence, :if => lambda { |artefact| artefact.licence }) do |artefact|
   partial("licence", object: artefact)
 end
