@@ -48,7 +48,7 @@ class GovUkContentApi < Sinatra::Application
 
   get "/local_authorities.json" do
     search_param = params[:snac] || params[:name]
-    @statsd_scope = "request.local_authorities.#{search_param}"
+    @statsd_scope = "request.local_authorities"
 
     if params[:name]
       name = Regexp.escape(params[:name])
@@ -70,7 +70,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities/:snac.json" do
-    @statsd_scope = "request.local_authority.#{params[:snac]}"
+    @statsd_scope = "request.local_authority"
     if params[:snac]
       statsd.time(@statsd_scope) do
         @local_authority = LocalAuthority.find_by_snac(params[:snac])
@@ -86,7 +86,7 @@ class GovUkContentApi < Sinatra::Application
 
   get "/search.json" do
     begin
-      @statsd_scope = "request.search.q.#{params[:q]}"
+      @statsd_scope = "request.search"
       search_index = params[:index] || 'mainstream'
 
       unless ['mainstream', 'detailed', 'government'].include?(search_index)
@@ -124,7 +124,7 @@ class GovUkContentApi < Sinatra::Application
     allowed_params = params.slice *%w(type parent_id root_sections)
 
     tags = if options.length > 0
-      statsd.time("#{@statsd_scope}.options.#{options}") do
+      statsd.time(@statsd_scope) do
         Tag.where(options)
       end
     else
@@ -175,7 +175,7 @@ class GovUkContentApi < Sinatra::Application
   get "/tags/:tag_type_or_id.json" do
     expires DEFAULT_CACHE_TIME
 
-    @statsd_scope = "request.tag.#{params[:id]}"
+    @statsd_scope = "request.tag"
 
     tag_type = known_tag_types.from_plural(params[:tag_type_or_id])
 
