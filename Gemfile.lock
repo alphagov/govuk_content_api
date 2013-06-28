@@ -67,7 +67,7 @@ GEM
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
       sanitize (= 2.0.3)
-    govuk_content_models (5.7.0)
+    govuk_content_models (5.8.0)
       bson_ext
       differ
       gds-api-adapters
@@ -228,7 +228,7 @@ DEPENDENCIES
   gds-api-adapters (= 7.2.0)
   gds-sso (= 3.0.1)
   govspeak (= 1.0.1)
-  govuk_content_models (= 5.7.0)
+  govuk_content_models (= 5.8.0)
   kaminari (= 0.14.1)
   link_header (= 0.0.5)
   minitest (= 3.4.0)
