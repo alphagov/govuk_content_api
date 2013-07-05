@@ -343,6 +343,17 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert last_response.ok?
     end
 
+    it "should set a future Expires header" do
+      artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
+
+      point_in_time = Time.now
+      Timecop.freeze(point_in_time) do
+        get "/#{artefact.slug}.json"
+      end
+      fifteen_minutes_from_now = point_in_time + 15.minutes
+      assert_equal fifteen_minutes_from_now.httpdate, last_response.headers["Expires"]
+    end
+
     describe "accessing unpublished editions" do
       before do
         @artefact = FactoryGirl.create(:artefact, state: 'live')
@@ -393,6 +404,17 @@ class ArtefactRequestTest < GovUkContentApiTest
 
           get "/#{@artefact.slug}.json?edition=3", {}, bearer_token_for_user_with_permission
           assert_equal 404, last_response.status
+        end
+
+        it "should set an Expires header to the current time to prevent caching" do
+          Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
+          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
+
+          point_in_time = Time.now
+          Timecop.freeze(point_in_time) do
+            get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
+          end
+          assert_equal point_in_time.httpdate, last_response.headers["Expires"]
         end
       end
     end
