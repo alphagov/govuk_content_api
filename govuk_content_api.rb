@@ -351,7 +351,11 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/*.json" do |id|
-    expires DEFAULT_CACHE_TIME
+    # The edition param is for accessing unpublished editions in order for
+    # editors to preview them. These can change frequently and so shouldn't be
+    # cached.
+    expire_at = params[:edition] ? 0 : DEFAULT_CACHE_TIME
+    expires(expire_at)
 
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
