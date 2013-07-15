@@ -298,16 +298,16 @@ class FormatsRequestTest < GovUkContentApiTest
                         :body => "STOP!\n-----\n\nHe who would cross the Bridge of Death  \nMust answer me  \nThese questions three  \nEre the other side he see.\n")
 
     n = smart_answer.nodes.build(:kind => 'question', :slug => 'what-is-your-name', :title => "What is your name?", :order => 1)
-    n.options.build(:label => "Sir Lancelot of Camelot", :next => 'what-is-your-favorite-colour', :order => 1)
-    n.options.build(:label => "Sir Galahad of Camelot", :next => 'what-is-your-favorite-colour', :order => 3)
-    n.options.build(:label => "Sir Robin of Camelot", :next => 'what-is-the-capital-of-assyria', :order => 2)
+    n.options.build(:label => "Sir Lancelot of Camelot", :next_node => 'what-is-your-favorite-colour', :order => 1)
+    n.options.build(:label => "Sir Galahad of Camelot", :next_node => 'what-is-your-favorite-colour', :order => 3)
+    n.options.build(:label => "Sir Robin of Camelot", :next_node => 'what-is-the-capital-of-assyria', :order => 2)
 
     n = smart_answer.nodes.build(:kind => 'question', :slug => 'what-is-your-favorite-colour', :title => "What is your favorite colour?", :order => 3)
-    n.options.build(:label => "Blue", :next => 'right-off-you-go')
-    n.options.build(:label => "Blue... NO! YELLOOOOOOOOOOOOOOOOWWW!!!!", :next => 'arrrrrghhhh')
+    n.options.build(:label => "Blue", :next_node => 'right-off-you-go')
+    n.options.build(:label => "Blue... NO! YELLOOOOOOOOOOOOOOOOWWW!!!!", :next_node => 'arrrrrghhhh')
 
     n = smart_answer.nodes.build(:kind => 'question', :slug => 'what-is-the-capital-of-assyria', :title => "What is the capital of Assyria?", :order => 2)
-    n.options.build(:label => "I don't know THAT!!", :next => 'arrrrrghhhh')
+    n.options.build(:label => "I don't know THAT!!", :next_node => 'arrrrrghhhh')
 
     n = smart_answer.nodes.build(:kind => 'outcome', :slug => 'right-off-you-go', :title => "Right, off you go.", :body => "Oh! Well, thank you.  Thank you very much", :order => 4)
     n = smart_answer.nodes.build(:kind => 'outcome', :slug => 'arrrrrghhhh', :title => "AAAAARRRRRRRRRRRRRRRRGGGGGHHH!!!!!!!", :order => 5)
@@ -332,7 +332,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "what-is-your-name", question1["slug"]
     assert_equal ["Sir Lancelot of Camelot", "Sir Robin of Camelot", "Sir Galahad of Camelot"], question1["options"].map {|o| o["label"]}
     assert_equal ["sir-lancelot-of-camelot", "sir-robin-of-camelot", "sir-galahad-of-camelot"], question1["options"].map {|o| o["slug"]}
-    assert_equal ["what-is-your-favorite-colour", "what-is-the-capital-of-assyria", "what-is-your-favorite-colour"], question1["options"].map {|o| o["next"]}
+    assert_equal ["what-is-your-favorite-colour", "what-is-the-capital-of-assyria", "what-is-your-favorite-colour"], question1["options"].map {|o| o["next_node"]}
 
     outcome1 = nodes[3]
     assert_equal "outcome", outcome1["kind"]
