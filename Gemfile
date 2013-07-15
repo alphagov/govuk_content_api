@@ -14,6 +14,10 @@ else
   gem 'govuk_content_models', '5.9.0'
 end
 
+# Pinning mongo to prevent bundler downgrading it in order to upgrade bson
+# (as seen in 680d3e9ab7)
+gem 'mongo', '>= 1.6.2'
+
 gem 'gds-sso', '3.0.1'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
