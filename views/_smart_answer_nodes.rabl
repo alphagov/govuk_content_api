@@ -9,7 +9,7 @@ node do |artefact|
         {
           :label => o.label,
           :slug => o.slug,
-          :next => o.next,
+          :next_node => o.next_node,
         }
       },
     }
