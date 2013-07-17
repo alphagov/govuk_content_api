@@ -96,7 +96,7 @@ class GovUkContentApi < Sinatra::Application
       statsd.time(@statsd_scope) do
         search_uri = Plek.current.find('search') + "/#{search_index}"
         client = GdsApi::Rummager.new(search_uri)
-        @results = client.search(params[:q])
+        @results = client.search(params[:q], response_style: "hash")["results"]
       end
 
       render :rabl, :search, format: "json"
