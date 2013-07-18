@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 source 'https://BnrJb6FZyzspBboNJzYZ@gem.fury.io/govuk/'
 
-gem 'unicorn', '~> 4.3.1'
+gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
 gem 'rabl', '0.6.14'
