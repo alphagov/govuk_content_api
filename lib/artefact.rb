@@ -10,6 +10,10 @@ module ContentApiArtefactExtensions
   end
 
   def live_related_artefacts
+    artefacts = ordered_related_artefacts(related_artefacts.live)
+  end
+
+  def live_grouped_related_artefacts
     artefacts = related_artefacts_grouped_by_distance(related_artefacts.live)
     artefacts["other"] += @extra_related_artefacts.to_a if @extra_related_artefacts
     artefacts["other"].uniq!(&:slug)
