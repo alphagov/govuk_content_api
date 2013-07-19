@@ -57,6 +57,16 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["total"]
   end
 
+  it "should return a semantic error if missing query" do
+    GdsApi::Rummager.any_instance.expects(:search).never
+
+    get "/search.json?q=++"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert_equal 422, last_response.status
+    assert_equal "Non-empty querystring is required in the 'q' parameter", parsed_response["_response_info"]["status"]
+  end
+
   it "should default to the mainstream index" do
     search_stub = stub(search: { "results" => sample_results })
     GdsApi::Rummager.expects(:new).with { |u| u.match /mainstream/ }.returns(search_stub)
