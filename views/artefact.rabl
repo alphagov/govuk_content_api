@@ -16,8 +16,8 @@ child @artefact.tags => :tags do
   extends "_tag"
 end
 
-child @artefact.live_related_artefacts => :related do
-  extends "_basic_artefact"
+child @artefact => :related do
+  extends "_related_artefacts"
 end
 
 node(:related_external_links) do
