@@ -50,6 +50,4 @@ end
 group :development do
   # (Intelligent) reloading server in development
   gem "mr-sparkle", "0.1.0", git: "https://github.com/alphagov/mr-sparkle.git", branch: "optional_force_polling", ref: "8dfecf6"
-  # Use thin because WEBrick has a URL length limit of 1024, and shotgun doesn't support unicorn
-  gem "thin", "1.5.1"
 end
