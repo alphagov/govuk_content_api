@@ -185,7 +185,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
         parsed_response = JSON.parse(last_response.body)
 
-        assert_equal 4, parsed_response["related"].values.flatten.length
+        assert_equal 4, parsed_response["related"].length
 
       end
 
@@ -216,7 +216,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
         parsed_response = JSON.parse(last_response.body)
 
-        assert_equal 4, parsed_response["related"].values.flatten.length
+        assert_equal 4, parsed_response["related"].length
 
       end
 
@@ -247,7 +247,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
         related_links = parsed_response["related"]
 
-        assert_equal ["Pies", "Sausages", "Cake"], related_links.values.flatten.map {|l| l["title"] }
+        assert_equal ["Pies", "Sausages", "Cake"], related_links.map {|l| l["title"] }
       end
 
     end

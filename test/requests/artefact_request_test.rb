@@ -34,7 +34,7 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   describe "returning related artefacts" do
-    it "should return related artefacts from the same subsection in the 'subsection' array" do
+    it "should return related artefacts as a combined array" do
       FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries")
       FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts")
 
@@ -51,20 +51,20 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal 200, last_response.status
 
       assert_status_field "ok", last_response
-      assert_equal 1, parsed_response["related"]["subsection"].length
-      assert_equal "Pies", parsed_response["related"]["subsection"][0]["title"]
+      assert_equal 2, parsed_response["related"].length
+      assert_equal "Pies", parsed_response["related"][0]["title"]
+      assert_equal "Cake", parsed_response["related"][1]["title"]
     end
 
-    it "should return related artefacts from sibling subsections in the 'section' array" do
-      FactoryGirl.create(:tag, :tag_id => "food", :tag_type => 'section', :title => "Food")
+    it "should set the group for a related artefact" do
       FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => "food")
       FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => "food")
-      FactoryGirl.create(:tag, :tag_id => "food/appetizers", :tag_type => 'section', :title => "Appetizers", :parent_id => "food")
+      FactoryGirl.create(:tag, :tag_id => "drinks/cocktails", :tag_type => 'section', :title => "Cocktails", :parent_id => "drinks")
 
       related_artefacts = [
         FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live', :sections => ["food/pastries"]),
         FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live', :sections => ["food/desserts"]),
-        FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Wings", state: 'live', :sections => ["food/appetizers"])
+        FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Mojito", state: 'live', :sections => ["drinks/cocktails"])
       ]
 
       artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, state: 'live', :sections => ["food/pastries"])
@@ -75,33 +75,11 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal 200, last_response.status
 
       assert_status_field "ok", last_response
-      assert_equal 2, parsed_response["related"]["section"].length
-      assert_equal "Cake", parsed_response["related"]["section"][0]["title"]
-      assert_equal "Wings", parsed_response["related"]["section"][1]["title"]
-    end
+      assert_equal 3, parsed_response["related"].length
 
-    it "should return related artefacts from elsewhere in the 'other' array" do
-      related_artefacts = [
-        FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live'),
-        FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
-      ]
-
-      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: related_artefacts, state: 'live')
-
-      get "/#{artefact.slug}.json"
-      parsed_response = JSON.parse(last_response.body)
-
-      assert_equal 200, last_response.status
-
-      assert_status_field "ok", last_response
-      assert_equal 2, parsed_response["related"]["other"].length
-
-      related_artefacts.zip(parsed_response["related"]["other"]).each do |response_artefact, related_info|
-        assert_equal response_artefact.name, related_info["title"]
-        artefact_path = "/#{CGI.escape(response_artefact.slug)}.json"
-        assert_equal artefact_path, URI.parse(related_info["id"]).path
-        assert_equal "#{public_web_url}/#{response_artefact.slug}", related_info["web_url"]
-      end
+      assert_equal "subsection", parsed_response["related"][0]["group"]
+      assert_equal "section", parsed_response["related"][1]["group"]
+      assert_equal "other", parsed_response["related"][2]["group"]
     end
 
     it "should include related artefacts in their related order, not the natural order" do
@@ -113,7 +91,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       get "/#{artefact.slug}.json"
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal ["B", "A"], parsed_response["related"]["other"].map { |r| r["title"] }
+      assert_equal ["B", "A"], parsed_response["related"].map { |r| r["title"] }
     end
 
     it "should exclude unpublished related artefacts" do
@@ -132,23 +110,9 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal 200, last_response.status
 
       assert_status_field "ok", last_response
-      assert_equal 1, parsed_response["related"].values.flatten.length
+      assert_equal 1, parsed_response["related"].length
 
-      assert_equal "http://example.org/#{live.slug}.json", parsed_response['related']["other"][0]["id"]
-    end
-
-    it "should return an empty list for each option if there are no related artefacts" do
-      artefact = FactoryGirl.create(:non_publisher_artefact, related_artefacts: [], state: 'live')
-
-      get "/#{artefact.slug}.json"
-      parsed_response = JSON.parse(last_response.body)
-
-      assert_equal 200, last_response.status
-
-      assert_status_field "ok", last_response
-      assert_equal [], parsed_response["related"]["subsection"]
-      assert_equal [], parsed_response["related"]["section"]
-      assert_equal [], parsed_response["related"]["other"]
+      assert_equal "http://example.org/#{live.slug}.json", parsed_response['related'][0]["id"]
     end
   end
 
