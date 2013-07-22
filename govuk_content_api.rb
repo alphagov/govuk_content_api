@@ -93,10 +93,14 @@ class GovUkContentApi < Sinatra::Application
         custom_404
       end
 
+      if params[:q].nil? || params[:q].strip.empty?
+        custom_error(422, "Non-empty querystring is required in the 'q' parameter")
+      end
+
       statsd.time(@statsd_scope) do
         search_uri = Plek.current.find('search') + "/#{search_index}"
         client = GdsApi::Rummager.new(search_uri)
-        @results = client.search(params[:q])
+        @results = client.search(params[:q], response_style: "hash")["results"]
       end
 
       render :rabl, :search, format: "json"

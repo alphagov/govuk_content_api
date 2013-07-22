@@ -34,7 +34,7 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should return an array of results" do
-    GdsApi::Rummager.any_instance.stubs(:search).returns(sample_results)
+    GdsApi::Rummager.any_instance.stubs(:search).returns("results" => sample_results)
     get "/search.json?q=government+info"
     parsed_response = JSON.parse(last_response.body)
 
@@ -47,7 +47,7 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should return the standard response even if zero results" do
-    GdsApi::Rummager.any_instance.stubs(:search).returns([])
+    GdsApi::Rummager.any_instance.stubs(:search).returns("results" => [])
 
     get "/search.json?q=empty+result+set"
     parsed_response = JSON.parse(last_response.body)
@@ -57,15 +57,25 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["total"]
   end
 
+  it "should return a semantic error if missing query" do
+    GdsApi::Rummager.any_instance.expects(:search).never
+
+    get "/search.json?q=++"
+    parsed_response = JSON.parse(last_response.body)
+
+    assert_equal 422, last_response.status
+    assert_equal "Non-empty querystring is required in the 'q' parameter", parsed_response["_response_info"]["status"]
+  end
+
   it "should default to the mainstream index" do
-    search_stub = stub(search: sample_results)
+    search_stub = stub(search: { "results" => sample_results })
     GdsApi::Rummager.expects(:new).with { |u| u.match /mainstream/ }.returns(search_stub)
     get "/search.json?q=something"
     assert last_response.ok?
   end
 
   it "should include proper URLs for each response" do
-    GdsApi::Rummager.any_instance.stubs(:search).returns(sample_results)
+    GdsApi::Rummager.any_instance.stubs(:search).returns("results" => sample_results)
     get "/search.json?q=government+info"
 
     assert last_response.ok?
@@ -88,18 +98,20 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should return a valid web_url for recommended-links (off-site links)" do
-    rummager_response = [
-      {
-        "title" => "EHIC - NHS Choices",
-        "description" => "Apply for a free European Health Insurance Card (EHIC) or renew your card for emergency healthcare in Europe",
-        "format" => "recommended-link",
-        "link" => "http://www.nhs.uk/ehic",
-        "indexable_content" => "ehic, e111, european health insurance card, european health card, travel abroad, travel insurance",
-        "es_score" => 3.3209536,
-        "highlight" => nil,
-        "presentation_format" => "recommended_link",
-        "humanized_format" => "Recommended links"}
-    ]
+    rummager_response = {
+      "results" => [
+        {
+          "title" => "EHIC - NHS Choices",
+          "description" => "Apply for a free European Health Insurance Card (EHIC) or renew your card for emergency healthcare in Europe",
+          "format" => "recommended-link",
+          "link" => "http://www.nhs.uk/ehic",
+          "indexable_content" => "ehic, e111, european health insurance card, european health card, travel abroad, travel insurance",
+          "es_score" => 3.3209536,
+          "highlight" => nil,
+          "presentation_format" => "recommended_link",
+          "humanized_format" => "Recommended links"}
+      ]
+    }
     GdsApi::Rummager.any_instance.stubs(:search).returns(rummager_response)
     get "/search.json?q=ehic"
 
@@ -108,18 +120,20 @@ class SearchRequestTest < GovUkContentApiTest
   end
 
   it "should omit id values for recommended-links (off-site links)" do
-    rummager_response = [
-      {
-        "title" => "EHIC - NHS Choices",
-        "description" => "Apply for a free European Health Insurance Card (EHIC) or renew your card for emergency healthcare in Europe",
-        "format" => "recommended-link",
-        "link" => "http://www.nhs.uk/ehic",
-        "indexable_content" => "ehic, e111, european health insurance card, european health card, travel abroad, travel insurance",
-        "es_score" => 3.3209536,
-        "highlight" => nil,
-        "presentation_format" => "recommended_link",
-        "humanized_format" => "Recommended links"}
-    ]
+    rummager_response = {
+      "results" => [
+        {
+          "title" => "EHIC - NHS Choices",
+          "description" => "Apply for a free European Health Insurance Card (EHIC) or renew your card for emergency healthcare in Europe",
+          "format" => "recommended-link",
+          "link" => "http://www.nhs.uk/ehic",
+          "indexable_content" => "ehic, e111, european health insurance card, european health card, travel abroad, travel insurance",
+          "es_score" => 3.3209536,
+          "highlight" => nil,
+          "presentation_format" => "recommended_link",
+          "humanized_format" => "Recommended links"}
+      ]
+    }
     GdsApi::Rummager.any_instance.stubs(:search).returns(rummager_response)
     get "/search.json?q=ehic"
 
