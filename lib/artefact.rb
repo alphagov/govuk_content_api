@@ -9,10 +9,6 @@ module ContentApiArtefactExtensions
     scope :live, where(state: 'live')
   end
 
-  def live_related_artefacts
-    artefacts = ordered_related_artefacts(related_artefacts.live)
-  end
-
   def live_tagged_related_artefacts
     groups = related_artefacts_grouped_by_distance(related_artefacts.live)
 
