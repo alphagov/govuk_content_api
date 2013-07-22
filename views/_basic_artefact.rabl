@@ -18,3 +18,7 @@ end
 node(:updated_at) { |artefact|
   presented_updated_date(artefact).iso8601
 }
+
+if root_object.group.present?
+  node(:group) { |artefact| artefact.group }
+end
