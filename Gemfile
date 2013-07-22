@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 source 'https://BnrJb6FZyzspBboNJzYZ@gem.fury.io/govuk/'
 
-gem 'unicorn', '~> 4.3.1'
+gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
 gem 'rabl', '0.6.14'
@@ -48,7 +48,6 @@ group :test do
 end
 
 group :development do
-  gem "shotgun"
-  # Use thin because WEBrick has a URL length limit of 1024, and shotgun doesn't support unicorn
-  gem "thin", "1.5.1"
+  # (Intelligent) reloading server in development
+  gem "mr-sparkle", "0.2.0"
 end
