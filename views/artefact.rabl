@@ -12,7 +12,7 @@ child @artefact => :details do
   extends "_fields"
 end
 
-child @artefact.tags => :tags do
+child @artefact.combined_tags => :tags do
   extends "_tag"
 end
 
