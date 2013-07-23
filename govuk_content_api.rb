@@ -559,6 +559,7 @@ class GovUkContentApi < Sinatra::Application
     travel_index = Artefact.find_by_slug("foreign-travel-advice")
     unless travel_index.nil?
       artefact.extra_related_artefacts = travel_index.live_tagged_related_artefacts
+      artefact.extra_tags = travel_index.tags
     end
   end
 

@@ -252,6 +252,45 @@ class TravelAdviceTest < GovUkContentApiTest
 
     end
 
+    describe "loading tags" do
+      it "should include tags from the travel advice index artefact" do
+        FactoryGirl.create(:tag, :tag_id => 'coastal-resorts', :title => 'Coastal resorts', :tag_type => 'section')
+        FactoryGirl.create(:tag, :tag_id => 'good-food', :title => 'Good food', :tag_type => 'section')
+
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                             :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['coastal-resorts'])
+        country_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice/aruba', :state => 'live',
+                                        :kind => 'travel-advice', :owning_app => 'travel-advice-publisher', sections: ['good-food'])
+        country_edition = FactoryGirl.create(:published_travel_advice_edition, :country_slug => "aruba")
+
+        get '/foreign-travel-advice/aruba.json'
+        assert last_response.ok?
+
+        tags = JSON.parse(last_response.body)["tags"]
+
+        assert_equal 2, tags.length
+        assert_equal ["Good food", "Coastal resorts"], tags.map {|t| t["title"] }
+      end
+
+      it "should not duplicate tags which appear on both the index and the country artefact" do
+        FactoryGirl.create(:tag, :tag_id => 'surfing', :title => 'Surfing', :tag_type => 'section')
+
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+                                             :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['surfing'])
+        country_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice/aruba', :state => 'live',
+                                        :kind => 'travel-advice', :owning_app => 'travel-advice-publisher', sections: ['surfing'])
+        country_edition = FactoryGirl.create(:published_travel_advice_edition, :country_slug => "aruba")
+
+        get '/foreign-travel-advice/aruba.json'
+        assert last_response.ok?
+
+        tags = JSON.parse(last_response.body)["tags"]
+
+        assert_equal 1, tags.length
+        assert_equal ["Surfing"], tags.map {|t| t["title"] }
+      end
+    end
+
     describe "loading assets from asset-manager" do
       it "should include image and document details if present" do
         artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
