@@ -12,9 +12,14 @@ class ResultSetPresenter
     end
   end
 
-  def initialize(result_set, result_presenter_class = DummyResultPresenter)
+  def initialize(result_set, create_result_presenter = DummyResultPresenter)
     @result_set = result_set
-    @result_presenter_class = result_presenter_class
+
+    if create_result_presenter.is_a? Class
+      @create_result_presenter = lambda { |x| create_result_presenter.new(x) }
+    else
+      @create_result_presenter = create_result_presenter
+    end
   end
 
   def present
@@ -27,7 +32,7 @@ class ResultSetPresenter
     end
 
     presented["results"] = @result_set.results.map do |result|
-      @result_presenter_class.new(result).present
+      @create_result_presenter.call(result).present
     end
 
     presented

@@ -39,22 +39,6 @@ module URLHelpers
     public_web_url("/browse/#{tag.tag_id}")
   end
 
-  def search_result_url(result)
-    if result['link'].start_with?("http")
-      nil
-    else
-      api_url(result['link']) + ".json"
-    end
-  end
-
-  def search_result_web_url(result)
-    if result['link'].start_with?("http")
-      result['link']
-    else
-      public_web_url(result['link'])
-    end
-  end
-
   def artefacts_url(page = nil)
     if page
       api_url("/artefacts.json?" + URI.encode_www_form(page: page))

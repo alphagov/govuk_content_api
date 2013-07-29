@@ -48,6 +48,22 @@ describe ResultSetPresenter do
       expects(:present).returns("Hello!")
     end
     mock_presenter_class = mock("result presenter class")
+    mock_presenter_class.expects(:is_a?).with(Class).returns(true)
+    mock_presenter_class.expects(:new).with(:foo).returns(mock_presenter)
+    result_set = mock_result_set([:foo])
+
+    presenter = ResultSetPresenter.new(result_set, mock_presenter_class)
+    presented = presenter.present
+
+    assert_equal ["Hello!"], presented["results"]
+  end
+
+  it "should use a custom presenter callable" do
+    mock_presenter = mock("result presenter") do
+      expects(:present).returns("Hello!")
+    end
+    mock_presenter_class = mock("result presenter class")
+    mock_presenter_class.expects(:is_a?).with(Class).returns(true)
     mock_presenter_class.expects(:new).with(:foo).returns(mock_presenter)
     result_set = mock_result_set([:foo])
 

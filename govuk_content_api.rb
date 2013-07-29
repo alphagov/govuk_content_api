@@ -15,6 +15,10 @@ require 'pagination'
 require 'tag_types'
 require 'ostruct'
 
+require "url_helper"
+require "presenters/result_set_presenter"
+require "presenters/search_result_presenter"
+
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
@@ -32,6 +36,10 @@ class GovUkContentApi < Sinatra::Application
 
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
+
+  def url_helper
+    URLHelper.new(self, Plek.current.website_root, env['HTTP_API_PREFIX'])
+  end
 
   def known_tag_types
     @known_tag_types ||= TagTypes.new(Artefact.tag_types)
@@ -103,7 +111,13 @@ class GovUkContentApi < Sinatra::Application
         @results = client.search(params[:q])["results"]
       end
 
-      render :rabl, :search, format: "json"
+      result_set = FakePaginatedResultSet.new(@results)
+      present_result = lambda do |result|
+        SearchResultPresenter.new(result, url_helper)
+      end
+      presenter = ResultSetPresenter.new(result_set, present_result)
+
+      presenter.present.to_json
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
       statsd.increment('request.search.unavailable')
       halt 503, render(:rabl, :unavailable, format: "json")
