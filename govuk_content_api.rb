@@ -18,6 +18,7 @@ require 'ostruct'
 require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/search_result_presenter"
+require "presenters/local_authority_presenter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -81,9 +82,13 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
-    @result_set = FakePaginatedResultSet.new(@local_authorities)
+    result_set = FakePaginatedResultSet.new(@local_authorities)
+    present_result = lambda do |result|
+      LocalAuthorityPresenter.new(result, url_helper)
+    end
+    presenter = ResultSetPresenter.new(result_set, present_result)
 
-    render :rabl, :local_authorities, format: "json"
+    presenter.present.to_json
   end
 
   get "/local_authorities/:snac.json" do
