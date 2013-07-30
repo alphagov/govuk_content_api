@@ -72,4 +72,16 @@ describe ResultSetPresenter do
 
     assert_equal ["Hello!"], presented["results"]
   end
+
+  it "should include a description when given" do
+    results = (1..5).map do |n| { "n" => n, "title" => "Result #{n}" } end
+    result_set = mock_result_set(results)
+
+    presented = ResultSetPresenter.new(
+      result_set,
+      nil,
+      description: "Stuff"
+    ).present
+    assert_equal "Stuff", presented["description"]
+  end
 end

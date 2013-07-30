@@ -20,6 +20,14 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "not found", last_response
   end
 
+  it "should include a description" do
+    get "/local_authorities.json?name=something+something+authorities"
+    parsed_response = JSON.parse(last_response.body)
+
+    # It's not important to the test exactly what this is, but it should exist
+    assert_equal "Local Authorities", parsed_response["description"]
+  end
+
   it "should return an empty result set if LocalAuthority with the provided name not found" do
     get "/local_authorities.json?name=Somewhere%20over%20the%20rainbow"
     parsed_response = JSON.parse(last_response.body)

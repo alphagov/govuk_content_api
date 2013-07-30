@@ -86,7 +86,11 @@ class GovUkContentApi < Sinatra::Application
     present_result = lambda do |result|
       LocalAuthorityPresenter.new(result, url_helper)
     end
-    presenter = ResultSetPresenter.new(result_set, present_result)
+    presenter = ResultSetPresenter.new(
+      result_set,
+      present_result,
+      description: "Local Authorities"
+    )
 
     presenter.present.to_json
   end
