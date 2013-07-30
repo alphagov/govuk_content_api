@@ -34,6 +34,15 @@ class GovUkContentApi < Sinatra::Application
   DEFAULT_CACHE_TIME = 15.minutes.to_i
   LONG_CACHE_TIME = 1.hour.to_i
 
+  ERROR_CODES = {
+    401 => "unauthorised",
+    403 => "forbidden",
+    404 => "not found",
+    410 => "gone",
+    422 => "unprocessable",
+    503 => "unavailable"
+  }
+
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
 
@@ -119,8 +128,7 @@ class GovUkContentApi < Sinatra::Application
 
       presenter.present.to_json
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
-      statsd.increment('request.search.unavailable')
-      halt 503, render(:rabl, :unavailable, format: "json")
+      custom_503
     end
   end
 
@@ -615,19 +623,26 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def custom_404
-    statsd.increment("#{@statsd_scope}.error.404")
-    halt 404, render(:rabl, :not_found, format: "json")
+    custom_error 404, "Resource not found"
   end
 
   def custom_410
-    statsd.increment("#{@statsd_scope}.error.410")
-    halt 410, render(:rabl, :gone, format: "json")
+    custom_error 410, "This item is no longer available"
+  end
+
+  def custom_503
+    custom_error 503, "A necessary backend process was unavailable. Please try again soon."
   end
 
   def custom_error(code, message)
-    @status = message
     statsd.increment("#{@statsd_scope}.error.#{code}")
-    halt code, render(:rabl, :error, format: "json")
+    error_hash = {
+      "_response_info" => {
+        "status" => ERROR_CODES.fetch(code),
+        "status_message" => message
+      }
+    }
+    halt code, error_hash.to_json
   end
 
   def render(*args)
