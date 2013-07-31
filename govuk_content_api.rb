@@ -104,7 +104,11 @@ class GovUkContentApi < Sinatra::Application
     end
 
     if @local_authority
-      render :rabl, :local_authority, format: "json"
+      authority_presenter = LocalAuthorityPresenter.new(
+        @local_authority,
+        url_helper
+      )
+      SingleResultPresenter.new(authority_presenter).present.to_json
     else
       custom_404
     end
