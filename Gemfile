@@ -42,6 +42,7 @@ group :test do
   gem 'simplecov', '0.6.4'
   gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '3.4.0'
+  gem 'turn', require: false
   gem 'ci_reporter', '1.7.0'
   gem 'webmock', '~> 1.8', require: false
   gem 'timecop', '0.5.9.2'

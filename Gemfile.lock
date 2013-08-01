@@ -31,6 +31,7 @@ GEM
       i18n (~> 0.6)
       multi_json (~> 1.0)
     addressable (2.3.2)
+    ansi (1.4.3)
     arel (3.0.2)
     aws-ses (0.4.4)
       builder
@@ -211,6 +212,8 @@ GEM
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
+    turn (0.9.6)
+      ansi
     tzinfo (0.3.35)
     unicorn (4.6.2)
       kgio (~> 2.6)
@@ -254,6 +257,7 @@ DEPENDENCIES
   sinatra (= 1.3.2)
   statsd-ruby (= 1.0.0)
   timecop (= 0.5.9.2)
+  turn
   unicorn (= 4.6.2)
   webmock (~> 1.8)
   yajl-ruby
