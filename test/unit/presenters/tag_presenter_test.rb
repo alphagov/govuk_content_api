@@ -57,9 +57,9 @@ describe TagPresenter do
     )
   end
 
-  it "should not include a parent key if there is no parent" do
+  it "should include a parent key if there is no parent" do
     presenter = TagPresenter.new(mock_tag_without_parent, stub_everything)
-    refute presenter.present.include? "parent"
+    assert_nil presenter.present.fetch("parent")
   end
 
   it "should instantiate a presenter for the tag's parent" do

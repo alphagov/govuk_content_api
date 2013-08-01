@@ -23,6 +23,8 @@ class TagPresenter
 
     if @tag.parent
       presented["parent"] = TagPresenter.new(@tag.parent, @url_helper).present
+    else
+      presented["parent"] = nil
     end
 
     presented
