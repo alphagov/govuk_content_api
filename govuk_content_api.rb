@@ -292,7 +292,8 @@ class GovUkContentApi < Sinatra::Application
 
     @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
     if @tag
-      render :rabl, :tag, format: "json"
+      tag_presenter = TagPresenter.new(@tag, url_helper)
+      SingleResultPresenter.new(tag_presenter).present.to_json
     else
       custom_404
     end
