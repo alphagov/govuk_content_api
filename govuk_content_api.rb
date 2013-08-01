@@ -19,6 +19,7 @@ require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/search_result_presenter"
 require "presenters/local_authority_presenter"
+require "presenters/tag_presenter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -194,7 +195,17 @@ class GovUkContentApi < Sinatra::Application
       @result_set = FakePaginatedResultSet.new(tags_scope)
     end
 
-    render :rabl, :tags, format: "json"
+    present_result = lambda do |result|
+      TagPresenter.new(result, url_helper)
+    end
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      present_result,
+      # This is replicating the existing behaviour from the RABL implementation
+      # TODO: make this actually describe the results
+      description: "All tags"
+    )
+    presenter.present.to_json
   end
 
   get "/tag_types.json" do
@@ -259,7 +270,18 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = FakePaginatedResultSet.new(tags)
-    render :rabl, :tags, format: "json"
+
+    present_result = lambda do |result|
+      TagPresenter.new(result, url_helper)
+    end
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      present_result,
+      # This description replicates the existing behaviour from RABL
+      # TODO: make the description describe the results in all cases
+      description: "All '#{@tag_type_name}' tags"
+    )
+    presenter.present.to_json
   end
 
   get "/tags/:tag_type/:tag_id.json" do

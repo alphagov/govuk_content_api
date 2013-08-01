@@ -5,6 +5,7 @@ require "pagination"
 describe ResultSetPresenter do
   def mock_result_set(results)
     mock("result set") do
+      expects(:links).returns([])
       expects(:total).returns(results.count)
       expects(:start_index).returns(1)
       expects(:pages).returns(1)
@@ -20,7 +21,10 @@ describe ResultSetPresenter do
 
     presented = ResultSetPresenter.new(result_set).present
 
-    assert_equal({ "status" => "ok" }, presented["_response_info"])
+    assert_equal(
+      { "status" => "ok", "links" => [] },
+      presented["_response_info"]
+    )
     assert_equal 5, presented["total"]
     assert_equal 1, presented["start_index"]
     assert_equal 1, presented["pages"]

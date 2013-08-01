@@ -30,7 +30,10 @@ class ResultSetPresenter
 
   def present
     presented = {
-      "_response_info" => { "status" => "ok" }
+      "_response_info" => {
+        "status" => "ok",
+        "links" => links
+      }
     }
 
     presented["description"] = @description if @description
@@ -44,5 +47,12 @@ class ResultSetPresenter
     end
 
     presented
+  end
+
+private
+  def links
+    @result_set.links.map do |link|
+      { "href" => link.href }.merge(link.attrs)
+    end
   end
 end
