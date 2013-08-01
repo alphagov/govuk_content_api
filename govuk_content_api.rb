@@ -20,6 +20,7 @@ require "presenters/result_set_presenter"
 require "presenters/search_result_presenter"
 require "presenters/local_authority_presenter"
 require "presenters/tag_presenter"
+require "presenters/basic_artefact_presenter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -49,7 +50,16 @@ class GovUkContentApi < Sinatra::Application
   set :show_exceptions, false
 
   def url_helper
-    URLHelper.new(self, Plek.current.website_root, env['HTTP_API_PREFIX'])
+    parameters = [self, Plek.current.website_root, env['HTTP_API_PREFIX']]
+
+    # When running in development mode we may want the URL for the item
+    # as served directly by the app that provides it. We can trigger this by
+    # providing the current Plek instance to the URL helper.
+    unless ["production", "test"].include?(ENV["RACK_ENV"])
+      parameters << Plek.current
+    end
+
+    URLHelper.new(*parameters)
   end
 
   def known_tag_types
@@ -409,7 +419,14 @@ class GovUkContentApi < Sinatra::Application
       @result_set = FakePaginatedResultSet.new(artefacts)
     end
 
-    render :rabl, :artefacts, format: "json"
+    present_result = lambda do |result|
+      BasicArtefactPresenter.new(result, url_helper)
+    end
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      present_result
+    )
+    presenter.present.to_json
   end
 
   get "/*.json" do |id|
