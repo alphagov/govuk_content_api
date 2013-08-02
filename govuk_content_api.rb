@@ -20,6 +20,7 @@ require "presenters/result_set_presenter"
 require "presenters/search_result_presenter"
 require "presenters/local_authority_presenter"
 require "presenters/tag_presenter"
+require "presenters/tag_type_presenter"
 require "presenters/basic_artefact_presenter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -216,15 +217,13 @@ class GovUkContentApi < Sinatra::Application
   get "/tag_types.json" do
     expires LONG_CACHE_TIME
 
-    tag_types = known_tag_types.map { |tag_type|
-      OpenStruct.new(
-        id: tag_type_url(tag_type),
-        type: tag_type.singular,
-        total: Tag.where(tag_type: tag_type.singular).count
-      )
-    }
-    @result_set = FakePaginatedResultSet.new(tag_types)
-    render :rabl, :tag_types, format: "json"
+    presenter = ResultSetPresenter.new(
+      FakePaginatedResultSet.new(known_tag_types),
+      url_helper,
+      TagTypePresenter,
+      description: "All tag types"
+    )
+    presenter.present.to_json
   end
 
   get "/tags/:tag_type_or_id.json" do

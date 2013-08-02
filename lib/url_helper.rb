@@ -22,6 +22,10 @@ class URLHelper
     @website_root + path
   end
 
+  def tag_type_url(tag_type)
+    api_url("/tags/#{CGI.escape(plural_tag_type(tag_type))}.json")
+  end
+
   def tag_url(tag)
     plural = plural_tag_type(tag.tag_type)
     api_url("/tags/#{CGI.escape(plural)}/#{CGI.escape(tag.tag_id)}.json")
