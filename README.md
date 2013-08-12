@@ -50,7 +50,7 @@ In the signonotron2 directory, run:
 rake applications:create name=contentapi description="content api" home_uri="http://contentapi.dev" redirect_uri="http://contentapi.dev/auth/gds/callback"
 ```
 
-The provided OAuth tokens should be places into the CONTENTAPI_OAUTH_ID and CONTENTAPI_OAUTH_SECRET environment variables
+The provided OAuth tokens should be placed into the CONTENTAPI_OAUTH_ID and CONTENTAPI_OAUTH_SECRET environment variables
 
 You can then create an API user in the signonotron2 application. 
 
