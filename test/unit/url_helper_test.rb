@@ -33,4 +33,52 @@ describe URLHelper do
     helper = URLHelper.new(mock_app, "http://example.com", nil)
     assert_equal "http://example.com/foobang", helper.public_web_url("/foobang")
   end
+
+  describe "with_tag URLs" do
+    DummyTag = Struct.new(:tag_id, :tag_type)
+
+    class MockApp
+      def self.url(u)
+        u
+      end
+    end
+
+    it "works for a single tag" do
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+      tag = DummyTag.new("crime", "section")
+      assert_equal "/with_tag.json?section=crime", helper.with_tag_url(tag)
+    end
+
+    it "works for tags of multiple types" do
+      tags = [
+        DummyTag.new("crime", "section"),
+        DummyTag.new("onions", "keyword"),
+      ]
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+      assert_equal(
+        "/with_tag.json?keyword=onions&section=crime",
+        helper.with_tag_url(tags)
+      )
+    end
+
+    it "doesn't support multiple tags of the same type" do
+      # Well, not yet, at least
+      tags = [
+        DummyTag.new("crime", "section"),
+        DummyTag.new("batman", "section"),
+      ]
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+      assert_raises ArgumentError do helper.with_tag_url(tags) end
+    end
+
+    it "accepts parameters" do
+      tag = DummyTag.new("crime", "section")
+      params = { sort: "curated", include_children: 1 }
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+      assert_equal(
+        "/with_tag.json?section=crime&include_children=1&sort=curated",
+        helper.with_tag_url(tag, params)
+      )
+    end
+  end
 end

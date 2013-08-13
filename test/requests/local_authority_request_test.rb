@@ -1,8 +1,6 @@
 require "test_helper"
 
 class LocalAuthorityRequestTest < GovUkContentApiTest
-  include URLHelpers
-
   it "should return 404 if no snac code is provided" do
     get "/local_authorities/"
     assert last_response.not_found?

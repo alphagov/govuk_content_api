@@ -22,6 +22,14 @@ class URLHelper
     @website_root + path
   end
 
+  def tags_url(params = {}, page = nil)
+    sorted_params = Hash[params.sort]
+    url_params = page ? sorted_params.merge(page: page) : sorted_options
+    # Not using activesupport's to_query here, because we want to control the
+    # order of parameters, specifically so that page comes last.
+    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
+  end
+
   def tag_type_url(tag_type)
     api_url("/tags/#{CGI.escape(plural_tag_type(tag_type))}.json")
   end
@@ -50,6 +58,14 @@ class URLHelper
 
   def with_tag_web_url(tag)
     public_web_url("/browse/#{tag.tag_id}")
+  end
+
+  def artefacts_url(page = nil)
+    if page
+      api_url("/artefacts.json?" + URI.encode_www_form(page: page))
+    else
+      api_url("/artefacts.json")
+    end
   end
 
   def artefact_url(artefact)
