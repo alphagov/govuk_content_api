@@ -26,6 +26,7 @@ require "presenters/basic_artefact_presenter"
 require "presenters/minimal_artefact_presenter"
 require "presenters/artefact_presenter"
 require "presenters/travel_advice_index_presenter"
+require "presenters/business_support_scheme_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -399,7 +400,13 @@ class GovUkContentApi < Sinatra::Application
         artefact
       end
     end
-    render :rabl, :business_support_schemes, format: "json"
+
+    presenter = ResultSetPresenter.new(
+      FakePaginatedResultSet.new(@results),
+      url_helper,
+      BusinessSupportSchemePresenter
+    )
+    presenter.present.to_json
   end
 
   get "/artefacts.json" do
