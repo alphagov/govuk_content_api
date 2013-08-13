@@ -1,5 +1,4 @@
 require 'sinatra'
-require 'rabl'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
@@ -35,7 +34,6 @@ require "govspeak_formatter"
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
 require 'config/kaminari'
-require 'config/rabl'
 require 'country'
 
 class GovUkContentApi < Sinatra::Application
@@ -223,7 +221,7 @@ class GovUkContentApi < Sinatra::Application
       @result_set,
       url_helper,
       TagPresenter,
-      # This is replicating the existing behaviour from the RABL implementation
+      # This is replicating the existing behaviour from the old implementation
       # TODO: make this actually describe the results
       description: "All tags"
     )
@@ -295,7 +293,7 @@ class GovUkContentApi < Sinatra::Application
       @result_set,
       url_helper,
       TagPresenter,
-      # This description replicates the existing behaviour from RABL
+      # This description replicates the existing behaviour from the old version
       # TODO: make the description describe the results in all cases
       description: "All '#{@tag_type_name}' tags"
     )

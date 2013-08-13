@@ -4,7 +4,6 @@ source 'https://BnrJb6FZyzspBboNJzYZ@gem.fury.io/govuk/'
 gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
-gem 'rabl', '0.6.14'
 gem 'statsd-ruby', '1.0.0'
 gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 
