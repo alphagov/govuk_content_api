@@ -2,7 +2,6 @@ require 'sinatra'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
-require 'content_format_helpers'
 require 'gds_api/helpers'
 require 'gds_api/rummager'
 require_relative "config"
@@ -35,7 +34,7 @@ require 'config/kaminari'
 require 'country'
 
 class GovUkContentApi < Sinatra::Application
-  helpers GdsApi::Helpers, ContentFormatHelpers
+  helpers GdsApi::Helpers
 
   include Pagination
 
