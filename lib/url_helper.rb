@@ -1,6 +1,27 @@
-require "cgi"
+class URLHelper
+  def initialize(app, website_root, api_prefix, app_lookup = nil)
+    # A non-nil value for `app_lookup` implies we want to use app URLs as the
+    # web URLs, rather than the `www` host. This is generally development only.
 
-module URLHelpers
+    @website_root = website_root
+    @api_prefix = api_prefix
+    @app = app
+
+    @app_lookup = app_lookup
+  end
+
+  def api_url(uri)
+    if @api_prefix && @api_prefix != ''
+      public_web_url("/#{@api_prefix}#{uri}")
+    else
+      @app.url(uri)
+    end
+  end
+
+  def public_web_url(path = '')
+    @website_root + path
+  end
+
   def tags_url(params = {}, page = nil)
     sorted_params = Hash[params.sort]
     url_params = page ? sorted_params.merge(page: page) : sorted_options
@@ -39,22 +60,6 @@ module URLHelpers
     public_web_url("/browse/#{tag.tag_id}")
   end
 
-  def search_result_url(result)
-    if result['link'].start_with?("http")
-      nil
-    else
-      api_url(result['link']) + ".json"
-    end
-  end
-
-  def search_result_web_url(result)
-    if result['link'].start_with?("http")
-      result['link']
-    else
-      public_web_url(result['link'])
-    end
-  end
-
   def artefacts_url(page = nil)
     if page
       api_url("/artefacts.json?" + URI.encode_www_form(page: page))
@@ -71,53 +76,21 @@ module URLHelpers
     "#{base_web_url(artefact)}/#{artefact.slug}"
   end
 
-  def artefact_part_web_url(artefact, part)
-    "#{artefact_web_url(artefact)}/#{part.slug}"
-  end
-
-  def api_url(uri)
-    if env['HTTP_API_PREFIX'] && env['HTTP_API_PREFIX'] != ''
-      public_web_url("/#{env['HTTP_API_PREFIX']}#{uri}")
-    else
-      url(uri)
-    end
-  end
-
-  def public_web_url(path = '')
-    Plek.current.website_root + path
-  end
-
-  # When running in development mode we may want the URL for the item
-  # as served directly by the app that provides it. This method applies
-  # that switch
-  def base_web_url(artefact)
-    if ["production", "test"].include?(ENV["RACK_ENV"])
-      public_web_url
-    else
-      Plek.current.find(artefact.rendering_app || artefact.owning_app)
-    end
-  end
-
-  def local_authority_url(authority)
-    api_url("/local_authorities/#{CGI.escape(authority.snac)}.json")
-  end
-
-  def country_url(country)
-    api_url("/" + CGI.escape("foreign-travel-advice/#{country.slug}.json") )
-  end
-
-  def country_web_url(country)
-    public_web_url "/foreign-travel-advice/#{country.slug}"
-  end
-
 private
-
   def plural_tag_type(tag_type)
     if tag_type.respond_to? :plural
       plural_tag_type = tag_type.plural
     else
       # Fall back on the inflector if we have to
       plural_tag_type = tag_type.pluralize
+    end
+  end
+
+  def base_web_url(artefact)
+    if @app_lookup
+      @app_lookup.find(artefact.rendering_app || artefact.owning_app)
+    else
+      public_web_url
     end
   end
 end

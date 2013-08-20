@@ -1,8 +1,6 @@
 require "test_helper"
 
 class LocalAuthorityRequestTest < GovUkContentApiTest
-  include URLHelpers
-
   it "should return 404 if no snac code is provided" do
     get "/local_authorities/"
     assert last_response.not_found?
@@ -18,6 +16,14 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     get "/local_authorities/gobble_de_gook.json"
     assert last_response.not_found?
     assert_status_field "not found", last_response
+  end
+
+  it "should include a description" do
+    get "/local_authorities.json?name=something+something+authorities"
+    parsed_response = JSON.parse(last_response.body)
+
+    # It's not important to the test exactly what this is, but it should exist
+    assert_equal "Local Authorities", parsed_response["description"]
   end
 
   it "should return an empty result set if LocalAuthority with the provided name not found" do

@@ -64,7 +64,11 @@ class SearchRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert_equal 422, last_response.status
-    assert_equal "Non-empty querystring is required in the 'q' parameter", parsed_response["_response_info"]["status"]
+    assert_status_field "unprocessable", last_response
+    assert_status_message(
+      "Non-empty querystring is required in the 'q' parameter",
+      last_response
+    )
   end
 
   it "should default to the mainstream index" do
