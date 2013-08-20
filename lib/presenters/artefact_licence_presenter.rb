@@ -1,3 +1,5 @@
+# Present a licence as retrieved from the licensing API and attached to an
+# artefact (see the `attach_license_data` method in `govuk_content_api.rb`)
 class ArtefactLicencePresenter
   def initialize(licence)
     @licence = licence

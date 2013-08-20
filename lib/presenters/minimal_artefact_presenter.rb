@@ -1,3 +1,8 @@
+# Presenter showing the minimum information to identify an artefact.
+#
+# This notably doesn't access any edition information, so we can safely use it
+# in the artefact list where we don't want to look up any extra information
+# across collections.
 class MinimalArtefactPresenter
   def initialize(artefact, url_helper)
     @artefact = artefact

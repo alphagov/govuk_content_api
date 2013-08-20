@@ -1,5 +1,9 @@
 require "presenters/minimal_artefact_presenter"
 
+# Common base presenter for artefacts, including some edition-related
+# information such as update dates.
+#
+# Also presents the `group` field for grouping related artefacts together.
 class BasicArtefactPresenter
   def initialize(artefact, url_helper)
     @artefact = artefact

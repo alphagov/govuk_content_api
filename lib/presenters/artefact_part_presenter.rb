@@ -1,3 +1,5 @@
+# Present an individual part of a parted edition (one that responds to the
+# `order_parts` method; for example, guide editions).
 class ArtefactPartPresenter
   def initialize(artefact, part, url_helper, govspeak_formatter)
     @artefact = artefact
