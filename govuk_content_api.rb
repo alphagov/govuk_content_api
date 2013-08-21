@@ -11,6 +11,8 @@ require 'pagination'
 require 'tag_types'
 require 'ostruct'
 
+require "yajl"
+
 require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/single_result_presenter"
@@ -112,7 +114,7 @@ class GovUkContentApi < Sinatra::Application
       description: "Local Authorities"
     )
 
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/local_authorities/:snac.json" do
@@ -128,7 +130,7 @@ class GovUkContentApi < Sinatra::Application
         @local_authority,
         url_helper
       )
-      SingleResultPresenter.new(authority_presenter).present.to_json
+      json_encode(SingleResultPresenter.new(authority_presenter).present)
     else
       custom_404
     end
@@ -159,7 +161,7 @@ class GovUkContentApi < Sinatra::Application
         SearchResultPresenter
       )
 
-      presenter.present.to_json
+      json_encode(presenter.present)
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
       custom_503
     end
@@ -222,7 +224,7 @@ class GovUkContentApi < Sinatra::Application
       # TODO: make this actually describe the results
       description: "All tags"
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/tag_types.json" do
@@ -234,7 +236,7 @@ class GovUkContentApi < Sinatra::Application
       TagTypePresenter,
       description: "All tag types"
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/tags/:tag_type_or_id.json" do
@@ -294,7 +296,7 @@ class GovUkContentApi < Sinatra::Application
       # TODO: make the description describe the results in all cases
       description: "All '#{@tag_type_name}' tags"
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/tags/:tag_type/:tag_id.json" do
@@ -306,7 +308,7 @@ class GovUkContentApi < Sinatra::Application
     @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
     if @tag
       tag_presenter = TagPresenter.new(@tag, url_helper)
-      SingleResultPresenter.new(tag_presenter).present.to_json
+      json_encode(SingleResultPresenter.new(tag_presenter).present)
     else
       custom_404
     end
@@ -377,7 +379,7 @@ class GovUkContentApi < Sinatra::Application
       description: @description
     )
 
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/licences.json" do
@@ -396,7 +398,7 @@ class GovUkContentApi < Sinatra::Application
       LicencePresenter,
       description: "Licences"
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/business_support_schemes.json" do
@@ -415,7 +417,7 @@ class GovUkContentApi < Sinatra::Application
       url_helper,
       BusinessSupportSchemePresenter
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/artefacts.json" do
@@ -447,7 +449,7 @@ class GovUkContentApi < Sinatra::Application
       url_helper,
       MinimalArtefactPresenter
     )
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   get "/*.json" do |id|
@@ -477,7 +479,7 @@ class GovUkContentApi < Sinatra::Application
           govspeak_formatter
         )
       )
-      return presenter.present.to_json
+      return json_encode(presenter.present)
     end
 
     if @artefact.owning_app == 'publisher'
@@ -490,7 +492,7 @@ class GovUkContentApi < Sinatra::Application
       ArtefactPresenter.new(@artefact, url_helper, govspeak_formatter)
     )
 
-    presenter.present.to_json
+    json_encode(presenter.present)
   end
 
   protected
@@ -747,13 +749,17 @@ class GovUkContentApi < Sinatra::Application
         "status_message" => message
       }
     }
-    halt code, error_hash.to_json
+    halt code, json_encode(error_hash)
   end
 
   def render(*args)
     statsd.time("#{@statsd_scope}.render") do
       super
     end
+  end
+
+  def json_encode(obj)
+    Yajl.dump(obj)
   end
 
   def verify_unpublished_permission
