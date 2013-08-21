@@ -376,7 +376,8 @@ class ArtefactRequestTest < GovUkContentApiTest
       it "should return 401 if using edition parameter, not authenticated" do
         get "/#{@artefact.slug}.json?edition=anything"
         assert_equal 401, last_response.status
-        assert_status_field "Edition parameter requires authentication", last_response
+        assert_status_field "unauthorised", last_response
+        assert_status_message "Edition parameter requires authentication", last_response
       end
 
       it "should return 403 if using edition parameter, authenticated but lacking permission" do
@@ -384,7 +385,8 @@ class ArtefactRequestTest < GovUkContentApiTest
         Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => []))
         get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_without_permission
         assert_equal 403, last_response.status
-        assert_status_field "You must be authorized to use the edition parameter", last_response
+        assert_status_field "forbidden", last_response
+        assert_status_message "You must be authorized to use the edition parameter", last_response
       end
 
       describe "user has permission" do

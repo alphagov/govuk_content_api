@@ -1,11 +1,7 @@
 require 'sinatra'
-require 'rabl'
 require 'mongoid'
 require 'govspeak'
 require 'plek'
-require 'url_helpers'
-require 'content_format_helpers'
-require 'timestamp_helpers'
 require 'gds_api/helpers'
 require 'gds_api/rummager'
 require_relative "config"
@@ -15,23 +11,68 @@ require 'pagination'
 require 'tag_types'
 require 'ostruct'
 
+require "url_helper"
+require "presenters/result_set_presenter"
+require "presenters/single_result_presenter"
+require "presenters/search_result_presenter"
+require "presenters/local_authority_presenter"
+require "presenters/tag_presenter"
+require "presenters/tag_type_presenter"
+require "presenters/basic_artefact_presenter"
+require "presenters/minimal_artefact_presenter"
+require "presenters/artefact_presenter"
+require "presenters/travel_advice_index_presenter"
+require "presenters/business_support_scheme_presenter"
+require "presenters/licence_presenter"
+require "presenters/tagged_artefact_presenter"
+require "govspeak_formatter"
+
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
 require 'artefact'
 require 'config/kaminari'
-require 'config/rabl'
 require 'country'
 
 class GovUkContentApi < Sinatra::Application
-  helpers URLHelpers, GdsApi::Helpers, ContentFormatHelpers, TimestampHelpers
+  helpers GdsApi::Helpers
 
   include Pagination
 
   DEFAULT_CACHE_TIME = 15.minutes.to_i
   LONG_CACHE_TIME = 1.hour.to_i
 
+  ERROR_CODES = {
+    401 => "unauthorised",
+    403 => "forbidden",
+    404 => "not found",
+    410 => "gone",
+    422 => "unprocessable",
+    503 => "unavailable"
+  }
+
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
+
+  def url_helper
+    parameters = [self, Plek.current.website_root, env['HTTP_API_PREFIX']]
+
+    # When running in development mode we may want the URL for the item
+    # as served directly by the app that provides it. We can trigger this by
+    # providing the current Plek instance to the URL helper.
+    unless ["production", "test"].include?(ENV["RACK_ENV"])
+      parameters << Plek.current
+    end
+
+    URLHelper.new(*parameters)
+  end
+
+  def govspeak_formatter
+    if params[:content_format] == "govspeak"
+      GovspeakFormatter.new(:govspeak, fact_cave_api)
+    else
+      GovspeakFormatter.new(:html, fact_cave_api)
+    end
+  end
 
   def known_tag_types
     @known_tag_types ||= TagTypes.new(Artefact.tag_types)
@@ -64,9 +105,14 @@ class GovUkContentApi < Sinatra::Application
       custom_404
     end
 
-    @result_set = FakePaginatedResultSet.new(@local_authorities)
+    presenter = ResultSetPresenter.new(
+      FakePaginatedResultSet.new(@local_authorities),
+      url_helper,
+      LocalAuthorityPresenter,
+      description: "Local Authorities"
+    )
 
-    render :rabl, :local_authorities, format: "json"
+    presenter.present.to_json
   end
 
   get "/local_authorities/:snac.json" do
@@ -78,7 +124,11 @@ class GovUkContentApi < Sinatra::Application
     end
 
     if @local_authority
-      render :rabl, :local_authority, format: "json"
+      authority_presenter = LocalAuthorityPresenter.new(
+        @local_authority,
+        url_helper
+      )
+      SingleResultPresenter.new(authority_presenter).present.to_json
     else
       custom_404
     end
@@ -103,10 +153,15 @@ class GovUkContentApi < Sinatra::Application
         @results = client.search(params[:q])["results"]
       end
 
-      render :rabl, :search, format: "json"
+      presenter = ResultSetPresenter.new(
+        FakePaginatedResultSet.new(@results),
+        url_helper,
+        SearchResultPresenter
+      )
+
+      presenter.present.to_json
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
-      statsd.increment('request.search.unavailable')
-      halt 503, render(:rabl, :unavailable, format: "json")
+      custom_503
     end
   end
 
@@ -148,7 +203,7 @@ class GovUkContentApi < Sinatra::Application
 
       @result_set = PaginatedResultSet.new(paginated_tags)
       @result_set.populate_page_links { |page_number|
-        tags_url(allowed_params, page_number)
+        url_helper.tags_url(allowed_params, page_number)
       }
 
       headers "Link" => LinkHeader.new(@result_set.links).to_s
@@ -159,21 +214,27 @@ class GovUkContentApi < Sinatra::Application
       @result_set = FakePaginatedResultSet.new(tags_scope)
     end
 
-    render :rabl, :tags, format: "json"
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      url_helper,
+      TagPresenter,
+      # This is replicating the existing behaviour from the old implementation
+      # TODO: make this actually describe the results
+      description: "All tags"
+    )
+    presenter.present.to_json
   end
 
   get "/tag_types.json" do
     expires LONG_CACHE_TIME
 
-    tag_types = known_tag_types.map { |tag_type|
-      OpenStruct.new(
-        id: tag_type_url(tag_type),
-        type: tag_type.singular,
-        total: Tag.where(tag_type: tag_type.singular).count
-      )
-    }
-    @result_set = FakePaginatedResultSet.new(tag_types)
-    render :rabl, :tag_types, format: "json"
+    presenter = ResultSetPresenter.new(
+      FakePaginatedResultSet.new(known_tag_types),
+      url_helper,
+      TagTypePresenter,
+      description: "All tag types"
+    )
+    presenter.present.to_json
   end
 
   get "/tags/:tag_type_or_id.json" do
@@ -190,14 +251,14 @@ class GovUkContentApi < Sinatra::Application
       # Redirect from a singular tag type to its plural
       # e.g. /tags/section.json => /tags/sections.json
       tag_type = known_tag_types.from_singular(params[:tag_type_or_id])
-      redirect(tag_type_url(tag_type)) if tag_type
+      redirect(url_helper.tag_type_url(tag_type)) if tag_type
 
       # Tags used to be accessed through /tags/tag_id.json, so we check here
       # whether one exists to avoid breaking the Web. We only check for section
       # tags, as at the time of change sections were the only tag type in use
       # in production
       section = Tag.by_tag_id(params[:tag_type_or_id], "section")
-      redirect(tag_url(section)) if section
+      redirect(url_helper.tag_url(section)) if section
 
       custom_404
     end
@@ -224,7 +285,16 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = FakePaginatedResultSet.new(tags)
-    render :rabl, :tags, format: "json"
+
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      url_helper,
+      TagPresenter,
+      # This description replicates the existing behaviour from the old version
+      # TODO: make the description describe the results in all cases
+      description: "All '#{@tag_type_name}' tags"
+    )
+    presenter.present.to_json
   end
 
   get "/tags/:tag_type/:tag_id.json" do
@@ -235,7 +305,8 @@ class GovUkContentApi < Sinatra::Application
 
     @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
     if @tag
-      render :rabl, :tag, format: "json"
+      tag_presenter = TagPresenter.new(@tag, url_helper)
+      SingleResultPresenter.new(tag_presenter).present.to_json
     else
       custom_404
     end
@@ -266,7 +337,7 @@ class GovUkContentApi < Sinatra::Application
       possible_tags = Tag.where(tag_id: params[:tag]).to_a
       if possible_tags.count == 1
         modifier_params = params.slice('sort')
-        redirect with_tag_url(possible_tags, modifier_params)
+        redirect url_helper.with_tag_url(possible_tags, modifier_params)
       else
         custom_404
       end
@@ -299,7 +370,14 @@ class GovUkContentApi < Sinatra::Application
     results = map_artefacts_and_add_editions(artefacts)
     @result_set = FakePaginatedResultSet.new(results)
 
-    render :rabl, :with_tag, format: "json"
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      url_helper,
+      TaggedArtefactPresenter,
+      description: @description
+    )
+
+    presenter.present.to_json
   end
 
   get "/licences.json" do
@@ -312,8 +390,13 @@ class GovUkContentApi < Sinatra::Application
     end
 
     @result_set = FakePaginatedResultSet.new(@results)
-
-    render :rabl, :licences, format: "json"
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      url_helper,
+      LicencePresenter,
+      description: "Licences"
+    )
+    presenter.present.to_json
   end
 
   get "/business_support_schemes.json" do
@@ -326,7 +409,13 @@ class GovUkContentApi < Sinatra::Application
         artefact
       end
     end
-    render :rabl, :business_support_schemes, format: "json"
+
+    presenter = ResultSetPresenter.new(
+      FakePaginatedResultSet.new(@results),
+      url_helper,
+      BusinessSupportSchemePresenter
+    )
+    presenter.present.to_json
   end
 
   get "/artefacts.json" do
@@ -345,13 +434,20 @@ class GovUkContentApi < Sinatra::Application
       end
 
       @result_set = PaginatedResultSet.new(paginated_artefacts)
-      @result_set.populate_page_links { |page_number| artefacts_url(page_number) }
+      @result_set.populate_page_links { |page_number|
+        url_helper.artefacts_url(page_number)
+      }
       headers "Link" => LinkHeader.new(@result_set.links).to_s
     else
       @result_set = FakePaginatedResultSet.new(artefacts)
     end
 
-    render :rabl, :artefacts, format: "json"
+    presenter = ResultSetPresenter.new(
+      @result_set,
+      url_helper,
+      MinimalArtefactPresenter
+    )
+    presenter.present.to_json
   end
 
   get "/*.json" do |id|
@@ -371,15 +467,30 @@ class GovUkContentApi < Sinatra::Application
     custom_404 unless @artefact
     handle_unpublished_artefact(@artefact) unless params[:edition]
 
+    if @artefact.slug == 'foreign-travel-advice'
+      load_travel_advice_countries
+      presenter = SingleResultPresenter.new(
+        TravelAdviceIndexPresenter.new(
+          @artefact,
+          @countries,
+          url_helper,
+          govspeak_formatter
+        )
+      )
+      return presenter.present.to_json
+    end
+
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
-    elsif @artefact.slug == 'foreign-travel-advice'
-      load_travel_advice_countries
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
     end
 
-    render :rabl, :artefact, format: "json"
+    presenter = SingleResultPresenter.new(
+      ArtefactPresenter.new(@artefact, url_helper, govspeak_formatter)
+    )
+
+    presenter.present.to_json
   end
 
   protected
@@ -508,6 +619,9 @@ class GovUkContentApi < Sinatra::Application
     attach_place_data(@artefact) if @artefact.edition.format == "Place" && params[:latitude] && params[:longitude]
     attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
     attach_assets(@artefact, :caption_file) if @artefact.edition.is_a?(VideoEdition)
+    if @artefact.edition.is_a?(LocalTransactionEdition) && params[:snac]
+      attach_local_information(@artefact, params[:snac])
+    end
   end
 
   def attach_place_data(artefact)
@@ -588,6 +702,17 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  def attach_local_information(artefact, snac)
+    provider = artefact.edition.service.preferred_provider(snac)
+    artefact.local_authority = provider
+    if provider
+      artefact.local_interaction = provider.preferred_interaction_for(
+        artefact.edition.lgsl_code,
+        artefact.edition.lgil_override
+      )
+    end
+  end
+
   def asset_manager_api
     options = Object::const_defined?(:API_CLIENT_CREDENTIALS) ? API_CLIENT_CREDENTIALS : {
       bearer_token: ENV['CONTENTAPI_ASSET_MANAGER_BEARER_TOKEN']
@@ -603,19 +728,26 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def custom_404
-    statsd.increment("#{@statsd_scope}.error.404")
-    halt 404, render(:rabl, :not_found, format: "json")
+    custom_error 404, "Resource not found"
   end
 
   def custom_410
-    statsd.increment("#{@statsd_scope}.error.410")
-    halt 410, render(:rabl, :gone, format: "json")
+    custom_error 410, "This item is no longer available"
+  end
+
+  def custom_503
+    custom_error 503, "A necessary backend process was unavailable. Please try again soon."
   end
 
   def custom_error(code, message)
-    @status = message
     statsd.increment("#{@statsd_scope}.error.#{code}")
-    halt code, render(:rabl, :error, format: "json")
+    error_hash = {
+      "_response_info" => {
+        "status" => ERROR_CODES.fetch(code),
+        "status_message" => message
+      }
+    }
+    halt code, error_hash.to_json
   end
 
   def render(*args)
