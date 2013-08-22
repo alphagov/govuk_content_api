@@ -4,6 +4,8 @@
 # in the artefact list where we don't want to look up any extra information
 # across collections.
 class MinimalArtefactPresenter
+  REQUIRED_FIELDS = [:name, :kind, :slug]
+
   def initialize(artefact, url_helper)
     @artefact = artefact
     @url_helper = url_helper
