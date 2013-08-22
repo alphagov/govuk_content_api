@@ -422,7 +422,7 @@ class GovUkContentApi < Sinatra::Application
     expires DEFAULT_CACHE_TIME
 
     artefacts = statsd.time("request.artefacts") do
-      Artefact.live
+      Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
     end
 
     if settings.pagination
