@@ -59,7 +59,7 @@ class GovUkContentApi < Sinatra::Application
     # When running in development mode we may want the URL for the item
     # as served directly by the app that provides it. We can trigger this by
     # providing the current Plek instance to the URL helper.
-    unless ["production", "test"].include?(ENV["RACK_ENV"])
+    if ENV["RACK_ENV"] == "development"
       parameters << Plek.current
     end
 
