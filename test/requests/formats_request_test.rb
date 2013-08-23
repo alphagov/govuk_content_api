@@ -292,6 +292,41 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "batman-locations", fields["place_type"]
   end
 
+  describe "help pages" do
+    before do
+      @artefact = FactoryGirl.create(:artefact, kind: 'help_page', slug: 'help/batman', owning_app: 'publisher', state: 'live')
+      @help_page = FactoryGirl.create(:help_page_edition, slug: @artefact.slug, body: 'Help with batman', panopticon_id: @artefact.id, state: 'published')
+    end
+
+    it "should support help pages" do
+      get '/help/batman.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      expected_fields = ['description', 'alternative_title', 'body']
+      assert_has_expected_fields(fields, expected_fields)
+      assert_equal "<p>Help with batman</p>\n", fields["body"]
+    end
+
+    it "should work with % encoded urls" do
+      get '/help%2Fbatman.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      expected_fields = ['description', 'alternative_title', 'body']
+      assert_has_expected_fields(fields, expected_fields)
+      assert_equal "<p>Help with batman</p>\n", fields["body"]
+    end
+  end
+
   it "should work with simple smart-answers" do
     artefact = FactoryGirl.create(:artefact, :slug => 'the-bridge-of-death', :owning_app => 'publisher', :state => 'live')
     smart_answer = FactoryGirl.build(:simple_smart_answer_edition, :panopticon_id => artefact.id, :state => 'published',
