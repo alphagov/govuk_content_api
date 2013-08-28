@@ -10,7 +10,7 @@ gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '5.10.2'
+  gem 'govuk_content_models', '5.11.1'
 end
 
 # Pinning mongo to prevent bundler downgrading it in order to upgrade bson

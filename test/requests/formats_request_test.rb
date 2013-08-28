@@ -270,6 +270,33 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "http://www.example.com/foo", fields["link"]
   end
 
+  describe "transaction done pages" do
+    before do
+      @artefact = FactoryGirl.create(:artefact, kind: 'completed_transaction', slug: 'done/batman-transaction', owning_app: 'publisher', state: 'live')
+      @completed_transaction_edition = FactoryGirl.create(:completed_transaction_edition, slug: @artefact.slug,
+                                  body: "It is finished",
+                                  panopticon_id: @artefact.id, state: 'published')
+    end
+
+    it "should support completed transaction editions" do
+      get '/done/batman-transaction.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+      assert_equal "<p>It is finished</p>", parsed_response["details"]["body"].strip
+    end
+
+    it "should support % encoded slugs" do
+      get '/done%2Fbatman-transaction.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+      assert_equal "<p>It is finished</p>", parsed_response["details"]["body"].strip
+    end
+  end
+
   it "should work with place_edition" do
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
@@ -290,6 +317,41 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "<p>batman introduction</p>", fields["introduction"].strip
     assert_equal "<p>batman more_information</p>", fields["more_information"].strip
     assert_equal "batman-locations", fields["place_type"]
+  end
+
+  describe "help pages" do
+    before do
+      @artefact = FactoryGirl.create(:artefact, kind: 'help_page', slug: 'help/batman', owning_app: 'publisher', state: 'live')
+      @help_page = FactoryGirl.create(:help_page_edition, slug: @artefact.slug, body: 'Help with batman', panopticon_id: @artefact.id, state: 'published')
+    end
+
+    it "should support help pages" do
+      get '/help/batman.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      expected_fields = ['description', 'alternative_title', 'body']
+      assert_has_expected_fields(fields, expected_fields)
+      assert_equal "<p>Help with batman</p>\n", fields["body"]
+    end
+
+    it "should work with % encoded urls" do
+      get '/help%2Fbatman.json'
+      assert last_response.ok?
+
+      parsed_response = JSON.parse(last_response.body)
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      expected_fields = ['description', 'alternative_title', 'body']
+      assert_has_expected_fields(fields, expected_fields)
+      assert_equal "<p>Help with batman</p>\n", fields["body"]
+    end
   end
 
   it "should work with simple smart-answers" do
