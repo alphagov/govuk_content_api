@@ -82,7 +82,8 @@ class ArtefactPresenter
       local_service,
       expectations,
       assets,
-      country
+      country,
+      organisation
     ].inject(&:merge)
 
     presented["related_external_links"] = @artefact.external_links.map do |l|
@@ -219,7 +220,20 @@ private
     return {} unless @artefact.edition.respond_to?(:expectations)
 
     {
-      "expectations" => @artefact.edition.expectations.map(&:text) 
+      "expectations" => @artefact.edition.expectations.map(&:text)
+    }
+  end
+
+  def organisation
+    return {} unless @artefact.edition.is_a?(CampaignEdition)
+
+    {
+      "organisation" => {
+        "formatted_name" => @artefact.edition.organisation_formatted_name,
+        "url" => @artefact.edition.organisation_url,
+        "brand_colour" => @artefact.edition.organisation_brand_colour,
+        "crest" => @artefact.edition.organisation_crest,
+      }
     }
   end
 
