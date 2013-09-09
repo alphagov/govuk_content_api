@@ -13,8 +13,9 @@ else
   gem 'govuk_content_models', '5.12.0'
 end
 
-# Pinning mongo to prevent bundler downgrading it in order to upgrade bson
-# (as seen in 680d3e9ab7)
+# TODO: This was previously pinned due to a replica set bug in >1.6.2
+# Consider whether this still needs to be pinned when it is provided
+# as a dependency of govuk_content_models
 gem 'mongo', '>= 1.7.1'
 
 gem 'gds-sso', '3.0.1'
