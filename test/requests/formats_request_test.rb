@@ -354,6 +354,88 @@ class FormatsRequestTest < GovUkContentApiTest
     end
   end
 
+  describe "campaign edition" do
+    before do
+      @artefact = FactoryGirl.create(:artefact, slug: 'silly-walks', kind: 'campaign', owning_app: 'publisher', state: 'live')
+      @campaign = FactoryGirl.create(:campaign_edition,
+                    slug: @artefact.slug,
+                    body: 'Obtain a government grant to help develop your silly walk.',
+                    organisation_formatted_name: "Ministry\r\nof Silly Walks",
+                    organisation_url: "/government/organisations/ministry-of-silly-walks",
+                    organisation_crest: "portcullis",
+                    organisation_brand_colour: "hm-government",
+                    small_image_id: "512c9019686c82191d000001",
+                    medium_image_id: "512c9019686c82191d000002",
+                    large_image_id: "512c9019686c82191d000003",
+                    panopticon_id: @artefact.id,
+                    state: 'published')
+
+      asset_manager_has_an_asset("512c9019686c82191d000001", {
+        "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000001",
+        "name" => "darth-on-a-cat.jpg",
+        "content_type" => "image/jpeg",
+        "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/darth-on-a-cat.jpg",
+        "state" => "clean",
+      })
+
+      asset_manager_has_an_asset("512c9019686c82191d000002", {
+        "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000002",
+        "name" => "darth-on-a-cat-again.jpg",
+        "content_type" => "image/jpeg",
+        "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000002/darth-on-a-cat-again.jpg",
+        "state" => "clean",
+      })
+
+      asset_manager_has_an_asset("512c9019686c82191d000003", {
+        "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000003",
+        "name" => "darth-still-on-a-cat.jpg",
+        "content_type" => "image/jpeg",
+        "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000003/darth-still-on-a-cat.jpg",
+        "state" => "clean",
+      })
+    end
+
+    it "should support campaigns" do
+      get '/silly-walks.json'
+      parsed_response = JSON.parse(last_response.body)
+
+      assert last_response.ok?
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      expected_fields = ['description', 'alternative_title', 'body']
+      assert_has_expected_fields(fields, expected_fields)
+
+      assert_equal "<p>Obtain a government grant to help develop your silly walk.</p>\n", fields["body"]
+      assert_equal "Ministry\r\nof Silly Walks", fields["organisation"]["formatted_name"]
+      assert_equal "/government/organisations/ministry-of-silly-walks", fields["organisation"]["url"]
+      assert_equal "portcullis", fields["organisation"]["crest"]
+      assert_equal "hm-government", fields["organisation"]["brand_colour"]
+
+      assert_equal "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000001/darth-on-a-cat.jpg", fields["small_image"]["web_url"]
+      assert_equal "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000002/darth-on-a-cat-again.jpg", fields["medium_image"]["web_url"]
+      assert_equal "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000003/darth-still-on-a-cat.jpg", fields["large_image"]["web_url"]
+    end
+
+    it "should gracefully handle a missing image" do
+      @campaign.update_attribute(:large_image_id, nil)
+      @campaign.save!
+
+      get '/silly-walks.json'
+      parsed_response = JSON.parse(last_response.body)
+
+      assert last_response.ok?
+      assert_base_artefact_fields(parsed_response)
+
+      fields = parsed_response["details"]
+
+      assert fields.has_key?("small_image")
+      assert fields.has_key?("medium_image")
+      refute fields.has_key?("large_image")
+    end
+  end
+
   it "should work with simple smart-answers" do
     artefact = FactoryGirl.create(:artefact, :slug => 'the-bridge-of-death', :owning_app => 'publisher', :state => 'live')
     smart_answer = FactoryGirl.build(:simple_smart_answer_edition, :panopticon_id => artefact.id, :state => 'published',
