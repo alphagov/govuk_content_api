@@ -59,5 +59,20 @@ describe GovspeakFormatter do
         formatter.format("The value of foo is [Fact:foo]")
       )
     end
+
+    it "should interpolate formatted fact values into content" do
+      test_date = Date.new(2013, 9, 24)
+      fact_cave_has_a_fact('some-date', test_date, "details" => {
+        "description" => "",
+        "value" => test_date,
+        "formatted_value" => "24 September 2013",
+      })
+
+      formatter = GovspeakFormatter.new(:html, fact_cave_api)
+      assert_equal(
+        "<p>Some date is 24 September 2013 okay.</p>\n",
+        formatter.format("Some date is [Fact:some-date] okay.")
+      )
+    end
   end
 end

@@ -25,7 +25,7 @@ private
   def interpolate_fact_values(string)
     string.gsub(EMBEDDED_FACT_REGEXP) do |match|
       if fact = @fact_cave_api.fact($1)
-        fact.details.value
+        fact.details.formatted_value || fact.details.value
       else
         ''
       end
