@@ -508,13 +508,13 @@ class ArtefactRequestTest < GovUkContentApiTest
 
       describe "interpolating fact values" do
         it "should interploate fact values from the fact cave into the bodies" do
-          fact_cave_has_a_fact('vat-rate', '20')
+          fact_cave_has_a_fact('vat-rate', 20, :type => :numeric, :unit => '%')
 
           artefact = FactoryGirl.create(:artefact, slug: "vat", state: 'live')
           FactoryGirl.create(:guide_edition,
               panopticon_id: artefact.id,
               parts: [
-                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]%", slug: "part-one")
+                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]", slug: "part-one")
               ],
               state: 'published')
 
@@ -526,12 +526,12 @@ class ArtefactRequestTest < GovUkContentApiTest
         end
 
         it "should still interpolate fact values when govspeak requested" do
-          fact_cave_has_a_fact('vat-rate', '20')
+          fact_cave_has_a_fact('vat-rate', 20, :type => :numeric, :unit => '%')
           artefact = FactoryGirl.create(:artefact, slug: "vat", state: 'live')
           FactoryGirl.create(:guide_edition,
               panopticon_id: artefact.id,
               parts: [
-                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]%", slug: "part-one")
+                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]", slug: "part-one")
               ],
               state: 'published')
 
