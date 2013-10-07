@@ -8,14 +8,14 @@ class PlaceFormatTest < GovUkContentApiTest
     super
     expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', state: 'live')
-    place_edition = FactoryGirl.create(:place_edition, 
+    place_edition = FactoryGirl.create(:place_edition,
                                 place_type: "batman-place",
                                 slug: artefact.slug, expectation_ids: [expectation.id],
                                 minutes_to_complete: 3, panopticon_id: artefact.id, state: 'published')
   end
 
   def stub_imminence
-    imminence_has_places("1234", "4321", {
+    stub_imminence_places_for_location("1234", "4321", {
       "slug" => "batman-place",
       "details" => [
         {
@@ -88,7 +88,7 @@ class PlaceFormatTest < GovUkContentApiTest
     end
 
     it "should show empty list if Imminence returns an empty list" do
-      imminence_has_places("1234", "4321", { "slug" => "batman-place", "details" => [] })
+      stub_imminence_places_for_location("1234", "4321", { "slug" => "batman-place", "details" => [] })
       get '/batman-place.json?latitude=1234&longitude=4321'
       parsed_response = JSON.parse(last_response.body)
       assert_has_expected_fields(parsed_response["details"], ["places"])
