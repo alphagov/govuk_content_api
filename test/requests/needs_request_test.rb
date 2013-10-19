@@ -34,11 +34,11 @@ class NeedsRequestTest < GovUkContentApiTest
   end
 
   it "should only include live artefacts" do
-    FactoryGirl.create(:artefact, :name => "Alpha", :state => 'draft')
-    FactoryGirl.create(:artefact, :name => "Bravo", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Charlie", :state => 'archived')
+    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Alpha", :state => 'draft')
+    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Bravo", :state => 'live')
+    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Charlie", :state => 'archived')
 
-    get "/artefacts.json"
+    get "/for_need/Alpha.json"
 
     assert_equal 200, last_response.status
     assert_status_field "ok", last_response

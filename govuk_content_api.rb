@@ -458,7 +458,7 @@ class GovUkContentApi < Sinatra::Application
   #    - all artefacts with the need_id 123
   get "/for_need/:id.json" do |id|
     expires(DEFAULT_CACHE_TIME)
-    artefacts = Artefact.where(need_id: id)
+    artefacts = Artefact.where(need_id: id, state: 'live')
 
     # This is copied and pasted from the /artefact.json method
     # which suggests we should look to refactor it.
