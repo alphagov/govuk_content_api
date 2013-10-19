@@ -450,6 +450,43 @@ class GovUkContentApi < Sinatra::Application
     presenter.present.to_json
   end
 
+  # Show the artefacts for a given need ID
+  #
+  # Examples:
+  #
+  #   /for_need/123.json
+  #    - all artefacts with the need_id 123
+  get "/for_need/:id.json" do |id|
+    expires(DEFAULT_CACHE_TIME)
+    artefacts = Artefact.where(need_id: id)
+
+    # This is copied and pasted from the /artefact.json method
+    # which suggests we should look to refactor it.
+    if settings.pagination
+      begin
+        paginated_artefacts = paginated(artefacts, params[:page])
+      rescue InvalidPage
+        statsd.increment('request.for_need.bad_page')
+        custom_404
+      end
+
+      result_set = PaginatedResultSet.new(paginated_artefacts)
+      result_set.populate_page_links { |page_number|
+        url_helper.artefacts_by_need_url(id, page_number)
+      }
+      headers "Link" => LinkHeader.new(result_set.links).to_s
+    else
+      result_set = FakePaginatedResultSet.new(artefacts)
+    end
+
+    presenter = ResultSetPresenter.new(
+      result_set,
+      url_helper,
+      MinimalArtefactPresenter
+    )
+    presenter.present.to_json
+  end
+
   get "/*.json" do |id|
     # The edition param is for accessing unpublished editions in order for
     # editors to preview them. These can change frequently and so shouldn't be

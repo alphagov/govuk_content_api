@@ -60,6 +60,14 @@ class URLHelper
     public_web_url("/browse/#{tag.tag_id}")
   end
 
+  def artefacts_by_need_url(need_id, page = nil)
+    if page
+      api_url("/for_need/#{need_id}.json?" + URI.encode_www_form(page: page))
+    else
+      api_url("/for_need/#{need_id}.json")
+    end
+  end
+
   def artefacts_url(page = nil)
     if page
       api_url("/artefacts.json?" + URI.encode_www_form(page: page))
