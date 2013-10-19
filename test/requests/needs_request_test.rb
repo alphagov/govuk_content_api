@@ -6,6 +6,15 @@ class NeedsRequestTest < GovUkContentApiTest
     FactoryGirl.create_list(:artefact, 25, :state => "live", :need_id => "Alpha")
   end
 
+  def bearer_token_for_user_with_permission
+    { 'HTTP_AUTHORIZATION' => 'Bearer xyz_has_permission_xyz' }
+  end
+
+  def bearer_token_for_user_without_permission
+    { 'HTTP_AUTHORIZATION' => 'Bearer xyz_does_not_have_permission_xyz' }
+  end
+
+
   it "should return empty array if no needs match" do
     get "/for_need/fake.json"
 
@@ -47,6 +56,24 @@ class NeedsRequestTest < GovUkContentApiTest
 
     assert_equal 1, parsed_response["total"]
     assert_equal %w(Bravo), parsed_response["results"].map {|a| a["title"]}.sort
+  end
+
+  describe "user has permission to view unpublished items" do
+    it "should return draft data" do
+      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Alpha", :state => 'draft')
+      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Bravo", :state => 'live')
+      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Charlie", :state => 'archived')
+
+      Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
+      Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
+
+      get "/for_need/Alpha.json", {}, bearer_token_for_user_with_permission
+      assert_equal 200, last_response.status
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal 3, parsed_response["total"]
+      assert_equal %w(Alpha Bravo Charlie), parsed_response["results"].map {|a| a["title"]}.sort
+    end
   end
 
   describe "with pagination" do

@@ -452,13 +452,22 @@ class GovUkContentApi < Sinatra::Application
 
   # Show the artefacts for a given need ID
   #
+  # Authenticated users with the appropriate permission will get all matching
+  # artefacts. Unauthenticated or unauthorized users will just get the currently
+  # live artefacts.
+  #
   # Examples:
   #
   #   /for_need/123.json
   #    - all artefacts with the need_id 123
   get "/for_need/:id.json" do |id|
     expires(DEFAULT_CACHE_TIME)
-    artefacts = Artefact.where(need_id: id, state: 'live')
+
+    if check_unpublished_permission
+      artefacts = Artefact.where(need_id: id)
+    else
+      artefacts = Artefact.where(need_id: id, state: 'live')
+    end
 
     # This is copied and pasted from the /artefact.json method
     # which suggests we should look to refactor it.
@@ -794,9 +803,21 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
+  def bypass_permission_check?
+    (ENV['RACK_ENV'] == "development") && ENV['REQUIRE_AUTH'].nil?
+  end
+
+  # Check whether user has permission to see unpublished items
+  def check_unpublished_permission
+    warden = request.env['warden']
+    return true if bypass_permission_check?
+    return warden.authenticate? && warden.user.has_permission?("access_unpublished")
+  end
+
+  # Generate error response when user doesn't have permission to see unpublished items
   def verify_unpublished_permission
     warden = request.env['warden']
-    return if (ENV['RACK_ENV'] == "development") && ENV['REQUIRE_AUTH'].nil?
+    return if bypass_permission_check?
     if warden.authenticate?
       if warden.user.has_permission?("access_unpublished")
         return true
