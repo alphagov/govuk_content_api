@@ -22,11 +22,11 @@ gem 'gds-sso', '3.0.1'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
-  gem 'gds-api-adapters', '7.6.0'
+  gem 'gds-api-adapters', '7.18.0'
 end
 
 gem 'govspeak', '1.0.1'
-gem 'plek', '1.4.0'
+gem 'plek', '1.5.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses'
