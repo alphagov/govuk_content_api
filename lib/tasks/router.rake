@@ -5,7 +5,7 @@ namespace :router do
     require 'gds_api/router'
 
     @router_api = GdsApi::Router.new Plek.current.find('router-api')
-    @app_id = 'public-api'
+    @app_id = 'publicapi'
   end
 
   desc "Register the public api proxy in the router"
