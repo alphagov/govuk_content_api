@@ -14,6 +14,8 @@ require "logger"
 require "rack/cache"
 require "redis-rack-cache"
 
+require "redis_rack_cache_patch"  # Load in fix to give everything a TTL
+
 in_development = ENV['RACK_ENV'] == 'development'
 in_preview = ENV['FACTER_govuk_platform'] == 'preview'
 
