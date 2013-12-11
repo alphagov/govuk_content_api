@@ -15,9 +15,8 @@ require 'dalli'
 require "rack/cache"
 
 in_development = ENV['RACK_ENV'] == 'development'
-in_preview = ENV['FACTER_govuk_platform'] == 'preview'
 
-if in_development or in_preview
+if in_development
   set :logging, Logger::DEBUG
 else
   enable :logging
