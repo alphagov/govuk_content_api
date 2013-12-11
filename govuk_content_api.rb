@@ -93,6 +93,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities.json" do
+    set_expiry LONG_CACHE_TIME
+
     search_param = params[:snac] || params[:name]
     @statsd_scope = "request.local_authorities"
 
@@ -121,6 +123,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities/:snac.json" do
+    set_expiry LONG_CACHE_TIME
+
     @statsd_scope = "request.local_authority"
     if params[:snac]
       statsd.time(@statsd_scope) do
