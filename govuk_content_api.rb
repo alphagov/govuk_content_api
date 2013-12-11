@@ -78,6 +78,11 @@ class GovUkContentApi < Sinatra::Application
     @known_tag_types ||= TagTypes.new(Artefact.tag_types)
   end
 
+  def set_expiry(duration = DEFAULT_CACHE_TIME, options = {})
+    visibility = options[:private] ? :private : :public
+    expires(duration, visibility)
+  end
+
   error Mongo::MongoDBError, Mongo::MongoRubyError do
     statsd.increment("mongo_error")
     raise
@@ -88,6 +93,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities.json" do
+    set_expiry LONG_CACHE_TIME
+
     search_param = params[:snac] || params[:name]
     @statsd_scope = "request.local_authorities"
 
@@ -116,6 +123,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities/:snac.json" do
+    set_expiry LONG_CACHE_TIME
+
     @statsd_scope = "request.local_authority"
     if params[:snac]
       statsd.time(@statsd_scope) do
@@ -159,6 +168,8 @@ class GovUkContentApi < Sinatra::Application
         SearchResultPresenter
       )
 
+      set_expiry
+
       presenter.present.to_json
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
       custom_503
@@ -166,7 +177,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags.json" do
-    expires DEFAULT_CACHE_TIME
+    set_expiry
 
     @statsd_scope = "request.tags"
     options = {}
@@ -226,7 +237,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tag_types.json" do
-    expires LONG_CACHE_TIME
+    set_expiry LONG_CACHE_TIME
 
     presenter = ResultSetPresenter.new(
       FakePaginatedResultSet.new(known_tag_types),
@@ -238,7 +249,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type_or_id.json" do
-    expires DEFAULT_CACHE_TIME
+    set_expiry
 
     @statsd_scope = "request.tag"
 
@@ -298,7 +309,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type/:tag_id.json" do
-    expires DEFAULT_CACHE_TIME
+    set_expiry
 
     tag_type = known_tag_types.from_plural(params[:tag_type])
     custom_404 unless tag_type
@@ -321,7 +332,7 @@ class GovUkContentApi < Sinatra::Application
   #   /with_tag.json?section=crime&sort=curated
   #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
-    expires DEFAULT_CACHE_TIME
+    set_expiry
 
     @statsd_scope = 'request.with_tag'
 
@@ -381,6 +392,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/licences.json" do
+    set_expiry
+
     licence_ids = (params[:ids] || '').split(',')
     if licence_ids.any?
       licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
@@ -400,6 +413,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/business_support_schemes.json" do
+    set_expiry
+
     identifiers = params[:identifiers].to_s.split(",")
     statsd.time("request.business_support_schemes") do
       editions = BusinessSupportEdition.published.in(:business_support_identifier => identifiers)
@@ -419,7 +434,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/artefacts.json" do
-    expires DEFAULT_CACHE_TIME
+    set_expiry
 
     artefacts = statsd.time("request.artefacts") do
       Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
@@ -461,7 +476,7 @@ class GovUkContentApi < Sinatra::Application
   #   /for_need/123.json
   #    - all artefacts with the need_id 123
   get "/for_need/:id.json" do |id|
-    expires(DEFAULT_CACHE_TIME)
+    set_expiry
 
     if check_unpublished_permission
       artefacts = Artefact.where(need_id: id)
@@ -500,8 +515,11 @@ class GovUkContentApi < Sinatra::Application
     # The edition param is for accessing unpublished editions in order for
     # editors to preview them. These can change frequently and so shouldn't be
     # cached.
-    expire_after = params[:edition] ? 0 : DEFAULT_CACHE_TIME
-    expires(expire_after)
+    if params[:edition]
+      set_expiry(0, :private => true)
+    else
+      set_expiry
+    end
 
     @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]

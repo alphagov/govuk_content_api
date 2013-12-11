@@ -184,4 +184,26 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
     assert_status_field "ok", last_response
     assert_equal "http://example.org/local_authorities/00CT.json", parsed_response["id"]
   end
+
+  describe "setting cache-control headers" do
+    it "should set long cache-control headers for a local-authority search" do
+      stub_authority = LocalAuthority.new(name: "Super Nova", snac: "supernova")
+      LocalAuthority.stubs(:find_by_snac).with("supernova").returns(stub_authority)
+
+      get "/local_authorities/supernova.json"
+      assert last_response.ok?
+
+      assert_equal "public, max-age=#{1.hour.to_i}", last_response.headers["Cache-control"]
+    end
+
+    it "should set long cache-control headers for a snac lookup" do
+      stub_authority = LocalAuthority.new(name: "Solihull Metropolitan Borough Council", snac: "00CT")
+      LocalAuthority.stubs(:find_by_snac).with("00CT").returns(stub_authority)
+
+      get "/local_authorities/00CT.json"
+      assert last_response.ok?
+
+      assert_equal "public, max-age=#{1.hour.to_i}", last_response.headers["Cache-control"]
+    end
+  end
 end

@@ -57,6 +57,14 @@ class SearchRequestTest < GovUkContentApiTest
     assert_equal 0, parsed_response["total"]
   end
 
+  it "should set cache-control headers" do
+    GdsApi::Rummager.any_instance.stubs(:search).returns("results" => sample_results)
+    get "/search.json?q=government+info"
+    assert last_response.ok?
+
+    assert_equal "public, max-age=#{15.minutes.to_i}", last_response.headers["Cache-control"]
+  end
+
   it "should return a semantic error if missing query" do
     GdsApi::Rummager.any_instance.expects(:search).never
 
@@ -69,6 +77,13 @@ class SearchRequestTest < GovUkContentApiTest
       "Non-empty querystring is required in the 'q' parameter",
       last_response
     )
+  end
+
+  it "should not set cache-control header on error" do
+    get "/search.json?q=++"
+    assert_equal 422, last_response.status
+
+    assert_nil last_response.headers["Cache-control"]
   end
 
   it "should default to the mainstream index" do
