@@ -355,13 +355,14 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert last_response.ok?
     end
 
-    it "should set a future Expires header" do
+    it "should set a future Cache-control and Expires header" do
       artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
 
       point_in_time = Time.now
       Timecop.freeze(point_in_time) do
         get "/#{artefact.slug}.json"
       end
+      assert_equal "public, max-age=#{15.minutes.to_i}", last_response.headers["Cache-control"]
       fifteen_minutes_from_now = point_in_time + 15.minutes
       assert_equal fifteen_minutes_from_now.httpdate, last_response.headers["Expires"]
     end
@@ -418,6 +419,15 @@ class ArtefactRequestTest < GovUkContentApiTest
 
           get "/#{@artefact.slug}.json?edition=3", {}, bearer_token_for_user_with_permission
           assert_equal 404, last_response.status
+        end
+
+        it "should set a private cache-control header with max-age=0" do
+          Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
+          Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
+
+          get "/#{@artefact.slug}.json?edition=2", {}, bearer_token_for_user_with_permission
+
+          assert_equal "private, max-age=0", last_response.headers["Cache-control"]
         end
 
         it "should set an Expires header to the current time to prevent caching" do
