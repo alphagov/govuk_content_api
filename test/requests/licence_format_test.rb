@@ -49,6 +49,14 @@ class LicenceFormatsTest < GovUkContentApiTest
                                        "pages" => 1
   end
 
+  it "should set cache-control headers" do
+    stub_licence = create_stub_licence
+    get "/licences.json?ids=#{stub_licence.licence_identifier}"
+    assert last_response.ok?
+
+    assert_equal "public, max-age=#{15.minutes.to_i}", last_response.headers["Cache-control"]
+  end
+
   it "should not clobber artefact requests that start with 'licences'" do
     artefact = FactoryGirl.create(:artefact, slug: 'licences-to-play-music', owning_app: 'publisher', state: 'live')
     licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Music licence',

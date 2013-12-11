@@ -85,5 +85,12 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_equal [], parsed_response["results"]
       assert_equal 0, parsed_response["total"]
     end
+
+    it "should set cache-control headers" do
+      get "/business_support_schemes.json?identifiers=alpha,wibble,echo"
+      assert_status_field "ok", last_response
+
+      assert_equal "public, max-age=#{15.minutes.to_i}", last_response.headers["Cache-control"]
+    end
   end
 end

@@ -386,6 +386,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/licences.json" do
+    set_expiry
+
     licence_ids = (params[:ids] || '').split(',')
     if licence_ids.any?
       licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
@@ -405,6 +407,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/business_support_schemes.json" do
+    set_expiry
+
     identifiers = params[:identifiers].to_s.split(",")
     statsd.time("request.business_support_schemes") do
       editions = BusinessSupportEdition.published.in(:business_support_identifier => identifiers)
