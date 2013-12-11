@@ -164,6 +164,8 @@ class GovUkContentApi < Sinatra::Application
         SearchResultPresenter
       )
 
+      set_expiry
+
       presenter.present.to_json
     rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
       custom_503
