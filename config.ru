@@ -22,6 +22,7 @@ else
   enable :logging
 
   log = File.new("log/production.log", "a")
+  log.sync = true
   STDOUT.reopen(log)
   STDERR.reopen(log)
 
