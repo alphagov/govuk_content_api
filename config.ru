@@ -20,6 +20,13 @@ if in_development
   set :logging, Logger::DEBUG
 else
   enable :logging
+
+  log = File.new("log/production.log", "a")
+  log.sync = true
+  STDOUT.reopen(log)
+  STDERR.reopen(log)
+
+  use Rack::Logstasher::Logger, Logger.new("log/production.json.log"), :extra_headers => {"varnish-id" => "varnish_id"}
 end
 
 enable :dump_errors, :raise_errors
@@ -34,12 +41,6 @@ if ! in_development || ENV["API_CACHE"]
   else
     raise "Cache config file does not exist: #{cache_config_file_path}"
   end
-end
-
-unless in_development
-  log = File.new("log/production.log", "a")
-  STDOUT.reopen(log)
-  STDERR.reopen(log)
 end
 
 require 'govuk_content_api'

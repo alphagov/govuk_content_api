@@ -35,6 +35,8 @@ gem 'link_header', '0.0.5'
 gem 'rack-cache', '1.2'
 gem 'dalli', '2.6.4'
 
+gem 'rack-logstasher', '0.0.1'
+
 group :test do
   gem 'database_cleaner', '0.7.2'
   gem 'factory_girl', '3.6.1'
