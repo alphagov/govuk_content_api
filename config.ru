@@ -24,6 +24,8 @@ else
   log = File.new("log/production.log", "a")
   STDOUT.reopen(log)
   STDERR.reopen(log)
+
+  use Rack::Logstasher::Logger, Logger.new("log/production.json.log"), :extra_headers => {"varnish-id" => "varnish_id"}
 end
 
 enable :dump_errors, :raise_errors
