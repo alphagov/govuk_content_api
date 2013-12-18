@@ -26,7 +26,10 @@ else
   STDOUT.reopen(log)
   STDERR.reopen(log)
 
-  use Rack::Logstasher::Logger, Logger.new("log/production.json.log"), :extra_headers => {"varnish-id" => "varnish_id"}
+  use Rack::Logstasher::Logger,
+    Logger.new("log/production.json.log"),
+    :extra_request_headers => { "varnish-id" => "varnish_id" },
+    :extra_response_headers => {"x-cache" => "cache_status"}
 end
 
 enable :dump_errors, :raise_errors
