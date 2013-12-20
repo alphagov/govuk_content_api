@@ -28,7 +28,7 @@ else
 
   use Rack::Logstasher::Logger,
     Logger.new("log/production.json.log"),
-    :extra_request_headers => { "varnish-id" => "varnish_id" },
+    :extra_request_headers => { "x-varnish" => "varnish_id" },
     :extra_response_headers => {"x-rack-cache" => "rack_cache_result"}
 end
 
