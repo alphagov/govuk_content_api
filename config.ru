@@ -14,6 +14,8 @@ require "logger"
 require 'dalli'
 require "rack/cache"
 
+use GdsApi::GovukRequestIdSniffer
+
 in_development = ENV['RACK_ENV'] == 'development'
 
 if in_development
