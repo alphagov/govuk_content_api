@@ -60,6 +60,8 @@ class URLHelper
     case tag.tag_type
     when "section"
       public_web_url("/browse/#{tag.tag_id}")
+    when "industry_sector"
+      public_web_url("/#{tag.tag_id}")
     else
       nil # no public-facing GOV.UK URL exists for other tag types
     end
