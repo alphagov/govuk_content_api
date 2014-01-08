@@ -2,6 +2,10 @@ require "test_helper"
 require "url_helper"
 
 describe URLHelper do
+  before do
+    DummyTag = Struct.new(:tag_id, :tag_type)
+  end
+
   it "should use the app's `url` method when there is no prefix" do
     mock_app = mock("app") do
       expects(:url).with("/foobang").returns("http://example.com/foobang")
@@ -35,8 +39,6 @@ describe URLHelper do
   end
 
   describe "with_tag URLs" do
-    DummyTag = Struct.new(:tag_id, :tag_type)
-
     class MockApp
       def self.url(u)
         u
@@ -79,6 +81,22 @@ describe URLHelper do
         "/with_tag.json?section=crime&include_children=1&sort=curated",
         helper.with_tag_url(tag, params)
       )
+    end
+  end
+
+  describe "with_tag_web_url URLs" do
+    it "returns nil if the type isn't in the list" do
+      tag = DummyTag.new("rock", "genre")
+      helper = URLHelper.new(mock("app"), "http://example.com", nil)
+
+      assert_equal nil, helper.with_tag_web_url(tag)
+    end
+
+    it "returns a /browse URL for a section tag" do
+      tag = DummyTag.new("crime", "section")
+      helper = URLHelper.new(mock("app"), "http://example.com", nil)
+
+      assert_equal "http://example.com/browse/crime", helper.with_tag_web_url(tag)
     end
   end
 end
