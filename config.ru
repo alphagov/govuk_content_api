@@ -44,7 +44,7 @@ if ! in_development || ENV["API_CACHE"]
   if File.exists? cache_config_file_path
     use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
   else
-    raise "Cache config file does not exist: #{cache_config_file_path}"
+    warn "Cache config file does not exist: #{cache_config_file_path}"
   end
 end
 
