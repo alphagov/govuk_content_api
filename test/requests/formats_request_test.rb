@@ -287,7 +287,7 @@ class FormatsRequestTest < GovUkContentApiTest
       assert_equal "<p>It is finished</p>", parsed_response["details"]["body"].strip
     end
 
-    it "should support % encoded slugs" do
+    it "should support percent-encoded slugs" do
       get '/done%2Fbatman-transaction.json'
       assert last_response.ok?
 
@@ -339,7 +339,7 @@ class FormatsRequestTest < GovUkContentApiTest
       assert_equal "<p>Help with batman</p>\n", fields["body"]
     end
 
-    it "should work with % encoded urls" do
+    it "should work with percent-encoded URLs" do
       get '/help%2Fbatman.json'
       assert last_response.ok?
 

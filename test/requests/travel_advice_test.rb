@@ -137,7 +137,7 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal "<p>And some more stuff in part 2.</p>", parts[1]["body"].strip
     end
 
-    it "should work with % encoded slugs" do
+    it "should work with percent-encoded slugs" do
       artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
                                     kind: 'travel-advice', owning_app: 'travel-advice-publisher', name: "Aruba travel advice",
                                     description: "This is the travel advice for people planning a visit to Aruba.")
