@@ -54,7 +54,19 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal nil, response['parent']
     end
 
-    it "should load a tag that includes a slash" do
+    it "should load a tag with a unencoded slash character in the tag ID" do
+      FactoryGirl.create(:tag, tag_id: 'crime/batman')
+
+      get "/tags/sections/crime/batman.json"
+      assert last_response.ok?
+      assert_status_field "ok", last_response
+      assert_equal(
+        "http://example.org/tags/sections/crime%2Fbatman.json",
+        JSON.parse(last_response.body)["id"]
+      )
+    end
+
+    it "should work with % encoded tag IDs" do
       FactoryGirl.create(:tag, tag_id: 'crime/batman')
 
       get "/tags/sections/crime%2Fbatman.json"
