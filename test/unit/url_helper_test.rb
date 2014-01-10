@@ -2,9 +2,7 @@ require "test_helper"
 require "url_helper"
 
 describe URLHelper do
-  before do
-    DummyTag = Struct.new(:tag_id, :tag_type)
-  end
+  DummyTag = Struct.new(:tag_id, :tag_type)
 
   it "should use the app's `url` method when there is no prefix" do
     mock_app = mock("app") do
