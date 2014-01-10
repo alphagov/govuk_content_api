@@ -38,6 +38,19 @@ class TagListRequestTest < GovUkContentApiTest
       assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
     end
 
+    it "returns children of a provided parent tag" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/lancashire-tea", parent_id: "tea")
+
+      get "/tags.json?type=drink&parent_id=tea"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+
+      assert_equal 1, response["results"].count
+      assert_equal "http://example.org/tags/drinks/tea%2Flancashire-tea.json", response["results"][0]["id"]
+    end
+
     it "provides a public API URL when requested through that route" do
       # We identify public API URLs by the presence of an HTTP_API_PREFIX
       # environment variable, set by the internal proxy
