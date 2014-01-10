@@ -339,7 +339,7 @@ class FormatsRequestTest < GovUkContentApiTest
       assert_equal "<p>Help with batman</p>\n", fields["body"]
     end
 
-    it "should work with percent-encoded urls" do
+    it "should work with percent-encoded URLs" do
       get '/help%2Fbatman.json'
       assert last_response.ok?
 
