@@ -66,7 +66,7 @@ class TagRequestTest < GovUkContentApiTest
       )
     end
 
-    it "should work with % encoded tag IDs" do
+    it "should work with percent-encoded tag IDs" do
       FactoryGirl.create(:tag, tag_id: 'crime/batman')
 
       get "/tags/sections/crime%2Fbatman.json"
