@@ -38,6 +38,52 @@ class TagListRequestTest < GovUkContentApiTest
       assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
     end
 
+    it "returns children of a provided parent tag" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/lancashire-tea", parent_id: "tea")
+
+      get "/tags.json?type=drink&parent_id=tea"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+
+      assert_equal 1, response["results"].count
+      assert_equal "http://example.org/tags/drinks/tea%2Flancashire-tea.json", response["results"][0]["id"]
+    end
+
+    it "returns tags in alphabetical order" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-2", title: "Coffee")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
+
+      get "/tags.json?type=drink&sort=alphabetical"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+
+      assert_equal 3, response["results"].count
+      assert_equal "Coffee", response["results"][0]["title"]
+      assert_equal "Orange Juice", response["results"][1]["title"]
+      assert_equal "Tea", response["results"][2]["title"]
+    end
+
+    it "returns children of a provided parent tag in alphabetical order" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
+
+      get "/tags.json?type=drink&parent_id=tea&sort=alphabetical"
+
+      assert last_response.ok?
+      response = JSON.parse(last_response.body)
+
+      assert_equal 3, response["results"].count
+      assert_equal "Lancashire Tea", response["results"][0]["title"]
+      assert_equal "PG Tips", response["results"][1]["title"]
+      assert_equal "Yorkshire Tea", response["results"][2]["title"]
+    end
+
     it "provides a public API URL when requested through that route" do
       # We identify public API URLs by the presence of an HTTP_API_PREFIX
       # environment variable, set by the internal proxy

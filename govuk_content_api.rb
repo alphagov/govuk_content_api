@@ -191,7 +191,7 @@ class GovUkContentApi < Sinatra::Application
       options["parent_id"] = nil
     end
 
-    allowed_params = params.slice *%w(type parent_id root_sections)
+    allowed_params = params.slice *%w(type parent_id root_sections sort)
 
     tags = if options.length > 0
       statsd.time(@statsd_scope) do
@@ -201,6 +201,10 @@ class GovUkContentApi < Sinatra::Application
       statsd.time("#{@statsd_scope}.all") do
         Tag
       end
+    end
+
+    if params[:sort] and params[:sort] == "alphabetical"
+      tags = tags.order_by([:title, :asc])
     end
 
     if settings.pagination
