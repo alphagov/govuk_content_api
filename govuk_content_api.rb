@@ -308,13 +308,13 @@ class GovUkContentApi < Sinatra::Application
     presenter.present.to_json
   end
 
-  get "/tags/:tag_type/:tag_id.json" do
+  get "/tags/:tag_type/*.json" do |tag_type, tag_id|
     set_expiry
 
-    tag_type = known_tag_types.from_plural(params[:tag_type])
+    tag_type = known_tag_types.from_plural(tag_type)
     custom_404 unless tag_type
 
-    @tag = Tag.by_tag_id(params[:tag_id], tag_type.singular)
+    @tag = Tag.by_tag_id(tag_id, tag_type.singular)
     if @tag
       tag_presenter = TagPresenter.new(@tag, url_helper)
       SingleResultPresenter.new(tag_presenter).present.to_json
