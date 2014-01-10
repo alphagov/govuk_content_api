@@ -52,9 +52,9 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "returns tags in alphabetical order" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea", title: "Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "coffee", title: "Coffee")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "orange-juice", title: "Orange Juice")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-2", title: "Coffee")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
 
       get "/tags.json?type=drink&sort=alphabetical"
 
@@ -69,9 +69,9 @@ class TagListRequestTest < GovUkContentApiTest
 
     it "returns children of a provided parent tag in alphabetical order" do
       FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/yorkshire-tea", parent_id: "tea", title: "Yorkshire Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/lancashire-tea", parent_id: "tea", title: "Lancashire Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/pg-tips", parent_id: "tea", title: "PG Tips")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
 
       get "/tags.json?type=drink&parent_id=tea&sort=alphabetical"
 
