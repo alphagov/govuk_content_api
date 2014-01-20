@@ -128,6 +128,29 @@ class CuratedListOrderingTest < GovUkContentApiTest
     assert_result_titles ["Bat 3", "Bat", "Bat 2"]
   end
 
+  it "should sort mixed case artefact titles indifferently" do
+    artefacts = [
+      ["superman", "Superman"],
+      ["lex-luthor", "lex luthor"],
+      ["bizarro", "bizarro"]
+    ]
+
+    FactoryGirl.create(:tag, tag_id: "superman", title: "Superman", tag_type: "section")
+    artefacts.each { |slug, name|
+      FactoryGirl.create(
+        :artefact,
+        owning_app: "custom-application",
+        section_ids: ["superman"],
+        name: name,
+        slug: slug,
+        state: "live"
+      )
+    }
+    get "/with_tag.json?section=superman&sort=curated"
+
+    assert_result_titles ["bizarro", "lex luthor", "Superman"]
+  end
+
   it "should exclude items not in the section" do
     curated_list = FactoryGirl.create(
       :curated_list,

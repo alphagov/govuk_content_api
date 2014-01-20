@@ -630,7 +630,7 @@ class GovUkContentApi < Sinatra::Application
       return artefacts.to_a.sort_by { |artefact|
         [
           first_ids.find_index(artefact._id) || first_ids.length,
-          artefact.name
+          artefact.name.downcase
         ]
       }
     end
