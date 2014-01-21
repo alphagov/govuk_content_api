@@ -35,8 +35,7 @@ class URLHelper
   end
 
   def tag_url(tag)
-    plural = plural_tag_type(tag.tag_type)
-    api_url("/tags/#{CGI.escape(plural)}/#{CGI.escape(tag.tag_id)}.json")
+    api_url("/tags/#{CGI.escape(tag.tag_type)}/#{CGI.escape(tag.tag_id)}.json")
   end
 
   def with_tag_url(tag_or_tags, params = {})

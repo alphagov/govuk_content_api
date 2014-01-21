@@ -315,10 +315,20 @@ class GovUkContentApi < Sinatra::Application
   get "/tags/:tag_type/*.json" do |tag_type, tag_id|
     set_expiry
 
-    tag_type = known_tag_types.from_plural(tag_type)
-    custom_404 unless tag_type
+    singular_tag_type = known_tag_types.from_singular(tag_type)
 
-    @tag = Tag.by_tag_id(tag_id, tag_type.singular)
+    unless singular_tag_type
+      plural_tag_type = known_tag_types.from_plural(tag_type)
+
+      if plural_tag_type
+        destination_tag = OpenStruct.new(tag_id: tag_id, tag_type: plural_tag_type.singular)
+        redirect(url_helper.tag_url(destination_tag))
+      else
+        custom_404
+      end
+    end
+
+    @tag = Tag.by_tag_id(tag_id, singular_tag_type.singular)
     if @tag
       tag_presenter = TagPresenter.new(@tag, url_helper)
       SingleResultPresenter.new(tag_presenter).present.to_json
