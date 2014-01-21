@@ -30,8 +30,9 @@ class URLHelper
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
-  def tag_type_url(tag_type)
-    api_url("/tags/#{CGI.escape(plural_tag_type(tag_type))}.json")
+  def tag_type_url(tag_type, params={})
+    url_params = { type: tag_type.singular }.merge(params)
+    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
   def tag_url(tag)
