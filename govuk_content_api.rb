@@ -258,7 +258,7 @@ class GovUkContentApi < Sinatra::Application
   # redirect to /tags.json?type=section, including optional parent_id or
   # root_sections parameters.
   #
-  # For requests looking for a section tage (eg /tags/crime.json), this returns
+  # For requests looking for a section tag (eg /tags/crime.json), this returns
   # a redirect to /tags/section/crime.json
   #
   get "/tags/:tag_type_or_id.json" do
