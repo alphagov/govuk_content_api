@@ -28,13 +28,13 @@ describe TagPresenter do
     mock_tag = mock_tag_without_parent
 
     mock_url_helper = mock("URL helper") do
-      expects(:tag_url).with(mock_tag).returns("/tags/sections/tag.json")
+      expects(:tag_url).with(mock_tag).returns("/tags/section/tag.json")
       stubs(:with_tag_url)
       stubs(:with_tag_web_url)
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
-    assert_equal "/tags/sections/tag.json", presented["id"]
+    assert_equal "/tags/section/tag.json", presented["id"]
     assert_equal nil, presented.fetch("web_url")
   end
 

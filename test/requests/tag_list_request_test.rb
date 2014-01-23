@@ -31,7 +31,7 @@ class TagListRequestTest < GovUkContentApiTest
     it "should have full uri in id field in index action" do
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get "/tags.json"
-      expected_id = "http://example.org/tags/sections/crime.json"
+      expected_id = "http://example.org/tags/section/crime.json"
       expected_url = "#{public_web_url}/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
       assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
@@ -48,7 +48,7 @@ class TagListRequestTest < GovUkContentApiTest
       response = JSON.parse(last_response.body)
 
       assert_equal 1, response["results"].count
-      assert_equal "http://example.org/tags/drinks/tea%2Flancashire-tea.json", response["results"][0]["id"]
+      assert_equal "http://example.org/tags/drink/tea%2Flancashire-tea.json", response["results"][0]["id"]
     end
 
     it "returns tags in alphabetical order" do
@@ -90,7 +90,7 @@ class TagListRequestTest < GovUkContentApiTest
       tag = FactoryGirl.create(:tag, tag_id: 'crime')
       get '/tags.json', {}, {'HTTP_API_PREFIX' => 'api'}
 
-      expected_id = "#{public_web_url}/api/tags/sections/crime.json"
+      expected_id = "#{public_web_url}/api/tags/section/crime.json"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
     end
 
@@ -233,7 +233,7 @@ class TagListRequestTest < GovUkContentApiTest
       get "/tags/crime.json"
       assert last_response.redirect?, "Old tag request should redirect"
       assert_equal(
-        "http://example.org/tags/sections/crime.json",
+        "http://example.org/tags/section/crime.json",
         last_response.location
       )
     end
@@ -246,91 +246,46 @@ class TagListRequestTest < GovUkContentApiTest
   end
 
   describe "/tags/:tag_type.json" do
-    it "should redirect to a plural tag type" do
+    it "redirects a singular tag type to the /tags.json endpoint" do
       get "/tags/section.json"
+
       assert last_response.redirect?
-      assert_equal(
-        "http://example.org/tags/sections.json",
-        last_response.location
-      )
+      assert_equal "http://example.org/tags.json?type=section", last_response.location
     end
 
-    it "should list all tags with a given type" do
-      fake_tags = %w(crime housing batman).map { |tag_id|
-        Tag.new(tag_id: tag_id, tag_type: "section", name: tag_id.capitalize)
-      }
-      Tag.expects(:where).with(tag_type: "section").returns(fake_tags)
-
+    it "redirects a plural tag type to the /tags.json endpoint" do
       get "/tags/sections.json"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-      response = JSON.parse(last_response.body)
-      assert_equal 3, response["results"].length
+
+      assert last_response.redirect?
+      assert_equal "http://example.org/tags.json?type=section", last_response.location
     end
 
-    it "should 404 on an unknown plural tag type" do
+    it "returns a 404 for an unknown plural tag type" do
       Tag.expects(:by_tag_id).with("pies", "section").returns(nil)
 
       get "/tags/pies.json"
       assert last_response.not_found?
     end
 
-    it "should 404 on an unknown singular tag type" do
+    it "returns a 404 for an unknown singular tag type" do
       Tag.expects(:by_tag_id).with("badger", "section").returns(nil)
 
       get "/tags/badger.json"
       assert last_response.not_found?
     end
-  end
 
-  describe "/tags/sections.json" do
-    def setup
-      %w(crime housing batman).each do |tag_id|
-        FactoryGirl.create :tag, tag_id: tag_id, title: tag_id.capitalize
-      end
-
-      %w(joker scarecrow bane).each do |tag_id|
-        FactoryGirl.create(
-          :tag,
-          tag_id: tag_id,
-          title: tag_id.capitalize,
-          parent_id: "crime"
-        )
-      end
-    end
-
-    def assert_tag_titles(tag_titles)
-      response = JSON.parse(last_response.body)
-      # NOTE: doesn't check that the tags are in the order given
-      assert_equal(
-        tag_titles.sort,
-        response["results"].map { |tag| tag["title"] }.sort
-      )
-    end
-
-    it "should list all root-level sections" do
+    it "includes the root_sections parameter in the redirect" do
       get "/tags/sections.json?root_sections=true"
-      assert_tag_titles %w(Crime Housing Batman)
+
+      assert last_response.redirect?
+      assert_equal "http://example.org/tags.json?type=section&root_sections=true", last_response.location
     end
 
-    it "should list all sections with a given parent" do
-      get "/tags/sections.json?parent_id=crime"
-      assert_tag_titles %w(Joker Scarecrow Bane)
-    end
+    it "includes the parent_id parameter in the redirect" do
+      get "/tags/sections.json?parent_id=business"
 
-    it "should reject requests for root sections with a given parent" do
-      get "/tags/sections.json?root_sections=true&parent_id=crime"
-      assert last_response.not_found?
-    end
-
-    it "should 404 on an unknown parent section" do
-      get "/tags/sections.json?parent_id=horses"
-      assert last_response.not_found?
-    end
-
-    it "should display an empty list if there are no sub-sections" do
-      get "/tags/sections.json?parent_id=housing"
-      assert_tag_titles []
+      assert last_response.redirect?
+      assert_equal "http://example.org/tags.json?type=section&parent_id=business", last_response.location
     end
   end
 end

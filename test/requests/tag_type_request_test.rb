@@ -20,7 +20,7 @@ class TagTypeRequestTest < GovUkContentApiTest
 
       response = JSON.parse(last_response.body)
       section_type = response["results"].find { |t| t["type"] == "section" }
-      assert_equal "http://example.org/tags/sections.json", section_type["id"]
+      assert_equal "http://example.org/tags.json?type=section", section_type["id"]
     end
 
     it "should include the number of tags of each type" do

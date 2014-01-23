@@ -30,13 +30,32 @@ class URLHelper
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
-  def tag_type_url(tag_type)
-    api_url("/tags/#{CGI.escape(plural_tag_type(tag_type))}.json")
+  def tag_type_url(tag_type, params={})
+    url_params = { type: tag_type.singular }.merge(params)
+    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
-  def tag_url(tag)
-    plural = plural_tag_type(tag.tag_type)
-    api_url("/tags/#{CGI.escape(plural)}/#{CGI.escape(tag.tag_id)}.json")
+  # This method returns a URL for a tag.
+  #
+  # The method can be called with an object responding to tag_id and tag_type
+  # methods (such as an instance of Tag).
+  #
+  #   eg. tag = Tag.new(tag_id: "crime", tag_type: "section")
+  #             tag_url(tag)  -> "/tags/section/crime.json"
+  #
+  # It can also be called with the tag_type and tag_id provided as strings.
+  #
+  #   eg. tag_url("section", "crime")  -> "/tags/section/crime.json"
+  #
+  def tag_url(tag_or_tag_type, tag_id=nil)
+    tag_type = tag_or_tag_type
+
+    if tag_or_tag_type.respond_to?(:tag_type) && tag_or_tag_type.respond_to?(:tag_id)
+      tag_type = tag_or_tag_type.tag_type
+      tag_id = tag_or_tag_type.tag_id
+    end
+
+    api_url("/tags/#{CGI.escape(tag_type)}/#{CGI.escape(tag_id)}.json")
   end
 
   def with_tag_url(tag_or_tags, params = {})
