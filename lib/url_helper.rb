@@ -35,6 +35,18 @@ class URLHelper
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
+  # This method returns a URL for a tag.
+  #
+  # The method can be called with an object responding to tag_id and tag_type
+  # methods (such as an instance of Tag).
+  #
+  #   eg. tag = Tag.new(tag_id: "crime", tag_type: "section")
+  #             tag_url(tag)  -> "/tags/section/crime.json"
+  #
+  # It can also be called with the tag_type and tag_id provided as strings.
+  #
+  #   eg. tag_url("section", "crime")  -> "/tags/section/crime.json"
+  #
   def tag_url(tag_or_tag_type, tag_id=nil)
     tag_type = tag_or_tag_type
 
