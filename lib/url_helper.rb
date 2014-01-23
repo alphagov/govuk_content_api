@@ -35,8 +35,15 @@ class URLHelper
     api_url("/tags.json?#{URI.encode_www_form(url_params)}")
   end
 
-  def tag_url(tag)
-    api_url("/tags/#{CGI.escape(tag.tag_type)}/#{CGI.escape(tag.tag_id)}.json")
+  def tag_url(tag_or_tag_type, tag_id=nil)
+    tag_type = tag_or_tag_type
+
+    if tag_or_tag_type.respond_to?(:tag_type) && tag_or_tag_type.respond_to?(:tag_id)
+      tag_type = tag_or_tag_type.tag_type
+      tag_id = tag_or_tag_type.tag_id
+    end
+
+    api_url("/tags/#{CGI.escape(tag_type)}/#{CGI.escape(tag_id)}.json")
   end
 
   def with_tag_url(tag_or_tags, params = {})

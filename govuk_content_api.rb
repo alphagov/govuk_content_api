@@ -295,8 +295,7 @@ class GovUkContentApi < Sinatra::Application
       plural_tag_type = known_tag_types.from_plural(tag_type)
 
       if plural_tag_type
-        destination_tag = OpenStruct.new(tag_id: tag_id, tag_type: plural_tag_type.singular)
-        redirect(url_helper.tag_url(destination_tag))
+        redirect(url_helper.tag_url(plural_tag_type.singular, tag_id))
       else
         custom_404
       end

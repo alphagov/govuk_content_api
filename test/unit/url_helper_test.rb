@@ -3,6 +3,11 @@ require "url_helper"
 
 describe URLHelper do
   DummyTag = Struct.new(:tag_id, :tag_type)
+  class MockApp
+    def self.url(u)
+      u
+    end
+  end
 
   it "should use the app's `url` method when there is no prefix" do
     mock_app = mock("app") do
@@ -36,13 +41,22 @@ describe URLHelper do
     assert_equal "http://example.com/foobang", helper.public_web_url("/foobang")
   end
 
-  describe "with_tag URLs" do
-    class MockApp
-      def self.url(u)
-        u
-      end
+  describe "tag URLs" do
+    it "builds a url from a tag object" do
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+      tag = DummyTag.new("crime", "section")
+
+      assert_equal "/tags/section/crime.json", helper.tag_url(tag)
     end
 
+    it "builds a url from a tag id and tag type" do
+      helper = URLHelper.new(MockApp, "http://example.com", nil)
+
+      assert_equal "/tags/section/crime.json", helper.tag_url("section", "crime")
+    end
+  end
+
+  describe "with_tag URLs" do
     it "works for a single tag" do
       helper = URLHelper.new(MockApp, "http://example.com", nil)
       tag = DummyTag.new("crime", "section")
