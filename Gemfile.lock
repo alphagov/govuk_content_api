@@ -33,7 +33,7 @@ GEM
     addressable (2.3.2)
     ansi (1.4.3)
     arel (3.0.2)
-    aws-ses (0.4.4)
+    aws-ses (0.5.0)
       builder
       mail (> 2.2.5)
       mime-types
@@ -60,7 +60,8 @@ GEM
       null_logger
       plek
       rest-client (~> 1.6.3)
-    gds-sso (3.0.1)
+    gds-sso (9.2.0)
+      omniauth-gds (>= 3.0.0)
       rack-accept (~> 0.4.4)
       rails (>= 3.0.0)
       warden (~> 1.2)
@@ -68,11 +69,11 @@ GEM
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
       sanitize (= 2.0.3)
-    govuk_content_models (6.0.3)
+    govuk_content_models (6.1.0)
       bson_ext
       differ
       gds-api-adapters
-      gds-sso (>= 3.0.0, < 4.0.0)
+      gds-sso (>= 7.0.0, < 10.0.0)
       govspeak (>= 1.0.1, < 2.0.0)
       mongoid (~> 2.5)
       plek
@@ -132,7 +133,7 @@ GEM
     omniauth (1.1.1)
       hashie (~> 1.2)
       rack
-    omniauth-gds (0.0.3)
+    omniauth-gds (3.0.0)
       omniauth-oauth2 (~> 1.0)
     omniauth-oauth2 (1.1.1)
       oauth2 (~> 0.8.0)
@@ -227,22 +228,21 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aws-ses
+  aws-ses (= 0.5.0)
   ci_reporter (= 1.7.0)
   dalli (= 2.6.4)
   database_cleaner (= 0.7.2)
   factory_girl (= 3.6.1)
   gds-api-adapters (= 8.2.1)
-  gds-sso (= 3.0.1)
+  gds-sso (= 9.2.0)
   govspeak (= 1.0.1)
-  govuk_content_models (= 6.0.3)
+  govuk_content_models (= 6.1.0)
   kaminari (= 0.14.1)
   link_header (= 0.0.5)
   minitest (= 3.4.0)
   mocha (= 0.12.4)
   mongo (>= 1.7.1)
   mr-sparkle (= 0.2.0)
-  omniauth-gds (= 0.0.3)
   plek (= 1.5.0)
   rack-cache (= 1.2)
   rack-logstasher (= 0.0.3)
