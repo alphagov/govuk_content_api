@@ -5,12 +5,11 @@ gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
 gem 'statsd-ruby', '1.0.0'
-gem 'omniauth-gds', '0.0.3' #rubygems doesn't seem to pull this in transitively
 
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '6.0.3'
+  gem 'govuk_content_models', '6.1.0'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2
@@ -18,7 +17,7 @@ end
 # as a dependency of govuk_content_models
 gem 'mongo', '>= 1.7.1'
 
-gem 'gds-sso', '3.0.1'
+gem 'gds-sso', '9.2.0'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
@@ -29,7 +28,7 @@ gem 'govspeak', '1.0.1'
 gem 'plek', '1.5.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
-gem 'aws-ses'
+gem 'aws-ses', '0.5.0'
 gem 'kaminari', '0.14.1'
 gem 'link_header', '0.0.5'
 gem 'rack-cache', '1.2'
