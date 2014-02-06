@@ -8,31 +8,50 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
   describe "finding business support editions" do
     before do
       @ed1 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Alpha desc", :business_support_identifier => 'alpha', :state => 'published')
+                                :short_description => "Alpha desc",
+                                :business_sizes => ['up-to-249'],
+                                :locations => ['scotland','england'],
+                                :sectors => ['manufacturing','utilities'],
+                                :state => 'published')
       @ed2 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Bravo desc", :business_support_identifier => 'bravo', :state => 'published')
+                                :short_description => "Bravo desc",
+                                :business_sizes => ['up-to-249'],
+                                :locations => ['scotland', 'wales'],
+                                :state => 'published')
       @ed3 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Charlie desc", :business_support_identifier => 'charlie', :state => 'published')
+                                :short_description => "Charlie desc",
+                                :business_sizes => ['up-to-1000'],
+                                :purposes => ['world-domination'],
+                                :state => 'published')
       @ed4 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Delta desc", :business_support_identifier => 'delta', :state => 'in_review')
+                                :short_description => "Delta desc",
+                                :locations => ['wales'],
+                                :sectors => ['manufacturing'],
+                                :support_types => ['award','loan'],
+                                :state => 'in_review')
       @ed5 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Echo desc", :business_support_identifier => 'echo', :state => 'published')
+                                :short_description => "Echo desc",
+                                :business_sizes => ['up-to-249'],
+                                :locations => ['england'],
+                                :support_types => ['grant','loan'],
+                                :state => 'published')
       @ed6 = FactoryGirl.create(:business_support_edition,
-                                :short_description => "Fox-trot desc", :business_support_identifier => 'fox-trot', :state => 'archived')
+                                :short_description => "Fox-trot desc",
+                                :locations => ['scotland', 'wales'],
+                                :state => 'archived')
     end
 
     it "should return all matching business support editions" do
-      get "/business_support_schemes.json?identifiers=alpha,bravo,echo"
+      get "/business_support_schemes.json?business_sizes=up-to-249&locations=england,wales"
       assert_status_field "ok", last_response
 
       parsed_response = JSON.parse(last_response.body)
-
       assert_equal 3, parsed_response["total"]
       assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
     end
 
     it "should return basic artefact details for each result" do
-      get "/business_support_schemes.json?identifiers=alpha"
+      get "/business_support_schemes.json?locations=scotland&sectors=utilities"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)
 
@@ -50,22 +69,22 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_equal "Alpha desc", artefact["short_description"]
     end
 
-    it "should ignore identifiers with no matching business support edition" do
-      get "/business_support_schemes.json?identifiers=alpha,wibble,echo"
+    it "should ignore invalid facet names" do
+      get "/business_support_schemes.json?business_sizes=up-to-249&locations=scotland&wibble=echo"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 2, parsed_response["total"]
-      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"].strip }.sort
+      assert_equal ['Alpha desc', 'Bravo desc'], parsed_response["results"].map {|r| r["short_description"].strip }.sort
     end
 
     it "should only return published business support editions" do
-      get "/business_support_schemes.json?identifiers=alpha,delta,echo,fox-trot"
+      get "/business_support_schemes.json?locations=scotland"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)
 
       assert_equal 2, parsed_response["total"]
-      assert_equal ['Alpha desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
+      assert_equal ['Alpha desc', 'Bravo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
     end
 
     it "should return an empty result set if nothing matches" do
@@ -87,7 +106,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
     end
 
     it "should set cache-control headers" do
-      get "/business_support_schemes.json?identifiers=alpha,wibble,echo"
+      get "/business_support_schemes.json?locations=scotland,england"
       assert_status_field "ok", last_response
 
       assert_equal "public, max-age=#{15.minutes.to_i}", last_response.headers["Cache-control"]

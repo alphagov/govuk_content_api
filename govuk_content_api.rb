@@ -402,13 +402,20 @@ class GovUkContentApi < Sinatra::Application
   get "/business_support_schemes.json" do
     set_expiry
 
-    identifiers = params[:identifiers].to_s.split(",")
-    statsd.time("request.business_support_schemes") do
-      editions = BusinessSupportEdition.published.in(:business_support_identifier => identifiers)
-      @results = editions.map do |ed|
-        artefact = Artefact.find(ed.panopticon_id)
-        artefact.edition = ed
-        artefact
+    facets = {}
+    [:business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
+      facets[key] = params[key] if params[key].present?
+    end
+
+    @results = []
+    unless facets.empty?
+      statsd.time("request.business_support_schemes") do
+        editions = BusinessSupportEdition.for_facets(facets).published
+        @results = editions.map do |ed|
+          artefact = Artefact.find(ed.panopticon_id)
+          artefact.edition = ed
+          artefact
+        end
       end
     end
 
