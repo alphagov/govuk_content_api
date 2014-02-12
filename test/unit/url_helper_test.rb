@@ -111,8 +111,8 @@ describe URLHelper do
       assert_equal "http://example.com/browse/crime", helper.with_tag_web_url(tag)
     end
 
-    it "returns a root URL for an industry_sector tag" do
-      tag = DummyTag.new("oil-and-gas", "industry_sector")
+    it "returns a root URL for a specialist_sector tag" do
+      tag = DummyTag.new("oil-and-gas", "specialist_sector")
       helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
       assert_equal "http://example.com/oil-and-gas", helper.with_tag_web_url(tag)
