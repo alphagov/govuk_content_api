@@ -46,6 +46,12 @@ class ArtefactPresenter
     video_summary
     video_url
     will_continue_on
+    opened_date
+    closed_date
+    case_type
+    case_state
+    market_sector
+    outcome_type
   ).map(&:to_sym)
 
   def initialize(artefact, url_helper, govspeak_formatter)
