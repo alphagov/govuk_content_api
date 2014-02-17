@@ -25,6 +25,7 @@ require "presenters/travel_advice_index_presenter"
 require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
+require "presenters/specialist_document_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -535,6 +536,9 @@ class GovUkContentApi < Sinatra::Application
       attach_publisher_edition(@artefact, params[:edition])
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
+    elsif @artefact.kind == 'specialist-document'
+      @artefact.edition = SpecialistDocumentEdition.where(panopticon_id: @artefact.id, state: 'published').first
+      custom_404 unless @artefact.edition
     end
 
     presenter = SingleResultPresenter.new(
