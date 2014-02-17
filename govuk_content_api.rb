@@ -25,7 +25,6 @@ require "presenters/travel_advice_index_presenter"
 require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
-require "presenters/specialist_document_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
