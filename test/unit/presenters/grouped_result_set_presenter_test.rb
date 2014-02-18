@@ -110,4 +110,23 @@ describe GroupedResultSetPresenter do
     assert_equal formats.size, items.size
     assert_equal formats, items.map(&:kind).sort
   end
+
+  it "sorts each group by the order in which they are defined" do
+    formats = ["news_story", "answer", "guidance", "map", "detailed_guide", "guide", "independent_report"]
+
+    results = formats.map {|format|
+      DummyArtefact.new(format)
+    }
+    result_set = mock_result_set(results)
+    presented = GroupedResultSetPresenter.new(result_set, nil, DummyResultPresenter).present
+
+    expected_group_order = [
+      "Services",
+      "Guidance",
+      "Maps",
+      "Independent reports",
+      "Announcements"
+    ]
+    assert_equal expected_group_order, presented["grouped_results"].map {|group| group["name"] }
+  end
 end

@@ -17,6 +17,10 @@ class GroupedResultSetPresenter < ResultSetPresenter
   def grouped_results
     @result_set.results.group_by {|a|
       display_groups.detect {|group, formats| formats.include?(a.kind) }
+    }.sort_by {|(name, formats), items|
+      # force the order of groups as they're defined in the hash from the
+      # display_groups method below
+      display_groups.keys.index(name)
     }
   end
 
