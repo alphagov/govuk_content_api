@@ -129,4 +129,21 @@ describe GroupedResultSetPresenter do
     ]
     assert_equal expected_group_order, presented["grouped_results"].map {|group| group["name"] }
   end
+
+  it "excludes content that's not in a format group" do
+    formats = [
+      "answer",
+      "guide",
+      "guidance",
+      "something-else"
+    ]
+    results = formats.map {|format|
+      DummyArtefact.new(format)
+    }
+    result_set = mock_result_set(results)
+    presented = GroupedResultSetPresenter.new(result_set, nil, DummyResultPresenter).present
+
+    combined_items = presented["grouped_results"].map {|group| group["items"] }.flatten
+    refute combined_items.map(&:kind).include?("something-else")
+  end
 end
