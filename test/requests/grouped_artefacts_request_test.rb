@@ -40,6 +40,11 @@ class GroupedArtefactsRequestTest < GovUkContentApiTest
       assert_equal "Research and analysis", groups[3]["name"]
       assert_equal ["research", "research", "research"], groups[3]["items"].map {|h| h["format"] }
     end
+
+    it "rejects values other than 'format' for the 'group_by' param" do
+      get "/with_tag.json?section=business&group_by=cabbage"
+      assert last_response.not_found?
+    end
   end
 
 end

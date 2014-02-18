@@ -370,6 +370,9 @@ class GovUkContentApi < Sinatra::Application
     @result_set = FakePaginatedResultSet.new(results)
 
     if params[:group_by].present?
+      # We only group by the format for now
+      custom_404 unless params[:group_by] == "format"
+
       result_set_presenter_class = GroupedResultSetPresenter
     else
       result_set_presenter_class = ResultSetPresenter
