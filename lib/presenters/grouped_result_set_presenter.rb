@@ -15,13 +15,20 @@ class GroupedResultSetPresenter < ResultSetPresenter
 
   private
   def grouped_results
-    @result_set.results.group_by {|a|
+    # split the result set into groups. the group is determined by
+    # looking up the format in the hash returned from display_groups
+    grouped_results = @result_set.results.group_by {|a|
       display_groups.detect {|group, formats| formats.include?(a.kind) }
-    }.reject {|group|
+    }
+
+    # For now, exclude results with format that isn't in the list
+    grouped_results_without_other_formats = grouped_results.reject {|group|
       group.nil?
-    }.sort_by {|(name, formats), items|
-      # force the order of groups as they're defined in the hash from the
-      # display_groups method below
+    }
+
+    # force the order of groups as they're defined in the hash from the
+    # display_groups method below
+    grouped_results_without_other_formats.sort_by {|(name, formats), items|
       display_groups.keys.index(name)
     }
   end
