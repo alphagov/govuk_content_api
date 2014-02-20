@@ -16,6 +16,15 @@ class ResultSetPresenter
   end
 
   def present
+    paginated_response_base.merge(
+      "results" => @result_set.results.map do |result|
+        @result_presenter_class.new(result, @url_helper).present
+      end
+    )
+  end
+
+  private
+  def paginated_response_base
     presented = {
       "_response_info" => {
         "status" => "ok",
@@ -29,14 +38,9 @@ class ResultSetPresenter
       presented[key.to_s] = @result_set.send(key)
     end
 
-    presented["results"] = @result_set.results.map do |result|
-      @result_presenter_class.new(result, @url_helper).present
-    end
-
     presented
   end
 
-private
   def links
     @result_set.links.map do |link|
       { "href" => link.href }.merge(link.attrs)

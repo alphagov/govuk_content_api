@@ -25,6 +25,7 @@ require "presenters/travel_advice_index_presenter"
 require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
+require "presenters/grouped_result_set_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -368,13 +369,21 @@ class GovUkContentApi < Sinatra::Application
     results = map_artefacts_and_add_editions(artefacts)
     @result_set = FakePaginatedResultSet.new(results)
 
-    presenter = ResultSetPresenter.new(
+    if params[:group_by].present?
+      # We only group by the format for now
+      custom_404 unless params[:group_by] == "format"
+
+      result_set_presenter_class = GroupedResultSetPresenter
+    else
+      result_set_presenter_class = ResultSetPresenter
+    end
+
+    presenter = result_set_presenter_class.new(
       @result_set,
       url_helper,
       TaggedArtefactPresenter,
       description: @description
     )
-
     presenter.present.to_json
   end
 
