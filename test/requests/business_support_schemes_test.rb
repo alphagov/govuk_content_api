@@ -71,6 +71,13 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_has_field artefact, 'format'
       assert_has_field artefact, 'identifier'
 
+      assert_has_field artefact, 'business_sizes'
+      assert_has_field artefact, 'locations'
+      assert_has_field artefact, 'purposes'
+      assert_has_field artefact, 'sectors'
+      assert_has_field artefact, 'stages'
+      assert_has_field artefact, 'support_types'
+
       assert_equal "Alpha desc", artefact["short_description"]
     end
 
