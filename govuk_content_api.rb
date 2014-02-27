@@ -420,9 +420,13 @@ class GovUkContentApi < Sinatra::Application
         [:business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
           facets[key] = params[key] if params[key].present?
         end
-        editions = []
-        editions = BusinessSupportEdition.for_facets(facets).published.order_by(
-          [:priority, :desc], [:title, :asc]) unless facets.empty?
+
+        if facets.empty?
+          editions = []
+        else
+          editions = BusinessSupportEdition.for_facets(facets).published.
+            order_by([:priority, :desc], [:title, :asc])
+        end
       end
 
       @results = editions.map do |ed|
