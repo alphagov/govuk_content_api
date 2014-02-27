@@ -9,6 +9,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
     before do
       @ed1 = FactoryGirl.create(:business_support_edition,
                                 :business_support_identifier => 'alpha',
+                                :priority => 1,
                                 :short_description => "Alpha desc",
                                 :business_sizes => ['up-to-249'],
                                 :locations => ['scotland','england'],
@@ -16,18 +17,21 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :state => 'published')
       @ed2 = FactoryGirl.create(:business_support_edition,
                                 :business_support_identifier => 'beta',
+                                :priority => 2,
                                 :short_description => "Bravo desc",
                                 :business_sizes => ['up-to-249'],
                                 :locations => ['scotland', 'wales'],
                                 :state => 'published')
       @ed3 = FactoryGirl.create(:business_support_edition,
                                 :business_support_identifier => 'charlie',
+                                :priority => 1,
                                 :short_description => "Charlie desc",
                                 :business_sizes => ['up-to-1000'],
                                 :purposes => ['world-domination'],
                                 :state => 'published')
       @ed4 = FactoryGirl.create(:business_support_edition,
                                 :business_support_identifier => 'delta',
+                                :priority => 1,
                                 :short_description => "Delta desc",
                                 :locations => ['wales'],
                                 :sectors => ['manufacturing'],
@@ -35,6 +39,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :state => 'in_review')
       @ed5 = FactoryGirl.create(:business_support_edition,
                                 :business_support_identifier => 'echo',
+                                :priority => 1,
                                 :short_description => "Echo desc",
                                 :business_sizes => ['up-to-249'],
                                 :locations => ['england'],
@@ -70,6 +75,13 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       assert_has_field artefact, 'short_description'
       assert_has_field artefact, 'format'
       assert_has_field artefact, 'identifier'
+
+      assert_has_field artefact, 'business_sizes'
+      assert_has_field artefact, 'locations'
+      assert_has_field artefact, 'purposes'
+      assert_has_field artefact, 'sectors'
+      assert_has_field artefact, 'stages'
+      assert_has_field artefact, 'support_types'
 
       assert_equal "Alpha desc", artefact["short_description"]
     end
@@ -145,6 +157,15 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
 
       assert_equal [], parsed_response["results"]
       assert_equal 0, parsed_response["total"]
+    end
+
+    it "should order the results by priority and title" do
+      get "/business_support_schemes.json?business_sizes=up-to-249&locations=england,wales" do
+        assert_status_field "ok", last_response
+        parsed_response = JSON.parse(last_response.body)
+
+        assert_equal ['Bravo desc', 'Alpha desc', 'Echo desc'], parsed_response["results"].map{ |r| r['short_description'] }
+      end
     end
 
     it "should set cache-control headers" do
