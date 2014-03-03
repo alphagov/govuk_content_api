@@ -23,7 +23,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
         case_state: "open",
         market_sector: "healthcare",
         outcome_type: "referred",
-        panopticon_id: @artefact.id
+        document_id: "doesnt-matter-here"
       )
     end
 
@@ -79,7 +79,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
         slug: "mhra-drug-alerts/private-healthcare-investigation",
         title: "Private Healthcare Investigation",
         state: "draft",
-        panopticon_id: @artefact.id
+        document_id: "doesnt-matter-here"
       )
     end
 
