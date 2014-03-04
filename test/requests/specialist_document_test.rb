@@ -88,4 +88,32 @@ class SpecialistDocumentTest < GovUkContentApiTest
       assert last_response.not_found?
     end
   end
+
+  describe "multiple published editions" do
+    before do
+      @artefact = FactoryGirl.create(:artefact,
+        slug: "mhra-drug-alerts/private-healthcare-investigation",
+        state: "live",
+        kind: "specialist-document",
+        owning_app: "specialist-publisher",
+        name: "Private Healthcare Investigation"
+      )
+
+      [1, 2].each do |version_number|
+        FactoryGirl.create(:specialist_document_edition,
+          slug: "mhra-drug-alerts/private-healthcare-investigation",
+          title: "Private Healthcare Investigation #{version_number}",
+          state: "published",
+          document_id: "doesnt-matter-here",
+          version_number: version_number
+        )
+      end
+    end
+
+    it "should return the latest edition by version number" do
+      get '/mhra-drug-alerts/private-healthcare-investigation.json'
+      parsed_response = JSON.parse(last_response.body)
+      assert_equal 'Private Healthcare Investigation 2', parsed_response["title"]
+    end
+  end
 end
