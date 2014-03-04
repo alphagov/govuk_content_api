@@ -89,7 +89,8 @@ class ArtefactPresenter
       expectations,
       assets,
       country,
-      organisation
+      organisation,
+      specialist_document_fields
     ].inject(&:merge)
 
     presented["related_external_links"] = @artefact.external_links.map do |l|
@@ -120,6 +121,14 @@ private
         [field, field_value]
       end
     end]
+  end
+
+  def specialist_document_fields
+    if @artefact.kind == 'specialist-document'
+      {"headers" => Govspeak::Document.new(@artefact.edition.body).structured_headers}
+    else
+      {}
+    end
   end
 
   def parts
