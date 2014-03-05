@@ -145,18 +145,17 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       get "/business_support_schemes.json?identifiers=delta,wibble,fox-trot"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)
-
       assert_equal [], parsed_response["results"]
       assert_equal 0, parsed_response["total"]
     end
 
-    it "should return an empty result set with no query params" do
+    it "should return all results with no query params" do
       get "/business_support_schemes.json"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)
 
-      assert_equal [], parsed_response["results"]
-      assert_equal 0, parsed_response["total"]
+      assert_equal ["Bravo desc", "Alpha desc", "Charlie desc", "Echo desc"], parsed_response["results"].map { |s| s['short_description'] }
+      assert_equal 4, parsed_response["total"]
     end
 
     it "should order the results by priority and title" do

@@ -422,12 +422,13 @@ class GovUkContentApi < Sinatra::Application
         end
 
         if facets.empty?
-          editions = []
+          editions = BusinessSupportEdition.published
         else
-          editions = BusinessSupportEdition.for_facets(facets).published.
-            order_by([:priority, :desc], [:title, :asc])
+          editions = BusinessSupportEdition.for_facets(facets).published
         end
       end
+
+      editions = editions.order_by([:priority, :desc], [:title, :asc])
 
       @results = editions.map do |ed|
         artefact = Artefact.find(ed.panopticon_id)
