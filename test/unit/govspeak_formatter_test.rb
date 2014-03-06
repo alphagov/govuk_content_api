@@ -23,6 +23,14 @@ describe GovspeakFormatter do
       )
     end
 
+    it "should add automatic header ids when requested" do
+      formatter = GovspeakFormatter.new(:html, empty_fact_cave, auto_ids: true)
+      assert_equal(
+        %Q{<h2 id="govspeak">Govspeak</h2>\n},
+        formatter.format("## Govspeak")
+      )
+    end
+
     it "should return unformatted govspeak when requested" do
       formatter = GovspeakFormatter.new(:govspeak, empty_fact_cave)
       assert_equal(

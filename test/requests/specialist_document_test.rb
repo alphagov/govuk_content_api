@@ -2,6 +2,10 @@ require_relative '../test_helper'
 require 'gds_api/test_helpers/asset_manager'
 
 class SpecialistDocumentTest < GovUkContentApiTest
+  def parsed_response
+    @parsed_response ||= JSON.parse(last_response.body)
+  end
+
   describe "loading a published specialist document" do
     def build_specialist_document_edition!(body = "This is the body")
       @artefact = FactoryGirl.create(:artefact,
@@ -36,7 +40,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
     it "should return json containing the published edition" do
       build_specialist_document_edition!
       get '/mhra-drug-alerts/private-healthcare-investigation.json'
-      parsed_response = JSON.parse(last_response.body)
 
       assert_base_artefact_fields(parsed_response)
       assert_equal 'specialist_document', parsed_response["format"]
@@ -48,6 +51,16 @@ class SpecialistDocumentTest < GovUkContentApiTest
       assert_equal "open", parsed_response["details"]["case_state"]
       assert_equal "healthcare", parsed_response["details"]["market_sector"]
       assert_equal "referred", parsed_response["details"]["outcome_type"]
+    end
+
+    it "should include ids on the document body" do
+      govspeak_body = "## Heading"
+
+      build_specialist_document_edition!(govspeak_body)
+
+      get "/#{@artefact.slug}.json"
+
+      assert_equal %Q{<h2 id="heading">Heading</h2>\n}, parsed_response['details']['body']
     end
 
     it "should provide hierarchical headers for the document body" do
@@ -150,7 +163,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
 
     it "should return the latest edition by version number" do
       get '/mhra-drug-alerts/private-healthcare-investigation.json'
-      parsed_response = JSON.parse(last_response.body)
       assert_equal 'Private Healthcare Investigation 2', parsed_response["title"]
     end
   end

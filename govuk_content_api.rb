@@ -67,11 +67,11 @@ class GovUkContentApi < Sinatra::Application
     URLHelper.new(*parameters)
   end
 
-  def govspeak_formatter
+  def govspeak_formatter(options = {})
     if params[:content_format] == "govspeak"
-      GovspeakFormatter.new(:govspeak, fact_cave_api)
+      GovspeakFormatter.new(:govspeak, fact_cave_api, options)
     else
-      GovspeakFormatter.new(:html, fact_cave_api)
+      GovspeakFormatter.new(:html, fact_cave_api, options)
     end
   end
 
@@ -570,7 +570,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     presenter = SingleResultPresenter.new(
-      ArtefactPresenter.new(@artefact, url_helper, govspeak_formatter)
+      ArtefactPresenter.new(@artefact, url_helper, govspeak_formatter(auto_ids: @artefact.kind == 'specialist-document'))
     )
 
     presenter.present.to_json
