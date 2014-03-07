@@ -24,7 +24,7 @@ else
   gem 'gds-api-adapters', '8.2.1'
 end
 
-gem 'govspeak', '1.4.0'
+gem 'govspeak', '1.5.1'
 gem 'plek', '1.5.0'
 gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
