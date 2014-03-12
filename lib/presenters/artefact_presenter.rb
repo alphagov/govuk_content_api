@@ -125,7 +125,9 @@ private
 
   def specialist_document_fields
     if @artefact.kind == 'specialist-document'
-      {"headers" => Govspeak::Document.new(@artefact.edition.body).structured_headers}
+      {
+        "headers" => @artefact.edition.headers,
+      }
     else
       {}
     end
