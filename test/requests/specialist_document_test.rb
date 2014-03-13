@@ -47,7 +47,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
       get '/mhra-drug-alerts/private-healthcare-investigation.json'
 
       assert_base_artefact_fields(parsed_response)
-      # assert_equal 'specialist_document', parsed_response["format"]
+      assert_equal 'specialist-document', parsed_response["format"]
       assert_equal 'Private Healthcare Investigation', parsed_response["title"]
       assert_equal 'This is the summary', parsed_response["details"]["summary"]
       assert_equal '2013-03-21', parsed_response["details"]["opened_date"]
