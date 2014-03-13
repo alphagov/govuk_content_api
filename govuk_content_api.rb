@@ -561,10 +561,7 @@ class GovUkContentApi < Sinatra::Application
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
     elsif @artefact.kind == 'specialist-document'
-      @artefact.edition = SpecialistDocumentEdition
-        .where(slug: @artefact.slug, state: 'published')
-        .asc(:version_number)
-        .last
+      @artefact.edition = RenderedSpecialistDocument.find_by_slug(@artefact.slug)
 
       custom_404 unless @artefact.edition
     end
