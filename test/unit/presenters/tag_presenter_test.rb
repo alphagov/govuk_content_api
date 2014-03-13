@@ -6,6 +6,7 @@ describe TagPresenter do
   def mock_tag_without_parent
     mock("tag") do
       expects(:title).returns("Tag")
+      expects(:tag_id).returns('tag')
       expects(:tag_type).returns("section")
       expects(:short_description).returns("A tag for stuff")
       expects(:description).returns("A tag for stuff and things")
@@ -30,12 +31,12 @@ describe TagPresenter do
     mock_url_helper = mock("URL helper") do
       expects(:tag_url).with(mock_tag).returns("/tags/section/tag.json")
       stubs(:with_tag_url)
-      stubs(:with_tag_web_url)
+      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
     assert_equal "/tags/section/tag.json", presented["id"]
-    assert_equal nil, presented.fetch("web_url")
+    assert_equal "/api/with_tag.json?section=tag", presented["web_url"]
   end
 
   it "should link to the view for content with the tag" do
@@ -44,7 +45,7 @@ describe TagPresenter do
     mock_url_helper = mock("URL helper") do
       stubs(:tag_url)
       expects(:with_tag_url).with(mock_tag).returns("/with_tag.json?section=tag")
-      expects(:with_tag_web_url).with(mock_tag).returns("/api/with_tag.json?section=tag")
+      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
@@ -65,7 +66,7 @@ describe TagPresenter do
   it "should instantiate a presenter for the tag's parent" do
     mock_parent = mock("parent")
     mock_tag = mock("tag") do
-      stubs(title: nil, tag_type: nil, short_description: nil, description: nil)
+      stubs(title: nil, tag_id: nil, tag_type: nil, short_description: nil, description: nil)
       expects(:parent).with().times(1..2).returns(mock_parent)
     end
 

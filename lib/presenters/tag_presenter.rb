@@ -8,7 +8,8 @@ class TagPresenter
   def present
     presented = {
       "id" => @url_helper.tag_url(@tag),
-      "web_url" => nil,
+      "slug" => @tag.tag_id,
+      "web_url" => @url_helper.with_tag_web_url(@tag),
       "title" => @tag.title,
       "details" => {
         "description" => @tag.description,

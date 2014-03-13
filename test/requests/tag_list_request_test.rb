@@ -34,7 +34,7 @@ class TagListRequestTest < GovUkContentApiTest
       expected_id = "http://example.org/tags/section/crime.json"
       expected_url = "#{public_web_url}/browse/crime"
       assert_equal expected_id, JSON.parse(last_response.body)['results'][0]['id']
-      assert_equal nil, JSON.parse(last_response.body)['results'][0]['web_url']
+      assert_equal expected_url, JSON.parse(last_response.body)['results'][0]['web_url']
       assert_equal expected_url, JSON.parse(last_response.body)['results'][0]["content_with_tag"]["web_url"]
     end
 
