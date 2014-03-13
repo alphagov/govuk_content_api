@@ -30,12 +30,12 @@ describe TagPresenter do
     mock_url_helper = mock("URL helper") do
       expects(:tag_url).with(mock_tag).returns("/tags/section/tag.json")
       stubs(:with_tag_url)
-      stubs(:with_tag_web_url)
+      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
     assert_equal "/tags/section/tag.json", presented["id"]
-    assert_equal nil, presented.fetch("web_url")
+    assert_equal "/api/with_tag.json?section=tag", presented["web_url"]
   end
 
   it "should link to the view for content with the tag" do
@@ -44,7 +44,7 @@ describe TagPresenter do
     mock_url_helper = mock("URL helper") do
       stubs(:tag_url)
       expects(:with_tag_url).with(mock_tag).returns("/with_tag.json?section=tag")
-      expects(:with_tag_web_url).with(mock_tag).returns("/api/with_tag.json?section=tag")
+      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present

@@ -16,7 +16,10 @@ class TagRequestTest < GovUkContentApiTest
       response = JSON.parse(last_response.body)
       assert_equal "Lots to say for myself", response["details"]["description"]
       assert_equal "http://example.org/tags/section/good-tag.json", response["id"]
-      assert_equal nil, response["web_url"]
+      assert_equal(
+        "#{public_web_url}/browse/good-tag",
+        response["web_url"]
+      )
       assert_equal(
         "#{public_web_url}/browse/good-tag",
         response["content_with_tag"]["web_url"]
@@ -115,7 +118,7 @@ class TagRequestTest < GovUkContentApiTest
         response = JSON.parse(last_response.body)
         expected = {
           "id" => "http://example.org/tags/section/crime-and-prison.json",
-          "web_url" => nil,
+          "web_url" => "#{public_web_url}/browse/crime-and-prison",
           "details"=>{
             "description" => nil,
             "short_description" => nil,
