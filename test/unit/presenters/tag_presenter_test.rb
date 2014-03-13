@@ -6,6 +6,7 @@ describe TagPresenter do
   def mock_tag_without_parent
     mock("tag") do
       expects(:title).returns("Tag")
+      expects(:tag_id).returns('tag')
       expects(:tag_type).returns("section")
       expects(:short_description).returns("A tag for stuff")
       expects(:description).returns("A tag for stuff and things")
@@ -65,7 +66,7 @@ describe TagPresenter do
   it "should instantiate a presenter for the tag's parent" do
     mock_parent = mock("parent")
     mock_tag = mock("tag") do
-      stubs(title: nil, tag_type: nil, short_description: nil, description: nil)
+      stubs(title: nil, tag_id: nil, tag_type: nil, short_description: nil, description: nil)
       expects(:parent).with().times(1..2).returns(mock_parent)
     end
 

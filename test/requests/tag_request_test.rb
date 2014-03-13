@@ -118,6 +118,7 @@ class TagRequestTest < GovUkContentApiTest
         response = JSON.parse(last_response.body)
         expected = {
           "id" => "http://example.org/tags/section/crime-and-prison.json",
+          "slug" => "crime-and-prison",
           "web_url" => "#{public_web_url}/browse/crime-and-prison",
           "details"=>{
             "description" => nil,
