@@ -17,9 +17,13 @@ class SpecialistDocumentTest < GovUkContentApiTest
         opened_date: Date.parse("2013-03-21"),
         closed_date: nil,
         case_type: "market-investigation",
+        case_type_label: "Market investigation",
         case_state: "open",
+        case_state_label: "Open",
         market_sector: "healthcare",
+        market_sector_label: "Healthcare",
         outcome_type: "referred",
+        outcome_type_label: "Referred",
         headers: [],
       }
 
@@ -56,6 +60,16 @@ class SpecialistDocumentTest < GovUkContentApiTest
       assert_equal "open", parsed_response["details"]["case_state"]
       assert_equal "healthcare", parsed_response["details"]["market_sector"]
       assert_equal "referred", parsed_response["details"]["outcome_type"]
+    end
+
+    it "should include facet labels in the json" do
+      build_rendered_specialist_document!
+      get '/mhra-drug-alerts/private-healthcare-investigation.json'
+
+      assert_equal "Market investigation", parsed_response["details"]["case_type_label"]
+      assert_equal "Open", parsed_response["details"]["case_state_label"]
+      assert_equal "Healthcare", parsed_response["details"]["market_sector_label"]
+      assert_equal "Referred", parsed_response["details"]["outcome_type_label"]
     end
 
     it "should include the body of the rendered document" do

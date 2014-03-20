@@ -49,9 +49,13 @@ class ArtefactPresenter
     opened_date
     closed_date
     case_type
+    case_type_label
     case_state
+    case_state_label
     market_sector
+    market_sector_label
     outcome_type
+    outcome_type_label
   ).map(&:to_sym)
 
   def initialize(artefact, url_helper, govspeak_formatter)
