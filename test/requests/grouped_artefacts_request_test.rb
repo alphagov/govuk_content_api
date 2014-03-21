@@ -10,7 +10,8 @@ class GroupedArtefactsRequestTest < GovUkContentApiTest
         FactoryGirl.create_list(:live_artefact_with_edition, 2, kind: "answer", section_ids: [@tag.tag_id]),
         FactoryGirl.create_list(:live_artefact_with_edition, 2, kind: "guide", section_ids: [@tag.tag_id]),
         # Guidance
-        FactoryGirl.create_list(:whitehall_live_artefact, 2, kind: "detailed_guide", section_ids: [@tag.tag_id]),
+        FactoryGirl.create(:whitehall_live_artefact, kind: "detailed_guide", slug: "detailed-guide-1", section_ids: [@tag.tag_id]),
+        FactoryGirl.create(:whitehall_live_artefact, kind: "detailed_guide", slug: "detailed-guide-2", section_ids: [@tag.tag_id]),
         FactoryGirl.create_list(:whitehall_live_artefact, 1, kind: "guidance", section_ids: [@tag.tag_id]),
         # Forms
         FactoryGirl.create_list(:whitehall_live_artefact, 2, kind: "form", section_ids: [@tag.tag_id]),
