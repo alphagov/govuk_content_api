@@ -6,7 +6,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
   describe "loading the travel-advice index artefact" do
     before do
-      @artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+      @artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                      :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend',
                                      :name => 'Foreign travel advice', :description => 'Oh I do want to live beside the seaside!')
     end
@@ -21,7 +21,7 @@ class TravelAdviceTest < GovUkContentApiTest
       assert_equal 'Foreign travel advice', parsed_response['title']
 
       details = parsed_response["details"]
-      expected_fields = ['description', 'need_id']
+      expected_fields = ['description', 'need_ids']
       assert_has_expected_fields(details, expected_fields)
       assert_equal 'Oh I do want to live beside the seaside!', details['description']
     end
@@ -166,7 +166,7 @@ class TravelAdviceTest < GovUkContentApiTest
           FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
         ]
 
-        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                        :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
 
 
@@ -196,7 +196,7 @@ class TravelAdviceTest < GovUkContentApiTest
           FactoryGirl.create(:artefact, slug: "related-artefact-3", name: "Burgers", state: 'draft')
         ]
 
-        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                        :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
 
 
@@ -228,7 +228,7 @@ class TravelAdviceTest < GovUkContentApiTest
           FactoryGirl.create(:artefact, slug: "related-artefact-2", name: "Cake", state: 'live')
         ]
 
-        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                        :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', related_artefacts: index_related_artefacts)
         aruba_related_artefacts = [
           shared_artefact,
@@ -257,7 +257,7 @@ class TravelAdviceTest < GovUkContentApiTest
         FactoryGirl.create(:tag, :tag_id => 'coastal-resorts', :title => 'Coastal resorts', :tag_type => 'section')
         FactoryGirl.create(:tag, :tag_id => 'good-food', :title => 'Good food', :tag_type => 'section')
 
-        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                              :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['coastal-resorts'])
         country_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice/aruba', :state => 'live',
                                         :kind => 'travel-advice', :owning_app => 'travel-advice-publisher', sections: ['good-food'])
@@ -275,7 +275,7 @@ class TravelAdviceTest < GovUkContentApiTest
       it "should not duplicate tags which appear on both the index and the country artefact" do
         FactoryGirl.create(:tag, :tag_id => 'surfing', :title => 'Surfing', :tag_type => 'section')
 
-        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_id => '133',
+        travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                              :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['surfing'])
         country_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice/aruba', :state => 'live',
                                         :kind => 'travel-advice', :owning_app => 'travel-advice-publisher', sections: ['surfing'])

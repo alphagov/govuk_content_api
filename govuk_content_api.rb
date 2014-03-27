@@ -486,9 +486,9 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     if check_unpublished_permission
-      artefacts = Artefact.where(need_id: id)
+      artefacts = Artefact.any_in(need_ids: [id])
     else
-      artefacts = Artefact.where(need_id: id, state: 'live')
+      artefacts = Artefact.live.any_in(need_ids: [id])
     end
 
     # This is copied and pasted from the /artefact.json method
