@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class NeedsRequestTest < GovUkContentApiTest
 
   def make_many_artefacts
-    FactoryGirl.create_list(:artefact, 25, :state => "live", :need_id => "Alpha")
+    FactoryGirl.create_list(:artefact, 25, :state => "live", :need_ids => ["100001"])
   end
 
   def bearer_token_for_user_with_permission
@@ -27,11 +27,11 @@ class NeedsRequestTest < GovUkContentApiTest
   end
 
   it "should return all artefacts that match a need" do
-    FactoryGirl.create(:artefact, :name => "Alpha1", :need_id => "Alpha", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Alpha2", :need_id => "Alpha", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Beta 1", :need_id => "Beta", :state => 'live')
+    FactoryGirl.create(:artefact, :name => "Alpha1", :need_ids => ["100001", "100003"], :state => 'live')
+    FactoryGirl.create(:artefact, :name => "Alpha2", :need_ids => ["100001"], :state => 'live')
+    FactoryGirl.create(:artefact, :name => "Beta 1", :need_ids => ["100002"], :state => 'live')
 
-    get "/for_need/Alpha.json"
+    get "/for_need/100001.json"
 
     assert_equal 200, last_response.status
     assert_status_field "ok", last_response
@@ -43,11 +43,11 @@ class NeedsRequestTest < GovUkContentApiTest
   end
 
   it "should only include live artefacts" do
-    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Alpha", :state => 'draft')
-    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Bravo", :state => 'live')
-    FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Charlie", :state => 'archived')
+    FactoryGirl.create(:artefact, :need_ids => ["100001", "100003"], :name => "Alpha", :state => 'draft')
+    FactoryGirl.create(:artefact, :need_ids => ["100001"], :name => "Bravo", :state => 'live')
+    FactoryGirl.create(:artefact, :need_ids => ["100001"], :name => "Charlie", :state => 'archived')
 
-    get "/for_need/Alpha.json"
+    get "/for_need/100001.json"
 
     assert_equal 200, last_response.status
     assert_status_field "ok", last_response
@@ -60,14 +60,14 @@ class NeedsRequestTest < GovUkContentApiTest
 
   describe "user has permission to view unpublished items" do
     it "should return draft data" do
-      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Alpha", :state => 'draft')
-      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Bravo", :state => 'live')
-      FactoryGirl.create(:artefact, :need_id => 'Alpha', :name => "Charlie", :state => 'archived')
+      FactoryGirl.create(:artefact, :need_ids => ["100001", "100003"], :name => "Alpha", :state => 'draft')
+      FactoryGirl.create(:artefact, :need_ids => ["100001"], :name => "Bravo", :state => 'live')
+      FactoryGirl.create(:artefact, :need_ids => ["100001"], :name => "Charlie", :state => 'archived')
 
       Warden::Proxy.any_instance.expects(:authenticate?).returns(true)
       Warden::Proxy.any_instance.expects(:user).returns(ReadOnlyUser.new("permissions" => ["access_unpublished"]))
 
-      get "/for_need/Alpha.json", {}, bearer_token_for_user_with_permission
+      get "/for_need/100001.json", {}, bearer_token_for_user_with_permission
       assert_equal 200, last_response.status
       parsed_response = JSON.parse(last_response.body)
 
@@ -85,7 +85,7 @@ class NeedsRequestTest < GovUkContentApiTest
 
     it "should paginate when there are enough matching needs" do
       make_many_artefacts
-      base_url = "/for_need/Alpha.json"
+      base_url = "/for_need/100001.json"
       get base_url
 
       assert last_response.ok?
@@ -100,7 +100,7 @@ class NeedsRequestTest < GovUkContentApiTest
 
     it "should display subsequent pages" do
       make_many_artefacts
-      base_url = "/for_need/Alpha.json"
+      base_url = "/for_need/100001.json"
 
       get "#{base_url}?page=3"
 
@@ -123,7 +123,7 @@ class NeedsRequestTest < GovUkContentApiTest
     it "should display large numbers of artefacts" do
       make_many_artefacts
 
-      get "/for_need/Alpha.json"
+      get "/for_need/100001.json"
 
       assert last_response.ok?
       parsed_response = JSON.parse(last_response.body)
