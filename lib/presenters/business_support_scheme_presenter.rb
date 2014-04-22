@@ -11,7 +11,6 @@ class BusinessSupportSchemePresenter
 
     base_presenter.present.merge({
       "short_description" => @artefact.edition.short_description,
-      "identifier" => @artefact.edition.business_support_identifier,
       "business_sizes" => @artefact.edition.business_sizes,
       "locations" => @artefact.edition.locations,
       "purposes" => @artefact.edition.purposes,
