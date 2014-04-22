@@ -37,8 +37,8 @@ class FormatsRequestTest < GovUkContentApiTest
                                 body: "batman body", eligibility: "batman eligibility", evaluation: "batman evaluation",
                                 additional_information: "batman additional_information",
                                 min_value: 100, max_value: 1000, panopticon_id: artefact.id, state: 'published',
-                                business_support_identifier: 'enterprise-finance-guarantee', max_employees: 10,
-                                organiser: "Someone", continuation_link: "http://www.example.com/scheme", will_continue_on: "Example site")
+                                max_employees: 10, organiser: "Someone", continuation_link: "http://www.example.com/scheme",
+                                will_continue_on: "Example site")
     business_support.save!
 
     get '/batman.json'
@@ -50,10 +50,9 @@ class FormatsRequestTest < GovUkContentApiTest
     fields = parsed_response["details"]
     expected_fields = ['alternative_title', 'description', 'body',
                         'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
-                        'business_support_identifier', 'max_employees', 'organiser', 'continuation_link', 'will_continue_on']
+                        'max_employees', 'organiser', 'continuation_link', 'will_continue_on']
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "No policeman is going to give the Batmobile a ticket", fields['short_description'].strip
-    assert_equal "enterprise-finance-guarantee", fields['business_support_identifier']
     assert_equal "No policeman is going to give the Batmobile a ticket", fields['short_description']
     assert_equal "<p>batman body</p>", fields['body'].strip
     assert_equal "<p>batman eligibility</p>", fields['eligibility'].strip

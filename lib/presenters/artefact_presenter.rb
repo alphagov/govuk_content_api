@@ -21,7 +21,6 @@ class ArtefactPresenter
     alternate_methods
     alternative_title
     body
-    business_support_identifier
     change_description
     continuation_link
     eligibility

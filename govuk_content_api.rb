@@ -412,20 +412,15 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     statsd.time("request.business_support_schemes") do
-      if params[:identifiers].present?
-        identifiers = params[:identifiers].to_s.split(",")
-        editions = BusinessSupportEdition.published.in(:business_support_identifier => identifiers)
-      else
-        facets = {}
-        [:business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
-          facets[key] = params[key] if params[key].present?
-        end
+      facets = {}
+      [:business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
+        facets[key] = params[key] if params[key].present?
+      end
 
-        if facets.empty?
-          editions = BusinessSupportEdition.published
-        else
-          editions = BusinessSupportEdition.for_facets(facets).published
-        end
+      if facets.empty?
+        editions = BusinessSupportEdition.published
+      else
+        editions = BusinessSupportEdition.for_facets(facets).published
       end
 
       editions = editions.order_by([:priority, :desc], [:title, :asc])
