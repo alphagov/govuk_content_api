@@ -68,7 +68,11 @@ class ArtefactsRequestTest < GovUkContentApiTest
 
   describe "pagination" do
     it "should paginate 500 per page when there are enough artefacts" do
-      FactoryGirl.create_list(:artefact, 505, :state => "live")
+      # Use a batch insert for performance (without this, it takes c. 20 seconds to create 505 items)
+      artefacts = 505.times.map do |n|
+        FactoryGirl.attributes_for(:artefact, :state => "live")
+      end
+      Artefact.collection.insert(artefacts)
 
       get "/artefacts.json"
 
