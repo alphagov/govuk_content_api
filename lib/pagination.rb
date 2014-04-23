@@ -13,7 +13,7 @@ module Pagination
   # raise an InvalidPage exception.
   #
   # If the page parameter is nil (i.e. not in the request), default to 1.
-  def paginated(scope, page_param)
+  def paginated(scope, page_param, options = {})
     if page_param
       begin
         page_number = Integer(page_param)
@@ -28,6 +28,9 @@ module Pagination
     raise InvalidPage, "Page number #{page_number} < 1" if page_number < 1
 
     paginated_scope = scope.page(page_number)
+    if options[:page_size]
+      paginated_scope = paginated_scope.per(options[:page_size])
+    end
 
     # Raise an exception if we've shot off the end of the results
     # (unless, of course, we're on the first page and there are no results)

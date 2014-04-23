@@ -66,61 +66,35 @@ class ArtefactsRequestTest < GovUkContentApiTest
     assert_equal "http://example.org/bravo.json", result["id"]
   end
 
-  describe "with pagination" do
-    def setup
-      # Stub this out to avoid configuration changes breaking tests
-      app.stubs(:pagination).returns(true)
-      Artefact.stubs(:default_per_page).returns(10)
-    end
-
-    it "should paginate when there are enough artefacts" do
-      FactoryGirl.create_list(:artefact, 25, :state => "live")
+  describe "pagination" do
+    it "should paginate 500 per page when there are enough artefacts" do
+      # Use a batch insert for performance (without this, it takes c. 20 seconds to create 505 items)
+      artefacts = 505.times.map do |n|
+        FactoryGirl.attributes_for(:artefact, :state => "live")
+      end
+      Artefact.collection.insert(artefacts)
 
       get "/artefacts.json"
 
       assert last_response.ok?
       parsed_response = JSON.parse(last_response.body)
-      assert_equal 10, parsed_response["results"].count
-      assert_has_values parsed_response, "total" => 25, "current_page" => 1,
-                                         "pages" => 3
+      assert_equal 500, parsed_response["results"].count
+      assert_has_values parsed_response, "total" => 505, "current_page" => 1,
+                                         "pages" => 2
 
       assert_link "next",  "http://example.org/artefacts.json?page=2"
       refute_link "previous"
-    end
 
-    it "should display subsequent pages" do
-      FactoryGirl.create_list(:artefact, 25, :state => "live")
-
-      get "/artefacts.json?page=3"
+      get "/artefacts.json?page=2"
 
       assert last_response.ok?
       parsed_response = JSON.parse(last_response.body)
       assert_equal 5, parsed_response["results"].count
-      assert_has_values parsed_response, "total" => 25, "current_page" => 3,
-                                         "pages" => 3
+      assert_has_values parsed_response, "total" => 505, "current_page" => 2,
+                                         "pages" => 2
 
-      assert_link "previous",  "http://example.org/artefacts.json?page=2"
+      assert_link "previous",  "http://example.org/artefacts.json?page=1"
       refute_link "next"
-    end
-  end
-
-  describe "without pagination" do
-    def setup
-      app.stubs(:pagination).returns(false)
-    end
-
-    it "should display large numbers of artefacts" do
-      FactoryGirl.create_list(:artefact, 25, :state => "live")
-
-      get "/artefacts.json"
-
-      assert last_response.ok?
-      parsed_response = JSON.parse(last_response.body)
-      assert_equal 25, parsed_response["results"].count
-      assert_has_values parsed_response, "total" => 25, "current_page" => 1,
-                                         "pages" => 1
-      refute_link "next"
-      refute_link "previous"
     end
   end
 end
