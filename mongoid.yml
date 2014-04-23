@@ -8,3 +8,4 @@ test:
   database: govuk_content_shared_test
   logger: false
   use_activesupport_time_zone: true
+  autocreate_indexes: true
