@@ -447,22 +447,18 @@ class GovUkContentApi < Sinatra::Application
       Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
     end
 
-    if settings.pagination
-      begin
-        paginated_artefacts = paginated(artefacts, params[:page])
-      rescue InvalidPage
-        statsd.increment('request.tags.bad_page')
-        custom_404
-      end
-
-      @result_set = PaginatedResultSet.new(paginated_artefacts)
-      @result_set.populate_page_links { |page_number|
-        url_helper.artefacts_url(page_number)
-      }
-      headers "Link" => LinkHeader.new(@result_set.links).to_s
-    else
-      @result_set = FakePaginatedResultSet.new(artefacts)
+    begin
+      paginated_artefacts = paginated(artefacts, params[:page])
+    rescue InvalidPage
+      statsd.increment('request.tags.bad_page')
+      custom_404
     end
+
+    @result_set = PaginatedResultSet.new(paginated_artefacts)
+    @result_set.populate_page_links { |page_number|
+      url_helper.artefacts_url(page_number)
+    }
+    headers "Link" => LinkHeader.new(@result_set.links).to_s
 
     presenter = ResultSetPresenter.new(
       @result_set,
