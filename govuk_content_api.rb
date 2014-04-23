@@ -448,7 +448,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     begin
-      paginated_artefacts = paginated(artefacts, params[:page])
+      paginated_artefacts = paginated(artefacts, params[:page], :page_size => 500)
     rescue InvalidPage
       statsd.increment('request.tags.bad_page')
       custom_404
