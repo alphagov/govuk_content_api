@@ -57,38 +57,43 @@ class TagRequestTest < GovUkContentApiTest
       assert_equal nil, response['parent']
     end
 
-    it "should load a tag with a unencoded slash character in the tag ID" do
-      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman')
+    describe "sub-section tags" do
+      before do
+        @parent = FactoryGirl.create(:tag, tag_id: "crime", tag_type: "section")
+      end
+      it "should load a tag with a unencoded slash character in the tag ID" do
+        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
 
-      get "/tags/section/crime/batman.json"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-      assert_equal(
-        "http://example.org/tags/section/crime%2Fbatman.json",
-        JSON.parse(last_response.body)["id"]
-      )
-    end
+        get "/tags/section/crime/batman.json"
+        assert last_response.ok?
+        assert_status_field "ok", last_response
+        assert_equal(
+          "http://example.org/tags/section/crime%2Fbatman.json",
+          JSON.parse(last_response.body)["id"]
+        )
+      end
 
-    it "should work with percent-encoded tag IDs" do
-      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman')
+      it "should work with percent-encoded tag IDs" do
+        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
 
-      get "/tags/section/crime%2Fbatman.json"
-      assert last_response.ok?
-      assert_status_field "ok", last_response
-      assert_equal(
-        "http://example.org/tags/section/crime%2Fbatman.json",
-        JSON.parse(last_response.body)["id"]
-      )
-    end
+        get "/tags/section/crime%2Fbatman.json"
+        assert last_response.ok?
+        assert_status_field "ok", last_response
+        assert_equal(
+          "http://example.org/tags/section/crime%2Fbatman.json",
+          JSON.parse(last_response.body)["id"]
+        )
+      end
 
-    it "should link to the correct browse URL for a subsection tag" do
-      # This is a temporary thing until the browse pages have been rebuilt to have proper URL's
-      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman', tag_type: 'section')
-      get "/tags/section/crime%2Fbatman.json"
+      it "should link to the correct browse URL for a subsection tag" do
+        # This is a temporary thing until the browse pages have been rebuilt to have proper URL's
+        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
+        get "/tags/section/crime%2Fbatman.json"
 
-      assert last_response.ok?
-      response = JSON.parse(last_response.body)
-      assert_equal "#{public_web_url}/browse/crime/batman", response["content_with_tag"]["web_url"]
+        assert last_response.ok?
+        response = JSON.parse(last_response.body)
+        assert_equal "#{public_web_url}/browse/crime/batman", response["content_with_tag"]["web_url"]
+      end
     end
 
     describe "when a plural tag type is provided" do

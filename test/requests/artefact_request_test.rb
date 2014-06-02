@@ -35,8 +35,9 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   describe "returning related artefacts" do
     it "should return related artefacts as a combined array" do
-      FactoryGirl.create(:tag, :parent_id => 'food', :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries")
-      FactoryGirl.create(:tag, :parent_id => 'food', :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts")
+      @food_tag = FactoryGirl.create(:tag, :tag_id => "food", :tag_type => 'section', :title => "Food")
+      FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => @food_tag.tag_id)
+      FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => @food_tag.tag_id)
 
       related_artefacts = [
         FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live', :sections => ["food/pastries"]),
@@ -169,9 +170,8 @@ class ArtefactRequestTest < GovUkContentApiTest
       { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman' },
     ]
 
-    sections.each do |section|
-      FactoryGirl.create(:tag, section)
-    end
+    parent = FactoryGirl.create(:tag, tag_id: "crime", title: "Crime", tag_type: "section")
+    FactoryGirl.create(:tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: parent.tag_id)
 
     artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |section| section[:tag_id] },

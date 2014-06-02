@@ -9,7 +9,7 @@ class FormatsRequestTest < GovUkContentApiTest
   def setup
     super
     @tag1 = FactoryGirl.create(:tag, tag_id: 'crime')
-    @tag2 = FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman')
+    @tag2 = FactoryGirl.create(:tag, tag_id: 'crime/batman', parent_id: @tag1.id)
   end
 
   it "should work with answer_edition" do
