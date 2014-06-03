@@ -1,5 +1,4 @@
 require_relative 'env'
-require_relative 'lib/exception_mailer'
 require 'airbrake'
 
 configure do
