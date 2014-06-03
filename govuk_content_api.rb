@@ -547,18 +547,23 @@ class GovUkContentApi < Sinatra::Application
       return presenter.present.to_json
     end
 
+    formatter_options = {}
+
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
-    elsif @artefact.kind == 'specialist-document'
-      @artefact.edition = RenderedSpecialistDocument.find_by_slug(@artefact.slug)
-
-      custom_404 unless @artefact.edition
+    elsif @artefact.owning_app == 'specialist-publisher'
+      attach_specialist_publisher_edition(@artefact)
+      formatter_options.merge!(auto_ids: true)
     end
 
     presenter = SingleResultPresenter.new(
-      ArtefactPresenter.new(@artefact, url_helper, govspeak_formatter(auto_ids: @artefact.kind == 'specialist-document'))
+      ArtefactPresenter.new(
+        @artefact,
+        url_helper,
+        govspeak_formatter(formatter_options)
+      )
     )
 
     presenter.present.to_json
@@ -747,6 +752,11 @@ class GovUkContentApi < Sinatra::Application
       artefact.extra_related_artefacts = travel_index.live_tagged_related_artefacts
       artefact.extra_tags = travel_index.tags
     end
+  end
+
+  def attach_specialist_publisher_edition(artefact)
+    artefact.edition = RenderedSpecialistDocument.find_by_slug(artefact.slug)
+    custom_404 unless @artefact.edition
   end
 
   def load_travel_advice_countries

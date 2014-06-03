@@ -113,6 +113,56 @@ class SpecialistDocumentTest < GovUkContentApiTest
     end
   end
 
+  describe 'loading a published manual section' do
+    def build_rendered_specialist_document!(document_attributes = {})
+
+      document_defaults = {
+        slug: 'guidance/immigration-rules/family-members',
+        title: 'Immigration rules part 8: family members',
+        summary: 'This is the summary',
+        body: '<p>This is the body</p>',
+      }
+
+      document_attributes = document_defaults.merge(document_attributes)
+
+      @artefact = FactoryGirl.create(:artefact,
+        slug: 'guidance/immigration-rules/family-members',
+        state: 'live',
+        kind: 'manual-section',
+        owning_app: 'specialist-publisher',
+        name: 'Immigration rules part 8: family members'
+      )
+
+      @document = FactoryGirl.create(:rendered_specialist_document, document_attributes)
+    end
+
+    it 'should return a successful response' do
+      build_rendered_specialist_document!
+      get "/#{@artefact.slug}.json"
+
+      assert last_response.ok?
+    end
+
+    it 'should return json containing the rendered document' do
+      build_rendered_specialist_document!
+      get "/#{@artefact.slug}.json"
+
+      assert_base_artefact_fields(parsed_response)
+      assert_equal 'manual-section', parsed_response["format"]
+      assert_equal 'Immigration rules part 8: family members', parsed_response["title"]
+      assert_equal 'This is the summary', parsed_response["details"]["summary"]
+    end
+
+    it 'should include the body of the rendered document' do
+      html_body = %Q{<h2 id="heading">Heading</h2>\n}
+
+      build_rendered_specialist_document!(body: html_body)
+      get "/#{@artefact.slug}.json"
+
+      assert_equal html_body, parsed_response['details']['body']
+    end
+  end
+
   describe "artefact but no rendered specialist document" do
     before do
       @artefact = FactoryGirl.create(:artefact,
