@@ -35,8 +35,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   describe "returning related artefacts" do
     it "should return related artefacts as a combined array" do
-      FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries")
-      FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts")
+      FactoryGirl.create(:tag, :parent_id => 'food', :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries")
+      FactoryGirl.create(:tag, :parent_id => 'food', :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts")
 
       related_artefacts = [
         FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live', :sections => ["food/pastries"]),
@@ -165,14 +165,16 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   it "should list section information" do
     sections = [
-      ["crime-and-justice", "Crime and justice"],
-      ["crime-and-justice/batman", "Batman"]
+      { tag_id: 'crime', parent_id: nil, title: 'Crime' },
+      { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman' },
     ]
-    sections.each do |tag_id, title|
-      FactoryGirl.create(:tag, tag_id: tag_id, title: title, tag_type: "section")
+
+    sections.each do |section|
+      FactoryGirl.create(:tag, section)
     end
+
     artefact = FactoryGirl.create(:non_publisher_artefact,
-        sections: sections.map { |slug, title| slug },
+        sections: sections.map { |section| section[:tag_id] },
         state: 'live')
 
     get "/#{artefact.slug}.json"
@@ -184,12 +186,12 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     # Note that this will check the ordering too
     sections.zip(parsed_artefact["tags"]).each do |section, tag_info|
-      assert_equal section[1], tag_info["title"]
-      tag_path = "/tags/section/#{CGI.escape(section[0])}.json"
+      assert_equal section[:title], tag_info["title"]
+      tag_path = "/tags/section/#{CGI.escape(section[:tag_id])}.json"
       assert_equal tag_path, URI.parse(tag_info["id"]).path
       assert_equal "section", tag_info["details"]["type"]
       # Temporary hack until the browse pages are rebuilt
-      expected_section_slug = section[0]
+      expected_section_slug = section[:tag_id]
       assert_equal "#{public_web_url}/browse/#{expected_section_slug}", tag_info["web_url"]
       assert_equal "#{public_web_url}/browse/#{expected_section_slug}", tag_info["content_with_tag"]["web_url"]
     end
