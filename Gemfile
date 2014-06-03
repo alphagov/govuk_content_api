@@ -9,7 +9,7 @@ gem 'statsd-ruby', '1.0.0'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '10.2.0'
+  gem 'govuk_content_models', '11.2.0'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2
@@ -21,7 +21,7 @@ gem 'gds-sso', '9.2.0'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
-  gem 'gds-api-adapters', '8.2.1'
+  gem 'gds-api-adapters', '10.14.0'
 end
 
 gem 'govspeak', '1.5.1'

@@ -54,7 +54,7 @@ GEM
     faraday (0.8.4)
       multipart-post (~> 1.1)
     ffi (1.9.0)
-    gds-api-adapters (8.2.1)
+    gds-api-adapters (10.14.0)
       link_header
       lrucache (~> 0.1.1)
       null_logger
@@ -69,10 +69,10 @@ GEM
       htmlentities (~> 4)
       kramdown (~> 0.13.3)
       sanitize (~> 2.0.3)
-    govuk_content_models (10.2.0)
+    govuk_content_models (11.2.0)
       bson_ext
       differ
-      gds-api-adapters
+      gds-api-adapters (>= 10.9.0)
       gds-sso (>= 7.0.0, < 10.0.0)
       govspeak (>= 1.0.1, < 2.0.0)
       mongoid (~> 2.5)
@@ -235,10 +235,10 @@ DEPENDENCIES
   dalli (= 2.6.4)
   database_cleaner (= 0.7.2)
   factory_girl (= 3.6.1)
-  gds-api-adapters (= 8.2.1)
+  gds-api-adapters (= 10.14.0)
   gds-sso (= 9.2.0)
   govspeak (= 1.5.1)
-  govuk_content_models (= 10.2.0)
+  govuk_content_models (= 11.2.0)
   kaminari (= 0.14.1)
   link_header (= 0.0.5)
   minitest (= 3.4.0)

@@ -58,7 +58,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should load a tag with a unencoded slash character in the tag ID" do
-      FactoryGirl.create(:tag, tag_id: 'crime/batman')
+      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman')
 
       get "/tags/section/crime/batman.json"
       assert last_response.ok?
@@ -70,7 +70,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should work with percent-encoded tag IDs" do
-      FactoryGirl.create(:tag, tag_id: 'crime/batman')
+      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman')
 
       get "/tags/section/crime%2Fbatman.json"
       assert last_response.ok?
@@ -83,7 +83,7 @@ class TagRequestTest < GovUkContentApiTest
 
     it "should link to the correct browse URL for a subsection tag" do
       # This is a temporary thing until the browse pages have been rebuilt to have proper URL's
-      FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section')
+      FactoryGirl.create(:tag, parent_id: 'crime', tag_id: 'crime/batman', tag_type: 'section')
       get "/tags/section/crime%2Fbatman.json"
 
       assert last_response.ok?
