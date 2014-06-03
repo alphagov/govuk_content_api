@@ -26,7 +26,6 @@ end
 
 gem 'govspeak', '1.5.1'
 gem 'plek', '1.7.0'
-gem 'router-client', '3.1.0', :require => false
 gem 'yajl-ruby'
 gem 'aws-ses', '0.5.0'
 gem 'kaminari', '0.14.1'
