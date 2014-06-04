@@ -1,5 +1,6 @@
 require_relative 'env'
 require_relative 'lib/exception_mailer'
+require 'airbrake'
 
 configure do
   mongoid_config_file = File.expand_path("mongoid.yml", File.dirname(__FILE__))
@@ -13,3 +14,7 @@ end
 
 initializers_path = File.expand_path('config/initializers/*.rb', File.dirname(__FILE__))
 Dir[initializers_path].each { |f| require f }
+
+configure do
+  use Airbrake::Sinatra
+end

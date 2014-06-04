@@ -34,6 +34,7 @@ gem 'rack-cache', '1.2'
 gem 'dalli', '2.6.4'
 
 gem 'rack-logstasher', '0.0.3'
+gem 'airbrake', '4.0.0'
 
 group :test do
   gem 'database_cleaner', '0.7.2'
