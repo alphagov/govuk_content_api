@@ -16,5 +16,6 @@ initializers_path = File.expand_path('config/initializers/*.rb', File.dirname(__
 Dir[initializers_path].each { |f| require f }
 
 configure do
+  Airbrake.configuration.ignore << "Sinatra::NotFound"
   use Airbrake::Sinatra
 end
