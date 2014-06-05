@@ -5,6 +5,10 @@ class SingleResultPresenter
     @result_presenter = result_presenter
   end
 
+  def edition
+    @result_presenter.edition
+  end
+
   def present
     @result_presenter.present.merge(
       { "_response_info" => { "status" => "ok" } }

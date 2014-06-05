@@ -26,6 +26,7 @@ require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
 require "presenters/grouped_result_set_presenter"
+require "presenters/manual_artefact_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -549,15 +550,6 @@ class GovUkContentApi < Sinatra::Application
 
     formatter_options = {}
 
-    if @artefact.owning_app == 'publisher'
-      attach_publisher_edition(@artefact, params[:edition])
-    elsif @artefact.kind == 'travel-advice'
-      attach_travel_advice_country_and_edition(@artefact, params[:edition])
-    elsif @artefact.owning_app == 'specialist-publisher'
-      attach_specialist_publisher_edition(@artefact)
-      formatter_options.merge!(auto_ids: true)
-    end
-
     presenter = SingleResultPresenter.new(
       ArtefactPresenter.new(
         @artefact,
@@ -565,6 +557,20 @@ class GovUkContentApi < Sinatra::Application
         govspeak_formatter(formatter_options)
       )
     )
+
+    if @artefact.owning_app == 'publisher'
+      attach_publisher_edition(@artefact, params[:edition])
+    elsif @artefact.kind == 'travel-advice'
+      attach_travel_advice_country_and_edition(@artefact, params[:edition])
+    elsif @artefact.owning_app == 'specialist-publisher'
+      if @artefact.kind == 'manual'
+        attach_manual_edition(@artefact)
+        presenter = ManualArtefactPresenter.new(presenter)
+      else
+        attach_specialist_publisher_edition(@artefact)
+        formatter_options.merge!(auto_ids: true)
+      end
+    end
 
     presenter.present.to_json
   end
@@ -757,6 +763,10 @@ class GovUkContentApi < Sinatra::Application
   def attach_specialist_publisher_edition(artefact)
     artefact.edition = RenderedSpecialistDocument.find_by_slug(artefact.slug)
     custom_404 unless @artefact.edition
+  end
+
+  def attach_manual_edition(artefact)
+    artefact.edition = RenderedManual.find_by_slug(artefact.slug)
   end
 
   def load_travel_advice_countries

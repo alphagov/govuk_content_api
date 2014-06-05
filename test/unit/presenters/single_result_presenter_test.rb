@@ -15,4 +15,14 @@ describe SingleResultPresenter do
     presenter = SingleResultPresenter.new(result_presenter)
     assert_equal expected_hash, presenter.present
   end
+
+  it "should delegate the #edition method" do
+    edition = Object.new
+
+    mock_presenter = mock("presenter") do
+      expects(:edition).returns(edition)
+    end
+
+    assert_equal edition, SingleResultPresenter.new(mock_presenter).edition
+  end
 end

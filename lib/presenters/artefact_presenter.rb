@@ -63,6 +63,10 @@ class ArtefactPresenter
     @govspeak_formatter = govspeak_formatter
   end
 
+  def edition
+    @artefact.edition
+  end
+
   def present_with(items, presenter_class)
     items.map do |item|
       presenter_class.new(item, @url_helper).present
