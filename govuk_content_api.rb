@@ -550,13 +550,7 @@ class GovUkContentApi < Sinatra::Application
 
     formatter_options = {}
 
-    presenter = SingleResultPresenter.new(
-      ArtefactPresenter.new(
-        @artefact,
-        url_helper,
-        govspeak_formatter(formatter_options)
-      )
-    )
+    presenters = [SingleResultPresenter]
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
@@ -565,14 +559,25 @@ class GovUkContentApi < Sinatra::Application
     elsif @artefact.owning_app == 'specialist-publisher'
       if @artefact.kind == 'manual'
         attach_manual_edition(@artefact)
-        presenter = ManualArtefactPresenter.new(presenter)
+        presenters.unshift(ManualArtefactPresenter)
       else
         attach_specialist_publisher_edition(@artefact)
         formatter_options.merge!(auto_ids: true)
       end
     end
 
-    presenter.present.to_json
+    base_presented_artefact = ArtefactPresenter.new(
+      @artefact,
+      url_helper,
+      govspeak_formatter(formatter_options)
+    )
+
+    presented_artefact = presenters
+      .reduce(base_presented_artefact) { |composed_presenter, presenter_class|
+        presenter_class.new(composed_presenter)
+      }
+
+    presented_artefact.present.to_json
   end
 
   protected
