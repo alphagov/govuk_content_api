@@ -58,7 +58,7 @@ class URLHelper
     api_url("/tags/#{CGI.escape(tag_type)}/#{CGI.escape(tag_id)}.json")
   end
 
-  def with_tag_url(tag_or_tags, params = {})
+  def tagged_content_url(tag_or_tags, params = {})
     tags = tag_or_tags.is_a?(Array) ? tag_or_tags : [tag_or_tags]
     tags_by_type = tags.group_by &:tag_type
     if tags_by_type.values.any? { |t| t.count > 1 }
@@ -76,10 +76,10 @@ class URLHelper
   end
 
   def tag_web_url(tag)
-    with_tag_web_url(tag)
+    tagged_content_web_url(tag)
   end
 
-  def with_tag_web_url(tag)
+  def tagged_content_web_url(tag)
     case tag.tag_type
     when "section"
       public_web_url("/browse/#{tag.tag_id}")

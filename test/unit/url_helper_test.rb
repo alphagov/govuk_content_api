@@ -79,11 +79,11 @@ describe URLHelper do
     end
   end
 
-  describe "with_tag URLs" do
+  describe "tagged_content URLs" do
     it "works for a single tag" do
       helper = URLHelper.new(MockApp, "http://example.com", nil)
       tag = DummyTag.new("crime", "section")
-      assert_equal "/with_tag.json?section=crime", helper.with_tag_url(tag)
+      assert_equal "/with_tag.json?section=crime", helper.tagged_content_url(tag)
     end
 
     it "works for tags of multiple types" do
@@ -94,7 +94,7 @@ describe URLHelper do
       helper = URLHelper.new(MockApp, "http://example.com", nil)
       assert_equal(
         "/with_tag.json?keyword=onions&section=crime",
-        helper.with_tag_url(tags)
+        helper.tagged_content_url(tags)
       )
     end
 
@@ -105,7 +105,7 @@ describe URLHelper do
         DummyTag.new("batman", "section"),
       ]
       helper = URLHelper.new(MockApp, "http://example.com", nil)
-      assert_raises ArgumentError do helper.with_tag_url(tags) end
+      assert_raises ArgumentError do helper.tagged_content_url(tags) end
     end
 
     it "accepts parameters" do
@@ -114,31 +114,31 @@ describe URLHelper do
       helper = URLHelper.new(MockApp, "http://example.com", nil)
       assert_equal(
         "/with_tag.json?section=crime&include_children=1&sort=curated",
-        helper.with_tag_url(tag, params)
+        helper.tagged_content_url(tag, params)
       )
     end
   end
 
-  describe "with_tag_web_url URLs" do
+  describe "tagged_content_web_url URLs" do
     it "returns nil if the type isn't in the list" do
       tag = DummyTag.new("rock", "genre")
       helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal nil, helper.with_tag_web_url(tag)
+      assert_equal nil, helper.tagged_content_web_url(tag)
     end
 
     it "returns a /browse URL for a section tag" do
       tag = DummyTag.new("crime", "section")
       helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/browse/crime", helper.with_tag_web_url(tag)
+      assert_equal "http://example.com/browse/crime", helper.tagged_content_web_url(tag)
     end
 
     it "returns a root URL for a specialist_sector tag" do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
       helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/oil-and-gas", helper.with_tag_web_url(tag)
+      assert_equal "http://example.com/oil-and-gas", helper.tagged_content_web_url(tag)
     end
   end
 end

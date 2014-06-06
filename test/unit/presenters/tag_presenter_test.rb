@@ -46,8 +46,8 @@ describe TagPresenter do
     tag_web_url = stub
 
     mock_url_helper = stub_everything do
-      stubs(:with_tag_url).with(mock_tag).returns(tag_url)
-      stubs(:with_tag_web_url).with(mock_tag).returns(tag_web_url)
+      stubs(:tagged_content_url).with(mock_tag).returns(tag_url)
+      stubs(:tagged_content_web_url).with(mock_tag).returns(tag_web_url)
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
