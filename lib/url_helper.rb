@@ -76,18 +76,16 @@ class URLHelper
   end
 
   def tag_web_url(tag)
-    tagged_content_web_url(tag)
-  end
-
-  def tagged_content_web_url(tag)
     case tag.tag_type
     when "section"
       public_web_url("/browse/#{tag.tag_id}")
     when "specialist_sector"
       public_web_url("/#{tag.tag_id}")
-    else
-      nil # no public-facing GOV.UK URL exists for other tag types
     end
+  end
+
+  def tagged_content_web_url(tag)
+    tag_web_url(tag)
   end
 
   def artefacts_by_need_url(need_id, page = nil)
