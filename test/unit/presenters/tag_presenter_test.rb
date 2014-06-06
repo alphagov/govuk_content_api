@@ -27,32 +27,34 @@ describe TagPresenter do
 
   it "should include API and web URLs" do
     mock_tag = mock_tag_without_parent
+    tag_url = stub
+    tag_web_url = stub
 
-    mock_url_helper = mock("URL helper") do
-      expects(:tag_url).with(mock_tag).returns("/tags/section/tag.json")
-      stubs(:with_tag_url)
-      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
+    mock_url_helper = stub_everything do
+      stubs(:tag_url).with(mock_tag).returns(tag_url)
+      stubs(:with_tag_web_url).with(mock_tag).returns(tag_web_url)
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
-    assert_equal "/tags/section/tag.json", presented["id"]
-    assert_equal "/api/with_tag.json?section=tag", presented["web_url"]
+    assert_equal tag_url, presented["id"]
+    assert_equal tag_web_url, presented["web_url"]
   end
 
   it "should link to the view for content with the tag" do
     mock_tag = mock_tag_without_parent
+    tag_url = stub
+    tag_web_url = stub
 
-    mock_url_helper = mock("URL helper") do
-      stubs(:tag_url)
-      expects(:with_tag_url).with(mock_tag).returns("/with_tag.json?section=tag")
-      expects(:with_tag_web_url).with(mock_tag).twice.returns("/api/with_tag.json?section=tag")
+    mock_url_helper = stub_everything do
+      stubs(:with_tag_url).with(mock_tag).returns(tag_url)
+      stubs(:with_tag_web_url).with(mock_tag).returns(tag_web_url)
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
     assert_equal(
       {
-        "id" => "/with_tag.json?section=tag",
-        "web_url" => "/api/with_tag.json?section=tag"
+        "id" => tag_url,
+        "web_url" => tag_web_url
       },
       presented["content_with_tag"]
     )
