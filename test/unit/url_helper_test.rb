@@ -82,6 +82,12 @@ describe URLHelper do
 
       assert_equal "http://example.com/oil-and-gas", @url_helper.tag_web_url(tag)
     end
+
+    it "returns a /government/organisations URL for an organisation tag" do
+      tag = DummyTag.new("cabinet-office", "organisation")
+
+      assert_equal "http://example.com/government/organisations/cabinet-office", @url_helper.tag_web_url(tag)
+    end
   end
 
   describe "tagged_content URLs" do
@@ -145,6 +151,13 @@ describe URLHelper do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
 
       assert_equal "http://example.com/oil-and-gas", @url_helper.tagged_content_web_url(tag)
+    end
+
+    # There isn't a good URL to see all content tagged to an organisation (yet)
+    it "returns nil for an organisation tag" do
+      tag = DummyTag.new("cabinet-office", "organisation")
+
+      assert_equal nil, @url_helper.tagged_content_web_url(tag)
     end
   end
 end

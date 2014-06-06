@@ -81,11 +81,16 @@ class URLHelper
       public_web_url("/browse/#{tag.tag_id}")
     when "specialist_sector"
       public_web_url("/#{tag.tag_id}")
+    when "organisation"
+      public_web_url("/government/organisations/#{tag.tag_id}")
     end
   end
 
   def tagged_content_web_url(tag)
-    tag_web_url(tag)
+    case tag.tag_type
+    when "section", "specialist_sector"
+      tag_web_url(tag)
+    end
   end
 
   def artefacts_by_need_url(need_id, page = nil)
