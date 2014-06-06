@@ -42,6 +42,10 @@ describe URLHelper do
   end
 
   describe "tag URLs" do
+    before do
+      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
+    end
+
     it "builds a url from a tag object" do
       helper = URLHelper.new(MockApp, "http://example.com", nil)
       tag = DummyTag.new("crime", "section")
@@ -57,33 +61,37 @@ describe URLHelper do
   end
 
   describe "tag_web_url URLs" do
+    before do
+      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
+    end
+
     it "returns nil if the type isn't in the list" do
       tag = DummyTag.new("rock", "genre")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal nil, helper.tag_web_url(tag)
+      assert_equal nil, @url_helper.tag_web_url(tag)
     end
 
     it "returns a /browse URL for a section tag" do
       tag = DummyTag.new("crime", "section")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/browse/crime", helper.tag_web_url(tag)
+      assert_equal "http://example.com/browse/crime", @url_helper.tag_web_url(tag)
     end
 
     it "returns a root URL for a specialist_sector tag" do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/oil-and-gas", helper.tag_web_url(tag)
+      assert_equal "http://example.com/oil-and-gas", @url_helper.tag_web_url(tag)
     end
   end
 
   describe "tagged_content URLs" do
+    before do
+      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
+    end
+
     it "works for a single tag" do
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
       tag = DummyTag.new("crime", "section")
-      assert_equal "/with_tag.json?section=crime", helper.tagged_content_url(tag)
+      assert_equal "/with_tag.json?section=crime", @url_helper.tagged_content_url(tag)
     end
 
     it "works for tags of multiple types" do
@@ -91,10 +99,9 @@ describe URLHelper do
         DummyTag.new("crime", "section"),
         DummyTag.new("onions", "keyword"),
       ]
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
       assert_equal(
         "/with_tag.json?keyword=onions&section=crime",
-        helper.tagged_content_url(tags)
+        @url_helper.tagged_content_url(tags)
       )
     end
 
@@ -104,41 +111,40 @@ describe URLHelper do
         DummyTag.new("crime", "section"),
         DummyTag.new("batman", "section"),
       ]
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
-      assert_raises ArgumentError do helper.tagged_content_url(tags) end
+      assert_raises ArgumentError do @url_helper.tagged_content_url(tags) end
     end
 
     it "accepts parameters" do
       tag = DummyTag.new("crime", "section")
       params = { sort: "curated", include_children: 1 }
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
       assert_equal(
         "/with_tag.json?section=crime&include_children=1&sort=curated",
-        helper.tagged_content_url(tag, params)
+        @url_helper.tagged_content_url(tag, params)
       )
     end
   end
 
   describe "tagged_content_web_url URLs" do
+    before do
+      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
+    end
+
     it "returns nil if the type isn't in the list" do
       tag = DummyTag.new("rock", "genre")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal nil, helper.tagged_content_web_url(tag)
+      assert_equal nil, @url_helper.tagged_content_web_url(tag)
     end
 
     it "returns a /browse URL for a section tag" do
       tag = DummyTag.new("crime", "section")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/browse/crime", helper.tagged_content_web_url(tag)
+      assert_equal "http://example.com/browse/crime", @url_helper.tagged_content_web_url(tag)
     end
 
     it "returns a root URL for a specialist_sector tag" do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
-      helper = URLHelper.new(mock("app"), "http://example.com", nil)
 
-      assert_equal "http://example.com/oil-and-gas", helper.tagged_content_web_url(tag)
+      assert_equal "http://example.com/oil-and-gas", @url_helper.tagged_content_web_url(tag)
     end
   end
 end
