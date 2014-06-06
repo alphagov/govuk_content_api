@@ -75,6 +75,10 @@ class URLHelper
     api_url("/with_tag.json?#{URI.encode_www_form(tag_query)}")
   end
 
+  def tag_web_url(tag)
+    with_tag_web_url(tag)
+  end
+
   def with_tag_web_url(tag)
     case tag.tag_type
     when "section"

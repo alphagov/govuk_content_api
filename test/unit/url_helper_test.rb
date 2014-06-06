@@ -56,6 +56,29 @@ describe URLHelper do
     end
   end
 
+  describe "tag_web_url URLs" do
+    it "returns nil if the type isn't in the list" do
+      tag = DummyTag.new("rock", "genre")
+      helper = URLHelper.new(mock("app"), "http://example.com", nil)
+
+      assert_equal nil, helper.tag_web_url(tag)
+    end
+
+    it "returns a /browse URL for a section tag" do
+      tag = DummyTag.new("crime", "section")
+      helper = URLHelper.new(mock("app"), "http://example.com", nil)
+
+      assert_equal "http://example.com/browse/crime", helper.tag_web_url(tag)
+    end
+
+    it "returns a root URL for a specialist_sector tag" do
+      tag = DummyTag.new("oil-and-gas", "specialist_sector")
+      helper = URLHelper.new(mock("app"), "http://example.com", nil)
+
+      assert_equal "http://example.com/oil-and-gas", helper.tag_web_url(tag)
+    end
+  end
+
   describe "with_tag URLs" do
     it "works for a single tag" do
       helper = URLHelper.new(MockApp, "http://example.com", nil)

@@ -9,7 +9,7 @@ class TagPresenter
     presented = {
       "id" => @url_helper.tag_url(@tag),
       "slug" => @tag.tag_id,
-      "web_url" => @url_helper.with_tag_web_url(@tag),
+      "web_url" => @url_helper.tag_web_url(@tag),
       "title" => @tag.title,
       "details" => {
         "description" => @tag.description,
