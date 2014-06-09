@@ -24,7 +24,7 @@ else
   gem 'gds-api-adapters', '10.14.0'
 end
 
-gem 'govspeak', '1.5.1'
+gem 'govspeak', '1.5.3'
 gem 'plek', '1.7.0'
 gem 'yajl-ruby'
 gem 'kaminari', '0.14.1'
