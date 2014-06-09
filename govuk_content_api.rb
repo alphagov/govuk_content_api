@@ -337,7 +337,7 @@ class GovUkContentApi < Sinatra::Application
       possible_tags = Tag.where(tag_id: params[:tag]).to_a
       if possible_tags.count == 1
         modifier_params = params.slice('sort')
-        redirect url_helper.with_tag_url(possible_tags, modifier_params)
+        redirect url_helper.tagged_content_url(possible_tags, modifier_params)
       else
         custom_404
       end
