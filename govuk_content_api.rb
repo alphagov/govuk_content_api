@@ -5,7 +5,6 @@ require 'plek'
 require 'gds_api/helpers'
 require 'gds_api/rummager'
 require_relative "config"
-require 'statsd'
 require 'config/gds_sso_middleware'
 require 'pagination'
 require 'tag_types'
@@ -85,11 +84,6 @@ class GovUkContentApi < Sinatra::Application
     expires(duration, visibility)
   end
 
-  error Mongo::MongoDBError, Mongo::MongoRubyError do
-    statsd.increment("mongo_error")
-    raise
-  end
-
   before do
     content_type :json
   end
@@ -98,18 +92,13 @@ class GovUkContentApi < Sinatra::Application
     set_expiry LONG_CACHE_TIME
 
     search_param = params[:snac] || params[:name]
-    @statsd_scope = "request.local_authorities"
 
     if params[:name]
       name = Regexp.escape(params[:name])
-      statsd.time(@statsd_scope) do
-        @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
-      end
+      @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
     elsif params[:snac]
       snac = Regexp.escape(params[:snac])
-      statsd.time(@statsd_scope) do
-        @local_authorities = LocalAuthority.where(snac: /^#{snac}/i).to_a
-      end
+      @local_authorities = LocalAuthority.where(snac: /^#{snac}/i).to_a
     else
       custom_404
     end
@@ -127,11 +116,8 @@ class GovUkContentApi < Sinatra::Application
   get "/local_authorities/:snac.json" do
     set_expiry LONG_CACHE_TIME
 
-    @statsd_scope = "request.local_authority"
     if params[:snac]
-      statsd.time(@statsd_scope) do
-        @local_authority = LocalAuthority.find_by_snac(params[:snac])
-      end
+      @local_authority = LocalAuthority.find_by_snac(params[:snac])
     end
 
     if @local_authority
@@ -147,7 +133,6 @@ class GovUkContentApi < Sinatra::Application
 
   get "/search.json" do
     begin
-      @statsd_scope = "request.search"
       search_index = params[:index] || 'mainstream'
 
       unless ['mainstream', 'detailed', 'government'].include?(search_index)
@@ -158,11 +143,9 @@ class GovUkContentApi < Sinatra::Application
         custom_error(422, "Non-empty querystring is required in the 'q' parameter")
       end
 
-      statsd.time(@statsd_scope) do
-        search_uri = Plek.current.find('search') + "/#{search_index}"
-        client = GdsApi::Rummager.new(search_uri)
-        @results = client.search(params[:q])["results"]
-      end
+      search_uri = Plek.current.find('search') + "/#{search_index}"
+      client = GdsApi::Rummager.new(search_uri)
+      @results = client.search(params[:q])["results"]
 
       presenter = ResultSetPresenter.new(
         FakePaginatedResultSet.new(@results),
@@ -181,7 +164,6 @@ class GovUkContentApi < Sinatra::Application
   get "/tags.json" do
     set_expiry
 
-    @statsd_scope = "request.tags"
     options = {}
     if params[:type]
       options["tag_type"] = params[:type]
@@ -196,13 +178,9 @@ class GovUkContentApi < Sinatra::Application
     allowed_params = params.slice *%w(type parent_id root_sections sort)
 
     tags = if options.length > 0
-      statsd.time(@statsd_scope) do
-        Tag.where(options)
-      end
+      Tag.where(options)
     else
-      statsd.time("#{@statsd_scope}.all") do
-        Tag
-      end
+      Tag
     end
 
     if params[:sort] and params[:sort] == "alphabetical"
@@ -213,8 +191,6 @@ class GovUkContentApi < Sinatra::Application
       begin
         paginated_tags = paginated(tags, params[:page])
       rescue InvalidPage
-        # TODO: is it worth recording at a more granular level what's wrong?
-        statsd.increment('request.tags.bad_page')
         custom_404
       end
 
@@ -265,8 +241,6 @@ class GovUkContentApi < Sinatra::Application
   #
   get "/tags/:tag_type_or_id.json" do
     set_expiry
-
-    @statsd_scope = "request.tag"
 
     tag_type = known_tag_types.from_plural(params[:tag_type_or_id]) ||
                   known_tag_types.from_singular(params[:tag_type_or_id])
@@ -322,8 +296,6 @@ class GovUkContentApi < Sinatra::Application
   #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
     set_expiry
-
-    @statsd_scope = 'request.with_tag'
 
     unless params[:tag].blank?
       # Old-style tag URLs without types specified
@@ -412,25 +384,23 @@ class GovUkContentApi < Sinatra::Application
   get "/business_support_schemes.json" do
     set_expiry
 
-    statsd.time("request.business_support_schemes") do
-      facets = {}
+    facets = {}
       [:areas, :business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
-        facets[key] = params[key] if params[key].present?
-      end
+      facets[key] = params[key] if params[key].present?
+    end
 
-      if facets.empty?
-        editions = BusinessSupportEdition.published
-      else
-        editions = BusinessSupportEdition.for_facets(facets).published
-      end
+    if facets.empty?
+      editions = BusinessSupportEdition.published
+    else
+      editions = BusinessSupportEdition.for_facets(facets).published
+    end
 
-      editions = editions.order_by([:priority, :desc], [:title, :asc])
+    editions = editions.order_by([:priority, :desc], [:title, :asc])
 
-      @results = editions.map do |ed|
-        artefact = Artefact.find(ed.panopticon_id)
-        artefact.edition = ed
-        artefact
-      end
+    @results = editions.map do |ed|
+      artefact = Artefact.find(ed.panopticon_id)
+      artefact.edition = ed
+      artefact
     end
 
     presenter = ResultSetPresenter.new(
@@ -444,14 +414,11 @@ class GovUkContentApi < Sinatra::Application
   get "/artefacts.json" do
     set_expiry
 
-    artefacts = statsd.time("request.artefacts") do
-      Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
-    end
+    artefacts = Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
 
     begin
       paginated_artefacts = paginated(artefacts, params[:page], :page_size => 500)
     rescue InvalidPage
-      statsd.increment('request.tags.bad_page')
       custom_404
     end
 
@@ -494,7 +461,6 @@ class GovUkContentApi < Sinatra::Application
       begin
         paginated_artefacts = paginated(artefacts, params[:page])
       rescue InvalidPage
-        statsd.increment('request.for_need.bad_page')
         custom_404
       end
 
@@ -525,12 +491,9 @@ class GovUkContentApi < Sinatra::Application
       set_expiry
     end
 
-    @statsd_scope = "request.artefact"
     verify_unpublished_permission if params[:edition]
 
-    statsd.time(@statsd_scope) do
-      @artefact = Artefact.find_by_slug(id)
-    end
+    @artefact = Artefact.find_by_slug(id)
 
     custom_404 unless @artefact
     handle_unpublished_artefact(@artefact) unless params[:edition]
@@ -583,76 +546,70 @@ class GovUkContentApi < Sinatra::Application
   protected
 
   def map_editions_with_artefacts(editions)
-    statsd.time("#{@statsd_scope}.map_editions_to_artefacts") do
-      artefact_ids = editions.collect(&:panopticon_id)
-      matching_artefacts = Artefact.live.any_in(_id: artefact_ids)
+    artefact_ids = editions.collect(&:panopticon_id)
+    matching_artefacts = Artefact.live.any_in(_id: artefact_ids)
 
-      matching_artefacts.map do |artefact|
-        artefact.edition = editions.detect { |e| e.panopticon_id.to_s == artefact.id.to_s }
-        artefact
-      end
+    matching_artefacts.map do |artefact|
+      artefact.edition = editions.detect { |e| e.panopticon_id.to_s == artefact.id.to_s }
+      artefact
     end
   end
 
   def map_artefacts_and_add_editions(artefacts)
-    statsd.time("#{@statsd_scope}.map_results") do
-      # Preload to avoid hundreds of individual queries
-      editions_by_slug = published_editions_for_artefacts(artefacts)
+    # Preload to avoid hundreds of individual queries
+    editions_by_slug = published_editions_for_artefacts(artefacts)
 
-      results = artefacts.map do |artefact|
-        if artefact.owning_app == 'publisher'
-          artefact_with_edition(artefact, editions_by_slug)
-        else
-          artefact
-        end
+    results = artefacts.map do |artefact|
+      if artefact.owning_app == 'publisher'
+        artefact_with_edition(artefact, editions_by_slug)
+      else
+        artefact
       end
-
-      results.compact
     end
+
+    results.compact
   end
 
   def sorted_artefacts_for_tag_id(tag_id, sort)
-    statsd.time("#{@statsd_scope}.#{tag_id}") do
-      artefacts = Artefact.live.where(tag_ids: tag_id)
+    artefacts = Artefact.live.where(tag_ids: tag_id)
 
-      # Load in the curated list and use it as an ordering for the top items in
-      # the list. Any artefacts not present in the list go on the end, in
-      # alphabetical name order.
-      #
-      # For example, if the curated list is
-      #
-      #     [3, 1, 2]
-      #
-      # and the items have ids
-      #
-      #     [1, 2, 3, 4, 5]
-      #
-      # the sorted list will be one of the following:
-      #
-      #     [3, 1, 2, 4, 5]
-      #     [3, 1, 2, 5, 4]
-      #
-      # depending on the names of artefacts 4 and 5.
-      #
-      # If the sort order is alphabetical rather than curated, this is
-      # equivalent to the special case of curated ordering where the curated
-      # list is empty
+    # Load in the curated list and use it as an ordering for the top items in
+    # the list. Any artefacts not present in the list go on the end, in
+    # alphabetical name order.
+    #
+    # For example, if the curated list is
+    #
+    #     [3, 1, 2]
+    #
+    # and the items have ids
+    #
+    #     [1, 2, 3, 4, 5]
+    #
+    # the sorted list will be one of the following:
+    #
+    #     [3, 1, 2, 4, 5]
+    #     [3, 1, 2, 5, 4]
+    #
+    # depending on the names of artefacts 4 and 5.
+    #
+    # If the sort order is alphabetical rather than curated, this is
+    # equivalent to the special case of curated ordering where the curated
+    # list is empty
 
-      if sort == "curated"
-        curated_list = CuratedList.where(tag_ids: [tag_id]).first
-        first_ids = curated_list ? curated_list.artefact_ids : []
-      else
-        # Just fall back on alphabetical order
-        first_ids = []
-      end
-
-      return artefacts.to_a.sort_by { |artefact|
-        [
-          first_ids.find_index(artefact._id) || first_ids.length,
-          artefact.name.downcase
-        ]
-      }
+    if sort == "curated"
+      curated_list = CuratedList.where(tag_ids: [tag_id]).first
+      first_ids = curated_list ? curated_list.artefact_ids : []
+    else
+      # Just fall back on alphabetical order
+      first_ids = []
     end
+
+    return artefacts.to_a.sort_by { |artefact|
+      [
+        first_ids.find_index(artefact._id) || first_ids.length,
+        artefact.name.downcase
+      ]
+    }
   end
 
   def published_editions_for_artefacts(artefacts)
@@ -683,13 +640,11 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def attach_publisher_edition(artefact, version_number = nil)
-    statsd.time("#{@statsd_scope}.edition") do
-      artefact.edition = if version_number
-        Edition.where(panopticon_id: artefact.id, version_number: version_number).first
-      else
-        Edition.where(panopticon_id: artefact.id, state: 'published').first ||
-          Edition.where(panopticon_id: artefact.id).first
-      end
+    artefact.edition = if version_number
+      Edition.where(panopticon_id: artefact.id, version_number: version_number).first
+    else
+      Edition.where(panopticon_id: artefact.id, state: 'published').first ||
+        Edition.where(panopticon_id: artefact.id).first
     end
 
     if version_number && artefact.edition.nil?
@@ -713,9 +668,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def attach_place_data(artefact)
-    statsd.time("#{@statsd_scope}.place") do
-      artefact.places = imminence_api.places(artefact.edition.place_type, params[:latitude], params[:longitude])
-    end
+    artefact.places = imminence_api.places(artefact.edition.place_type, params[:latitude], params[:longitude])
   rescue GdsApi::TimedOutException
     artefact.places = [{ "error" => "timed_out" }]
   rescue GdsApi::HTTPErrorResponse
@@ -723,22 +676,16 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def attach_license_data(artefact)
-    statsd.time("#{@statsd_scope}.licence") do
-      licence_api_response = licence_application_api.details_for_licence(artefact.edition.licence_identifier, params[:snac])
-      artefact.licence = licence_api_response.nil? ? nil : licence_api_response.to_hash
-    end
+    licence_api_response = licence_application_api.details_for_licence(artefact.edition.licence_identifier, params[:snac])
+    artefact.licence = licence_api_response.nil? ? nil : licence_api_response.to_hash
 
     if artefact.licence and artefact.edition.licence_identifier
-      statsd.time("#{@statsd_scope}.licence.local_service") do
-        licence_lgsl_code = @artefact.edition.licence_identifier.split('-').first
-        artefact.licence['local_service'] = LocalService.where(:lgsl_code => licence_lgsl_code).first
-      end
+      licence_lgsl_code = @artefact.edition.licence_identifier.split('-').first
+      artefact.licence['local_service'] = LocalService.where(:lgsl_code => licence_lgsl_code).first
     end
   rescue GdsApi::TimedOutException
-    statsd.increment("#{@statsd_scope}.license_request_error.timed_out")
     artefact.licence = { "error" => "timed_out" }
   rescue GdsApi::HTTPErrorResponse
-    statsd.increment("#{@statsd_scope}.license_request_error.http")
     artefact.licence = { "error" => "http_error" }
   end
 
@@ -748,12 +695,10 @@ class GovUkContentApi < Sinatra::Application
     end
     custom_404 unless artefact.country
 
-    statsd.time("#{@statsd_scope}.edition") do
-      artefact.edition = if version_number
-        artefact.country.editions.where(:version_number => version_number).first
-      else
-        artefact.country.editions.published.first
-      end
+    artefact.edition = if version_number
+      artefact.country.editions.where(:version_number => version_number).first
+    else
+      artefact.country.editions.published.first
     end
     custom_404 unless artefact.edition
     attach_assets(artefact, :image, :document)
@@ -775,13 +720,11 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def load_travel_advice_countries
-    statsd.time("#{@statsd_scope}.travel_advice_countries") do
-      editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
-      @countries = Country.all.map do |country|
-        country.tap {|c| c.edition = editions[c.slug] }
-      end.reject do |country|
-        country.edition.nil?
-      end
+    editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
+    @countries = Country.all.map do |country|
+      country.tap {|c| c.edition = editions[c.slug] }
+    end.reject do |country|
+      country.edition.nil?
     end
   end
 
@@ -817,13 +760,6 @@ class GovUkContentApi < Sinatra::Application
     super(options)
   end
 
-  # Initialise statsd
-  def statsd
-    @statsd ||= Statsd.new("localhost").tap do |c|
-      c.namespace = ENV['GOVUK_STATSD_PREFIX'].to_s
-    end
-  end
-
   def custom_404
     custom_error 404, "Resource not found"
   end
@@ -837,7 +773,6 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def custom_error(code, message)
-    statsd.increment("#{@statsd_scope}.error.#{code}")
     error_hash = {
       "_response_info" => {
         "status" => ERROR_CODES.fetch(code),
@@ -845,12 +780,6 @@ class GovUkContentApi < Sinatra::Application
       }
     }
     halt code, error_hash.to_json
-  end
-
-  def render(*args)
-    statsd.time("#{@statsd_scope}.render") do
-      super
-    end
   end
 
   def bypass_permission_check?
