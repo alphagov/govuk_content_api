@@ -27,6 +27,7 @@ require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
 require "presenters/grouped_result_set_presenter"
 require "presenters/manual_artefact_presenter"
+require "presenters/manual_change_history_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -560,6 +561,9 @@ class GovUkContentApi < Sinatra::Application
       if @artefact.kind == 'manual'
         attach_manual_edition(@artefact)
         presenters.unshift(ManualArtefactPresenter)
+      elsif @artefact.kind == 'manual-change-history'
+        attach_manual_history(@artefact)
+        presenters.unshift(ManualChangeHistoryPresenter)
       else
         attach_specialist_publisher_edition(@artefact)
         formatter_options.merge!(auto_ids: true)
@@ -772,6 +776,10 @@ class GovUkContentApi < Sinatra::Application
 
   def attach_manual_edition(artefact)
     artefact.edition = RenderedManual.find_by_slug(artefact.slug)
+  end
+
+  def attach_manual_history(artefact)
+    artefact.edition = ManualChangeHistory.find_by_slug(artefact.slug)
   end
 
   def load_travel_advice_countries

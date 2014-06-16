@@ -239,4 +239,50 @@ class SpecialistDocumentTest < GovUkContentApiTest
       assert last_response.not_found?
     end
   end
+
+  describe 'loading manual change history' do
+    def build_change_history!
+      @manual_slug = 'guidance/immigration-rules'
+      @slug = "#{@manual_slug}/updates"
+
+      @updates = [
+        {
+          "published_at" => "2014-01-01T08:45:00",
+          "slug" => "#{@slug}/a-section",
+          "title" => "Manual section",
+          "change_note" => "Changed a thing",
+        },
+      ]
+
+      FactoryGirl.create(:artefact,
+        slug: @slug,
+        state: 'live',
+        kind: 'manual-change-history',
+        owning_app: 'specialist-publisher',
+        rendering_app: 'manuals-frontend',
+        name: 'Immigration rules updates',
+      )
+
+      ManualChangeHistory.create!(
+        slug: @slug,
+        manual_slug: @manual_slug,
+        updates: @updates,
+      )
+    end
+
+    it 'should return a successful response' do
+      build_change_history!
+      get "/#{@slug}.json"
+
+      assert last_response.ok?
+    end
+
+    it 'should return json containing the manual slug and updates' do
+      build_change_history!
+      get "/#{@slug}.json"
+
+      assert_equal @updates, parsed_response["details"]["updates"]
+      assert_equal @manual_slug, parsed_response["details"]["manual_slug"]
+    end
+  end
 end
