@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-source 'https://BnrJb6FZyzspBboNJzYZ@gem.fury.io/govuk/'
 
 gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
