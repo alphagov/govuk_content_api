@@ -27,6 +27,7 @@ require "presenters/tagged_artefact_presenter"
 require "presenters/grouped_result_set_presenter"
 require "presenters/manual_artefact_presenter"
 require "presenters/manual_change_history_presenter"
+require "presenters/specialist_document_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -529,6 +530,7 @@ class GovUkContentApi < Sinatra::Application
         presenters.unshift(ManualChangeHistoryPresenter)
       else
         attach_specialist_publisher_edition(@artefact)
+        presenters.unshift(SpecialistDocumentPresenter)
         formatter_options.merge!(auto_ids: true)
       end
     end
