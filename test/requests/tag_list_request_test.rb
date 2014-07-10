@@ -84,6 +84,35 @@ class TagListRequestTest < GovUkContentApiTest
       assert_equal "Yorkshire Tea", response["results"][2]["title"]
     end
 
+    it "doesn't return draft tags unless requested" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-2", title: "Coffee", state: "draft")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
+
+      get "/tags.json?type=drink"
+      response = JSON.parse(last_response.body)
+      assert_equal ["Tea", "Orange Juice"].to_set, response["results"].map {|r| r["title"] }.to_set
+
+      get "/tags.json?type=drink&draft=true"
+      response = JSON.parse(last_response.body)
+      assert_equal ["Tea", "Coffee", "Orange Juice"].to_set, response["results"].map {|r| r["title"] }.to_set
+    end
+
+    it "doesn't return draft children tags" do
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea", state: "draft")
+      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
+
+      get "/tags.json?type=drink&parent_id=tea"
+      response = JSON.parse(last_response.body)
+      assert_equal ["Yorkshire Tea", "PG Tips"].to_set, response["results"].map {|r| r["title"] }.to_set
+
+      get "/tags.json?type=drink&parent_id=tea&draft=true"
+      response = JSON.parse(last_response.body)
+      assert_equal ["Yorkshire Tea", "Lancashire Tea", "PG Tips"].to_set, response["results"].map {|r| r["title"] }.to_set
+    end
+
     it "provides a public API URL when requested through that route" do
       # We identify public API URLs by the presence of an HTTP_API_PREFIX
       # environment variable, set by the internal proxy

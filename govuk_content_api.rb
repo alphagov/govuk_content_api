@@ -167,22 +167,29 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     options = {}
+
     if params[:type]
       options["tag_type"] = params[:type]
     end
+
     if params[:parent_id]
       options["parent_id"] = params[:parent_id]
     end
+
     if params[:root_sections]
       options["parent_id"] = nil
     end
 
-    allowed_params = params.slice *%w(type parent_id root_sections sort)
+    allowed_params = params.slice('type', 'parent_id', 'root_sections', 'sort', 'draft')
 
     tags = if options.length > 0
       Tag.where(options)
     else
       Tag
+    end
+
+    unless params[:draft]
+      tags = tags.where(:state.ne => 'draft')
     end
 
     if params[:sort] and params[:sort] == "alphabetical"
