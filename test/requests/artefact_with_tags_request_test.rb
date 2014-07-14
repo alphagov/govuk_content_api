@@ -14,19 +14,25 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should return 404 if tag not found" do
-      Tag.expects(:where).with(tag_id: 'farmers').returns([])
-
       get "/with_tag.json?tag=farmers"
 
       assert last_response.not_found?
       assert_status_field "not found", last_response
     end
 
+    it "404s for draft tags unless requested" do
+      FactoryGirl.create(:tag, tag_id: 'farmers', state: 'draft')
+
+      get "/with_tag.json?tag=farmers"
+      assert last_response.not_found?
+
+      get "/with_tag.json?tag=farmers&draft=true"
+      assert last_response.redirect?
+    end
+
     it "should return 404 if multiple tags found" do
-      tags = %w(section keyword).map { |tag_type|
-        Tag.new(tag_id: "ambiguity", title: "Ambiguity", tag_type: tag_type)
-      }
-      Tag.expects(:where).with(tag_id: "ambiguity").returns(tags)
+      FactoryGirl.create(:tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "section")
+      FactoryGirl.create(:tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "keyword")
 
       get "/with_tag.json?tag=ambiguity"
 
@@ -35,8 +41,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should redirect to the typed URL with zero results" do
-      t = Tag.new(tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
-      Tag.stubs(:where).with(tag_id: 'farmers').returns([t])
+      FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
 
       get "/with_tag.json?tag=farmers"
       assert last_response.redirect?
@@ -141,12 +146,20 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
         assert last_response.ok?, "request failed: #{last_response.status}"
         assert_equal 0, JSON.parse(last_response.body)["results"].count
       end
+
+      it "404s for draft tags unless requested" do
+        FactoryGirl.create(:tag, tag_id: 'farmers', tag_type: 'section', state: 'draft')
+
+        get "/with_tag.json?section=farmers"
+        assert last_response.not_found?
+
+        get "/with_tag.json?section=farmers&draft=true"
+        assert last_response.ok?
+      end
     end
 
     describe "error handling" do
       it "should return 404 if typed tag not found" do
-        Tag.expects(:by_tag_id).with("farmers", "keyword").returns(nil)
-
         get "/with_tag.json?keyword=farmers"
 
         assert last_response.not_found?
