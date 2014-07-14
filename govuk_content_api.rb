@@ -167,22 +167,29 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     options = {}
+
     if params[:type]
       options["tag_type"] = params[:type]
     end
+
     if params[:parent_id]
       options["parent_id"] = params[:parent_id]
     end
+
     if params[:root_sections]
       options["parent_id"] = nil
     end
 
-    allowed_params = params.slice *%w(type parent_id root_sections sort)
+    allowed_params = params.slice('type', 'parent_id', 'root_sections', 'sort', 'draft')
 
     tags = if options.length > 0
       Tag.where(options)
     else
       Tag
+    end
+
+    unless params[:draft]
+      tags = tags.where(:state.ne => 'draft')
     end
 
     if params[:sort] and params[:sort] == "alphabetical"
@@ -279,7 +286,7 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    @tag = Tag.by_tag_id(tag_id, tag_type_from_singular_form.singular)
+    @tag = Tag.by_tag_id(tag_id, type: tag_type_from_singular_form.singular, draft: params[:draft])
     if @tag
       tag_presenter = TagPresenter.new(@tag, url_helper)
       SingleResultPresenter.new(tag_presenter).present.to_json
@@ -308,7 +315,14 @@ class GovUkContentApi < Sinatra::Application
       end
 
       # If we can unambiguously determine the tag, redirect to its correct URL
-      possible_tags = Tag.where(tag_id: params[:tag]).to_a
+      possible_tags = Tag.where(tag_id: params[:tag])
+
+      if params[:draft]
+        possible_tags = possible_tags.to_a
+      else
+        possible_tags = possible_tags.where(:state.ne => 'draft').to_a
+      end
+
       if possible_tags.count == 1
         modifier_params = params.slice('sort')
         redirect url_helper.tagged_content_url(possible_tags, modifier_params)
@@ -319,7 +333,7 @@ class GovUkContentApi < Sinatra::Application
 
     requested_tags = known_tag_types.each_with_object([]) do |tag_type, req|
       unless params[tag_type.singular].blank?
-        req << Tag.by_tag_id(params[tag_type.singular], tag_type.singular)
+        req << Tag.by_tag_id(params[tag_type.singular], type: tag_type.singular, draft: params[:draft])
       end
     end
 
@@ -538,7 +552,8 @@ class GovUkContentApi < Sinatra::Application
     base_presented_artefact = ArtefactPresenter.new(
       @artefact,
       url_helper,
-      govspeak_formatter(formatter_options)
+      govspeak_formatter(formatter_options),
+      draft_tags: params[:draft_tags]
     )
 
     presented_artefact = presenters
