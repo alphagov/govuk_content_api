@@ -552,7 +552,8 @@ class GovUkContentApi < Sinatra::Application
     base_presented_artefact = ArtefactPresenter.new(
       @artefact,
       url_helper,
-      govspeak_formatter(formatter_options)
+      govspeak_formatter(formatter_options),
+      draft_tags: params[:draft_tags]
     )
 
     presented_artefact = presenters

@@ -31,8 +31,8 @@ module ContentApiArtefactExtensions
     artefacts.uniq(&:slug)
   end
 
-  def combined_tags
-    combined_tags = tags
+  def combined_tags(options = {})
+    combined_tags = tags(options[:draft])
     combined_tags += @extra_tags.to_a if @extra_tags
     combined_tags.uniq(&:id)
   end

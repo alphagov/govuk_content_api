@@ -197,6 +197,38 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
   end
 
+  it "excludes draft tags unless requested" do
+    sections = [
+      { tag_id: 'draft-parent-tag', parent_id: nil, title: 'Draft parent tag' },
+      { tag_id: 'crime', parent_id: nil, title: 'Crime' },
+      { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman' },
+      { tag_id: 'crime/draft-child-tag', parent_id: 'crime', title: 'Draft child tag' },
+    ]
+
+    live_parent = FactoryGirl.create(:tag, tag_id: "crime", title: "Crime", tag_type: "section")
+    live_child = FactoryGirl.create(:tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: live_parent.tag_id)
+    draft_child = FactoryGirl.create(:tag, tag_id: "crime/draft-child-tag", title: "Draft child tag", tag_type: "section", parent_id: live_parent.tag_id, state: 'draft')
+
+    draft_parent = FactoryGirl.create(:tag, tag_id: "draft-parent-tag", title: "Draft parent tag", tag_type: "section", state: 'draft')
+
+    artefact = FactoryGirl.create(:non_publisher_artefact,
+        sections: sections.map { |section| section[:tag_id] },
+        state: 'live')
+
+    get "/#{artefact.slug}.json"
+    parsed_artefact = JSON.parse(last_response.body)
+    assert_equal [live_parent.title, live_child.title].to_set, parsed_artefact["tags"].map {|tag_info| tag_info["title"] }.to_set
+
+    get "/#{artefact.slug}.json?draft_tags=true"
+    parsed_artefact = JSON.parse(last_response.body)
+    assert_equal [
+      live_parent.title,
+      live_child.title,
+      draft_child.title,
+      draft_parent.title
+    ].to_set, parsed_artefact["tags"].map {|tag_info| tag_info["title"] }.to_set
+  end
+
   it "should set the format field at the top-level from the artefact" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
     get "/#{artefact.slug}.json"

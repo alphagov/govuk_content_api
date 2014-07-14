@@ -47,10 +47,11 @@ class ArtefactPresenter
     will_continue_on
   ).map(&:to_sym)
 
-  def initialize(artefact, url_helper, govspeak_formatter)
+  def initialize(artefact, url_helper, govspeak_formatter, options = {})
     @artefact = artefact
     @url_helper = url_helper
     @govspeak_formatter = govspeak_formatter
+    @options = options
   end
 
   def edition
@@ -66,7 +67,7 @@ class ArtefactPresenter
   def present
     presented = BasicArtefactPresenter.new(@artefact, @url_helper).present
 
-    presented["tags"] = present_with(@artefact.combined_tags, TagPresenter)
+    presented["tags"] = present_with(@artefact.combined_tags(draft: @options[:draft_tags]), TagPresenter)
     presented["related"] = present_with(
       @artefact.live_tagged_related_artefacts,
       BasicArtefactPresenter
