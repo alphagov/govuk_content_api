@@ -4,11 +4,11 @@ class TagRequestTest < GovUkContentApiTest
 
   describe "/tags/:tag_type/:tag_id.json" do
     it "should load a specific tag" do
-      fake_tag = Tag.new(
-        tag_id: "good-tag", tag_type: "section",
-        description: "Lots to say for myself", name: "Good tag"
+      FactoryGirl.create(:tag,
+        tag_id: "good-tag",
+        tag_type: "section",
+        description: "Lots to say for myself"
       )
-      Tag.expects(:by_tag_id).with("good-tag", "section").returns(fake_tag)
 
       get "/tags/section/good-tag.json"
       assert last_response.ok?
@@ -27,10 +27,19 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should return 404 if specific tag not found" do
-      Tag.expects(:by_tag_id).with("bad-tag", "section").returns(nil)
       get "/tags/section/bad-tag.json"
       assert last_response.not_found?
       assert_status_field "not found", last_response
+    end
+
+    it "return 404 for draft tags unless requested" do
+      FactoryGirl.create(:tag, tag_id: "crime", tag_type: "section", state: 'draft')
+
+      get "/tags/section/crime.json"
+      assert last_response.not_found?
+
+      get "/tags/section/crime.json?draft=true"
+      assert last_response.ok?
     end
 
     it "should have full URI in ID field" do

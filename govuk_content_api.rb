@@ -286,7 +286,7 @@ class GovUkContentApi < Sinatra::Application
       end
     end
 
-    @tag = Tag.by_tag_id(tag_id, tag_type_from_singular_form.singular)
+    @tag = Tag.by_tag_id(tag_id, type: tag_type_from_singular_form.singular, draft: params[:draft])
     if @tag
       tag_presenter = TagPresenter.new(@tag, url_helper)
       SingleResultPresenter.new(tag_presenter).present.to_json
