@@ -15,7 +15,7 @@ end
 # as a dependency of govuk_content_models
 gem 'mongo', '>= 1.7.1'
 
-gem 'gds-sso', '9.2.0'
+gem 'gds-sso', '9.3.0'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
