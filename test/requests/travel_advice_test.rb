@@ -390,7 +390,7 @@ class TravelAdviceTest < GovUkContentApiTest
       end
 
       it "should authenticate with asset-manager if configured" do
-        ::API_CLIENT_CREDENTIALS = {:bearer_token => "foobar"}
+        ::ASSET_MANAGER_API_CREDENTIALS = {:bearer_token => "foobar"}
         GovUkContentApi.instance_variable_set('@asset_manager_api', nil)
 
         artefact = FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
@@ -432,8 +432,8 @@ class TravelAdviceTest < GovUkContentApiTest
       end
 
       after do
-        if Object.const_defined?(:API_CLIENT_CREDENTIALS)
-          Object.instance_eval { remove_const(:API_CLIENT_CREDENTIALS) }
+        if Object.const_defined?(:ASSET_MANAGER_API_CREDENTIALS)
+          Object.instance_eval { remove_const(:ASSET_MANAGER_API_CREDENTIALS) }
         end
       end
     end

@@ -779,7 +779,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def asset_manager_api
-    options = Object::const_defined?(:API_CLIENT_CREDENTIALS) ? API_CLIENT_CREDENTIALS : {
+    options = Object::const_defined?(:ASSET_MANAGER_API_CREDENTIALS) ? ASSET_MANAGER_API_CREDENTIALS : {
       bearer_token: ENV['CONTENTAPI_ASSET_MANAGER_BEARER_TOKEN']
     }
     super(options)
