@@ -35,9 +35,9 @@ class ArtefactRequestTest < GovUkContentApiTest
 
   describe "returning related artefacts" do
     it "should return related artefacts as a combined array" do
-      @food_tag = FactoryGirl.create(:tag, :tag_id => "food", :tag_type => 'section', :title => "Food")
-      FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => @food_tag.tag_id)
-      FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => @food_tag.tag_id)
+      @food_tag = FactoryGirl.create(:live_tag, :tag_id => "food", :tag_type => 'section', :title => "Food")
+      FactoryGirl.create(:live_tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => @food_tag.tag_id)
+      FactoryGirl.create(:live_tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => @food_tag.tag_id)
 
       related_artefacts = [
         FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live', :sections => ["food/pastries"]),
@@ -58,9 +58,9 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
 
     it "should set the group for a related artefact" do
-      FactoryGirl.create(:tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => "food")
-      FactoryGirl.create(:tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => "food")
-      FactoryGirl.create(:tag, :tag_id => "drinks/cocktails", :tag_type => 'section', :title => "Cocktails", :parent_id => "drinks")
+      FactoryGirl.create(:live_tag, :tag_id => "food/pastries", :tag_type => 'section', :title => "Pastries", :parent_id => "food")
+      FactoryGirl.create(:live_tag, :tag_id => "food/desserts", :tag_type => 'section', :title => "Desserts", :parent_id => "food")
+      FactoryGirl.create(:live_tag, :tag_id => "drinks/cocktails", :tag_type => 'section', :title => "Cocktails", :parent_id => "drinks")
 
       related_artefacts = [
         FactoryGirl.create(:artefact, slug: "related-artefact-1", name: "Pies", state: 'live', :sections => ["food/pastries"]),
@@ -170,8 +170,8 @@ class ArtefactRequestTest < GovUkContentApiTest
       { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman' },
     ]
 
-    parent = FactoryGirl.create(:tag, tag_id: "crime", title: "Crime", tag_type: "section")
-    FactoryGirl.create(:tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: parent.tag_id)
+    parent = FactoryGirl.create(:live_tag, tag_id: "crime", title: "Crime", tag_type: "section")
+    FactoryGirl.create(:live_tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: parent.tag_id)
 
     artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |section| section[:tag_id] },
@@ -205,11 +205,11 @@ class ArtefactRequestTest < GovUkContentApiTest
       { tag_id: 'crime/draft-child-tag', parent_id: 'crime', title: 'Draft child tag' },
     ]
 
-    live_parent = FactoryGirl.create(:tag, tag_id: "crime", title: "Crime", tag_type: "section")
-    live_child = FactoryGirl.create(:tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: live_parent.tag_id)
-    draft_child = FactoryGirl.create(:tag, tag_id: "crime/draft-child-tag", title: "Draft child tag", tag_type: "section", parent_id: live_parent.tag_id, state: 'draft')
+    live_parent = FactoryGirl.create(:live_tag, tag_id: "crime", title: "Crime", tag_type: "section")
+    live_child = FactoryGirl.create(:live_tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: live_parent.tag_id)
+    draft_child = FactoryGirl.create(:draft_tag, tag_id: "crime/draft-child-tag", title: "Draft child tag", tag_type: "section", parent_id: live_parent.tag_id)
 
-    draft_parent = FactoryGirl.create(:tag, tag_id: "draft-parent-tag", title: "Draft parent tag", tag_type: "section", state: 'draft')
+    draft_parent = FactoryGirl.create(:draft_tag, tag_id: "draft-parent-tag", title: "Draft parent tag", tag_type: "section")
 
     artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |section| section[:tag_id] },

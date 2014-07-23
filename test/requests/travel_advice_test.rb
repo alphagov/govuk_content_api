@@ -254,8 +254,8 @@ class TravelAdviceTest < GovUkContentApiTest
 
     describe "loading tags" do
       it "should include tags from the travel advice index artefact" do
-        FactoryGirl.create(:tag, :tag_id => 'coastal-resorts', :title => 'Coastal resorts', :tag_type => 'section')
-        FactoryGirl.create(:tag, :tag_id => 'good-food', :title => 'Good food', :tag_type => 'section')
+        FactoryGirl.create(:live_tag, :tag_id => 'coastal-resorts', :title => 'Coastal resorts', :tag_type => 'section')
+        FactoryGirl.create(:live_tag, :tag_id => 'good-food', :title => 'Good food', :tag_type => 'section')
 
         travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                              :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['coastal-resorts'])
@@ -273,7 +273,7 @@ class TravelAdviceTest < GovUkContentApiTest
       end
 
       it "should not duplicate tags which appear on both the index and the country artefact" do
-        FactoryGirl.create(:tag, :tag_id => 'surfing', :title => 'Surfing', :tag_type => 'section')
+        FactoryGirl.create(:live_tag, :tag_id => 'surfing', :title => 'Surfing', :tag_type => 'section')
 
         travel_index_artefact = FactoryGirl.create(:artefact, :slug => 'foreign-travel-advice', :state => 'live', :need_ids => ['100003'],
                                              :owning_app => 'travel-advice-publisher', :rendering_app => 'frontend', sections: ['surfing'])

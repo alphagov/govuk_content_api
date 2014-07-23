@@ -6,7 +6,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
     super
 
     @tag = FactoryGirl.create(
-      :tag,
+      :live_tag,
       tag_id: "batman",
       title: "Batman",
       tag_type: "section"
@@ -55,7 +55,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
     }
 
     FactoryGirl.create(
-      :tag,
+      :live_tag,
       tag_id: "x-men",
       title: "X-Men",
       tag_type: "section"
@@ -135,7 +135,7 @@ class CuratedListOrderingTest < GovUkContentApiTest
       ["bizarro", "bizarro"]
     ]
 
-    FactoryGirl.create(:tag, tag_id: "superman", title: "Superman", tag_type: "section")
+    FactoryGirl.create(:live_tag, tag_id: "superman", title: "Superman", tag_type: "section")
     artefacts.each { |slug, name|
       FactoryGirl.create(
         :artefact,
