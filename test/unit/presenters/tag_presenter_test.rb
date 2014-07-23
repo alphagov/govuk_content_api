@@ -11,6 +11,7 @@ describe TagPresenter do
       expects(:short_description).returns("A tag for stuff")
       expects(:description).returns("A tag for stuff and things")
       expects(:parent).returns(nil)
+      expects(:state).returns("live")
     end
   end
 
@@ -68,7 +69,7 @@ describe TagPresenter do
   it "should instantiate a presenter for the tag's parent" do
     mock_parent = mock("parent")
     mock_tag = mock("tag") do
-      stubs(title: nil, tag_id: nil, tag_type: nil, short_description: nil, description: nil)
+      stubs(title: nil, tag_id: nil, tag_type: nil, short_description: nil, description: nil, state: nil)
       expects(:parent).with().times(1..2).returns(mock_parent)
     end
 
@@ -86,4 +87,14 @@ describe TagPresenter do
 
     assert_equal :parent_hash, presenter.present["parent"]
   end
+
+  it "should include the tag state" do
+    mock_tag = mock_tag_without_parent
+    mock_url_helper = stub_everything
+
+    presented = TagPresenter.new(mock_tag, mock_url_helper).present
+
+    assert_equal "live", presented["state"]
+  end
+
 end
