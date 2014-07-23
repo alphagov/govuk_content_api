@@ -144,7 +144,8 @@ class TagRequestTest < GovUkContentApiTest
             "web_url" => "#{public_web_url}/browse/crime-and-prison"
           },
           "parent" => nil,
-          "title" => @parent.title
+          "title" => @parent.title,
+          "state" => @parent.state,
         }
         assert_includes response.keys, 'parent'
         assert_equal expected, response['parent']
