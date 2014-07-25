@@ -21,7 +21,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "404s for draft tags unless requested" do
-      FactoryGirl.create(:tag, tag_id: 'farmers', state: 'draft')
+      FactoryGirl.create(:draft_tag, tag_id: 'farmers')
 
       get "/with_tag.json?tag=farmers"
       assert last_response.not_found?
@@ -31,8 +31,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should return 404 if multiple tags found" do
-      FactoryGirl.create(:tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "section")
-      FactoryGirl.create(:tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "keyword")
+      FactoryGirl.create(:live_tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "section")
+      FactoryGirl.create(:live_tag, tag_id: "ambiguity", title: "Ambiguity", tag_type: "keyword")
 
       get "/with_tag.json?tag=ambiguity"
 
@@ -41,7 +41,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should redirect to the typed URL with zero results" do
-      FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
+      FactoryGirl.create(:live_tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
 
       get "/with_tag.json?tag=farmers"
       assert last_response.redirect?
@@ -52,7 +52,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should redirect to the typed URL with multiple results" do
-      farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
+      farmers = FactoryGirl.create(:live_tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
       FactoryGirl.create(:artefact, owning_app: "smart-answers", keywords: ['farmers'], state: 'live')
 
       get "/with_tag.json?tag=farmers"
@@ -63,7 +63,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should preserve the specified sort order when redirecting" do
-      batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+      batman = FactoryGirl.create(:live_tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
       get "/with_tag.json?tag=batman&sort=bobbles"
       assert last_response.redirect?
       assert_equal(
@@ -73,8 +73,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
     end
 
     it "should not allow filtering by multiple tags" do
-      farmers = FactoryGirl.create(:tag, tag_id: 'crime', title: 'Crime', tag_type: 'section')
-      business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+      farmers = FactoryGirl.create(:live_tag, tag_id: 'crime', title: 'Crime', tag_type: 'section')
+      business = FactoryGirl.create(:live_tag, tag_id: 'business', title: 'Business', tag_type: 'section')
 
       get "/with_tag.json?tag=crime,business"
       assert last_response.not_found?
@@ -85,8 +85,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
   describe "handling requests for typed tags" do
     describe "with a valid request" do
       before :each do
-        @farmers = FactoryGirl.create(:tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
-        @business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+        @farmers = FactoryGirl.create(:live_tag, tag_id: 'farmers', title: 'Farmers', tag_type: 'keyword')
+        @business = FactoryGirl.create(:live_tag, tag_id: 'business', title: 'Business', tag_type: 'section')
       end
 
       it "should return an array of results" do
@@ -148,7 +148,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
       end
 
       it "404s for draft tags unless requested" do
-        FactoryGirl.create(:tag, tag_id: 'farmers', tag_type: 'section', state: 'draft')
+        FactoryGirl.create(:draft_tag, tag_id: 'farmers', tag_type: 'section')
 
         get "/with_tag.json?section=farmers"
         assert last_response.not_found?
@@ -167,7 +167,7 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
       end
 
       it "should return a 404 if an unsupported sort order is requested" do
-        batman = FactoryGirl.create(:tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
+        batman = FactoryGirl.create(:live_tag, tag_id: 'batman', title: 'Batman', tag_type: 'section')
         bat = FactoryGirl.create(:artefact, owning_app: 'publisher', sections: ['batman'], name: 'Bat', slug: 'batman')
         bat_guide = FactoryGirl.create(:guide_edition, panopticon_id: bat.id, state: "published", slug: 'batman')
         get "/with_tag.json?section=batman&sort=bobbles"
@@ -177,8 +177,8 @@ class ArtefactWithTagsRequestTest < GovUkContentApiTest
       end
 
       it "should not allow filtering by multiple typed tags" do
-        farmers = FactoryGirl.create(:tag, tag_id: 'crime', title: 'Crime', tag_type: 'section')
-        business = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+        farmers = FactoryGirl.create(:live_tag, tag_id: 'crime', title: 'Crime', tag_type: 'section')
+        business = FactoryGirl.create(:live_tag, tag_id: 'business', title: 'Business', tag_type: 'section')
 
         get "/with_tag.json?section=crime,business"
         assert last_response.not_found?

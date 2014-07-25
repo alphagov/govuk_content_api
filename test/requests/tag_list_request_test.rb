@@ -6,7 +6,7 @@ class TagListRequestTest < GovUkContentApiTest
 
   describe "/tags.json" do
     it "should load list of tags" do
-      FactoryGirl.create_list(:tag, 2)
+      FactoryGirl.create_list(:live_tag, 2)
       get "/tags.json"
 
       assert last_response.ok?
@@ -20,8 +20,8 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "should filter all tags by type" do
-      FactoryGirl.create(:tag, tag_type: "section")
-      FactoryGirl.create(:tag, tag_type: "keyword")
+      FactoryGirl.create(:live_tag, tag_type: "section")
+      FactoryGirl.create(:live_tag, tag_type: "keyword")
       get "/tags.json?type=section"
       assert last_response.ok?
       assert_status_field "ok", last_response
@@ -29,7 +29,7 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "should have full uri in id field in index action" do
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
+      tag = FactoryGirl.create(:live_tag, tag_id: 'crime')
       get "/tags.json"
       expected_id = "http://example.org/tags/section/crime.json"
       expected_url = "#{public_web_url}/browse/crime"
@@ -39,8 +39,8 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "returns children of a provided parent tag" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/lancashire-tea", parent_id: "tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/lancashire-tea", parent_id: "tea")
 
       get "/tags.json?type=drink&parent_id=tea"
 
@@ -52,9 +52,9 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "returns tags in alphabetical order" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-2", title: "Coffee")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "item-2", title: "Coffee")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
 
       get "/tags.json?type=drink&sort=alphabetical"
 
@@ -68,10 +68,10 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "returns children of a provided parent tag in alphabetical order" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
 
       get "/tags.json?type=drink&parent_id=tea&sort=alphabetical"
 
@@ -85,9 +85,9 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "doesn't return draft tags unless requested" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-2", title: "Coffee", state: "draft")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "item-1", title: "Tea")
+      FactoryGirl.create(:draft_tag, tag_type: "drink", tag_id: "item-2", title: "Coffee")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "item-3", title: "Orange Juice")
 
       get "/tags.json?type=drink"
       response = JSON.parse(last_response.body)
@@ -99,10 +99,10 @@ class TagListRequestTest < GovUkContentApiTest
     end
 
     it "doesn't return draft children tags" do
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea", state: "draft")
-      FactoryGirl.create(:tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/blend-1", parent_id: "tea", title: "Yorkshire Tea")
+      FactoryGirl.create(:draft_tag, tag_type: "drink", tag_id: "tea/blend-2", parent_id: "tea", title: "Lancashire Tea")
+      FactoryGirl.create(:live_tag, tag_type: "drink", tag_id: "tea/blend-3", parent_id: "tea", title: "PG Tips")
 
       get "/tags.json?type=drink&parent_id=tea"
       response = JSON.parse(last_response.body)
@@ -116,7 +116,7 @@ class TagListRequestTest < GovUkContentApiTest
     it "provides a public API URL when requested through that route" do
       # We identify public API URLs by the presence of an HTTP_API_PREFIX
       # environment variable, set by the internal proxy
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
+      tag = FactoryGirl.create(:live_tag, tag_id: 'crime')
       get '/tags.json', {}, {'HTTP_API_PREFIX' => 'api'}
 
       expected_id = "#{public_web_url}/api/tags/section/crime.json"
@@ -132,7 +132,7 @@ class TagListRequestTest < GovUkContentApiTest
       end
 
       it "paginates large numbers of results" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
 
         get "/tags.json"
 
@@ -148,7 +148,7 @@ class TagListRequestTest < GovUkContentApiTest
       end
 
       it "displays an intermediate page of results" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
 
         get "/tags.json?page=2"
 
@@ -163,7 +163,7 @@ class TagListRequestTest < GovUkContentApiTest
 
 
       it "displays subsequent pages of results" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
 
         get "/tags.json?page=3"
         response = JSON.parse(last_response.body)
@@ -178,33 +178,33 @@ class TagListRequestTest < GovUkContentApiTest
       end
 
       it "404s on too high a page number" do
-        FactoryGirl.create_list(:tag, 30)
+        FactoryGirl.create_list(:live_tag, 30)
         get "/tags.json?page=4"
         assert last_response.not_found?
       end
 
       it "works when displaying the last page with a single item" do
-        FactoryGirl.create_list(:tag, 31)
+        FactoryGirl.create_list(:live_tag, 31)
         get "/tags.json?page=4"
         assert last_response.ok?
         assert_equal 1, JSON.parse(last_response.body)['results'].count
       end
 
       it "404s on a negative page number" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
         get "/tags.json?page=-5"
         assert last_response.not_found?
       end
 
       it "404s on a non-numeric page number" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
         get "/tags.json?page=chickens"
         assert last_response.not_found?
       end
 
       it "paginates correctly on filtered tag lists" do
-        FactoryGirl.create_list(:tag, 25, tag_type: "section")
-        FactoryGirl.create_list(:tag, 20, tag_type: "keyword")
+        FactoryGirl.create_list(:live_tag, 25, tag_type: "section")
+        FactoryGirl.create_list(:live_tag, 20, tag_type: "keyword")
 
         get "/tags.json?type=section&page=2"
         response = JSON.parse(last_response.body)
@@ -225,7 +225,7 @@ class TagListRequestTest < GovUkContentApiTest
       end
 
       it "displays large numbers of results" do
-        FactoryGirl.create_list(:tag, 25)
+        FactoryGirl.create_list(:live_tag, 25)
 
         get "/tags.json"
 
@@ -241,8 +241,8 @@ class TagListRequestTest < GovUkContentApiTest
       end
 
       it "displays a filtered list of results" do
-        FactoryGirl.create_list(:tag, 25)
-        FactoryGirl.create_list(:tag, 25, tag_type: "keyword")
+        FactoryGirl.create_list(:live_tag, 25)
+        FactoryGirl.create_list(:live_tag, 25, tag_type: "keyword")
 
         get "/tags.json?type=keyword"
 

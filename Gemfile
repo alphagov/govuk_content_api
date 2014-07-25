@@ -7,7 +7,7 @@ gem 'sinatra', '1.3.2'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '15.1.0'
+  gem 'govuk_content_models', '16.1.0'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2

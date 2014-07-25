@@ -4,7 +4,7 @@ class TagRequestTest < GovUkContentApiTest
 
   describe "/tags/:tag_type/:tag_id.json" do
     it "should load a specific tag" do
-      FactoryGirl.create(:tag,
+      FactoryGirl.create(:live_tag,
         tag_id: "good-tag",
         tag_type: "section",
         description: "Lots to say for myself"
@@ -33,7 +33,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "return 404 for draft tags unless requested" do
-      FactoryGirl.create(:tag, tag_id: "crime", tag_type: "section", state: 'draft')
+      FactoryGirl.create(:draft_tag, tag_id: "crime", tag_type: "section")
 
       get "/tags/section/crime.json"
       assert last_response.not_found?
@@ -43,7 +43,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should have full URI in ID field" do
-      tag = FactoryGirl.create(:tag, tag_id: "crime", tag_type: "section")
+      tag = FactoryGirl.create(:live_tag, tag_id: "crime", tag_type: "section")
       get "/tags/section/crime.json"
       full_url = "http://example.org/tags/section/crime.json"
       found_id = JSON.parse(last_response.body)['id']
@@ -51,7 +51,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should be able to fetch tag over SSL" do
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
+      tag = FactoryGirl.create(:live_tag, tag_id: 'crime')
       get "https://example.org/tags/section/crime.json"
       full_url = "https://example.org/tags/section/crime.json"
       found_id = JSON.parse(last_response.body)['id']
@@ -59,7 +59,7 @@ class TagRequestTest < GovUkContentApiTest
     end
 
     it "should include nil for the parent tag" do
-      tag = FactoryGirl.create(:tag, tag_id: 'crime')
+      tag = FactoryGirl.create(:live_tag, tag_id: 'crime')
       get "/tags/section/crime.json"
       response = JSON.parse(last_response.body)
       assert_includes response.keys, 'parent'
@@ -68,10 +68,10 @@ class TagRequestTest < GovUkContentApiTest
 
     describe "sub-section tags" do
       before do
-        @parent = FactoryGirl.create(:tag, tag_id: "crime", tag_type: "section")
+        @parent = FactoryGirl.create(:live_tag, tag_id: "crime", tag_type: "section")
       end
       it "should load a tag with a unencoded slash character in the tag ID" do
-        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
+        FactoryGirl.create(:live_tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
 
         get "/tags/section/crime/batman.json"
         assert last_response.ok?
@@ -83,7 +83,7 @@ class TagRequestTest < GovUkContentApiTest
       end
 
       it "should work with percent-encoded tag IDs" do
-        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
+        FactoryGirl.create(:live_tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
 
         get "/tags/section/crime%2Fbatman.json"
         assert last_response.ok?
@@ -96,7 +96,7 @@ class TagRequestTest < GovUkContentApiTest
 
       it "should link to the correct browse URL for a subsection tag" do
         # This is a temporary thing until the browse pages have been rebuilt to have proper URL's
-        FactoryGirl.create(:tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
+        FactoryGirl.create(:live_tag, tag_id: 'crime/batman', tag_type: 'section', parent_id: @parent.tag_id)
         get "/tags/section/crime%2Fbatman.json"
 
         assert last_response.ok?
@@ -123,11 +123,11 @@ class TagRequestTest < GovUkContentApiTest
 
     describe "has a parent tag" do
       before do
-        @parent = FactoryGirl.create(:tag, tag_id: 'crime-and-prison')
+        @parent = FactoryGirl.create(:live_tag, tag_id: 'crime-and-prison')
       end
 
       it "should include the parent tag" do
-        tag = FactoryGirl.create(:tag, tag_id: 'crime', parent_id: @parent.tag_id)
+        tag = FactoryGirl.create(:live_tag, tag_id: 'crime', parent_id: @parent.tag_id)
         get "/tags/section/crime.json"
         response = JSON.parse(last_response.body)
         expected = {

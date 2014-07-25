@@ -4,7 +4,7 @@ class GroupedArtefactsRequestTest < GovUkContentApiTest
 
   describe "requests for tagged artefacts grouped by format" do
     before(:each) do
-      @tag = FactoryGirl.create(:tag, tag_id: 'business', title: 'Business', tag_type: 'section')
+      @tag = FactoryGirl.create(:live_tag, tag_id: 'business', title: 'Business', tag_type: 'section')
       @artefacts = [
         # Services
         FactoryGirl.create_list(:live_artefact_with_edition, 2, kind: "answer", section_ids: [@tag.tag_id]),
