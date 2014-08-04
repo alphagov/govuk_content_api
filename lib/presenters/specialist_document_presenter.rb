@@ -20,7 +20,11 @@ class SpecialistDocumentPresenter
 private
 
   def document_specific_details
-    rendered_document.details
+    rendered_document
+      .details
+      .merge({
+        "published_at" => rendered_document.read_attribute(:published_at)
+      })
   end
 
   def rendered_document
