@@ -12,6 +12,7 @@ class BasicArtefactPresenter
 
   def present
     presented = MinimalArtefactPresenter.new(@artefact, @url_helper).present
+    presented["in_beta"] = !!(@artefact.edition && @artefact.edition.respond_to?(:in_beta?) && @artefact.edition.in_beta?)
     presented["updated_at"] = presented_updated_date.iso8601
     presented["group"] = @artefact.group if @artefact.group.present?
     presented

@@ -247,6 +247,30 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal 'en', response["details"]["language"]
   end
 
+  describe "in_beta" do
+    it "should be true if edition is in beta" do
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published', in_beta: true)
+
+      get "/#{artefact.slug}.json"
+
+      assert_equal 200, last_response.status
+      response = JSON.parse(last_response.body)
+      assert response["in_beta"]
+    end
+
+    it "should be false if edition is not in beta" do
+      artefact = FactoryGirl.create(:artefact, state: 'live')
+      edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, state: 'published', in_beta: false)
+
+      get "/#{artefact.slug}.json"
+
+      assert_equal 200, last_response.status
+      response = JSON.parse(last_response.body)
+      refute response["in_beta"]
+    end
+  end
+
   describe "updated timestamp" do
 
     before do

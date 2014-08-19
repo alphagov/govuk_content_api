@@ -7,7 +7,7 @@ gem 'sinatra', '1.3.2'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem 'govuk_content_models', '16.2.0'
+  gem 'govuk_content_models', '17.1.0'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2
@@ -22,7 +22,7 @@ else
   gem 'gds-api-adapters', '10.14.0'
 end
 
-gem 'govspeak', '1.5.4'
+gem 'govspeak', '~> 2.0'
 gem 'plek', '1.7.0'
 gem 'yajl-ruby'
 gem 'kaminari', '0.14.1'
