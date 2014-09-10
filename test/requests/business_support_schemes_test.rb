@@ -7,7 +7,9 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
 
   describe "finding business support editions" do
     before do
+      @artefact = FactoryGirl.create(:artefact, :live)
       @ed1 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :priority => 1,
                                 :short_description => "Alpha desc",
                                 :areas => ['1','666','999'],
@@ -16,6 +18,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :sectors => ['manufacturing','utilities'],
                                 :state => 'published')
       @ed2 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :priority => 2,
                                 :short_description => "Bravo desc",
                                 :areas => ['45','444','666'],
@@ -23,6 +26,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :locations => ['scotland', 'wales'],
                                 :state => 'published')
       @ed3 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :priority => 1,
                                 :short_description => "Charlie desc",
                                 :areas => ['1','2','3'],
@@ -30,6 +34,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :purposes => ['world-domination'],
                                 :state => 'published')
       @ed4 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :priority => 1,
                                 :short_description => "Delta desc",
                                 :locations => ['wales'],
@@ -37,6 +42,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :support_types => ['award','loan'],
                                 :state => 'in_review')
       @ed5 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :priority => 1,
                                 :short_description => "Echo desc",
                                 :areas => ['9','666'],
@@ -45,6 +51,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :support_types => ['grant','loan'],
                                 :state => 'published')
       @ed6 = FactoryGirl.create(:business_support_edition,
+                                :panopticon_id => @artefact._id,
                                 :short_description => "Fox-trot desc",
                                 :locations => ['scotland', 'wales'],
                                 :state => 'archived')
@@ -84,6 +91,17 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
 
       assert_equal 2, parsed_response["total"]
       assert_equal ['Alpha desc', 'Bravo desc'], parsed_response["results"].map {|r| r["short_description"].strip }.sort
+    end
+
+    it "should only return business support editions with live artefacts" do
+      archived_artefact = FactoryGirl.create(:artefact, :archived)
+      @ed1.set(:panopticon_id, archived_artefact._id)
+      get "/business_support_schemes.json?business_sizes=up-to-249&locations=scotland&wibble=echo"
+      assert_status_field "ok", last_response
+      parsed_response = JSON.parse(last_response.body)
+
+      assert_equal 1, parsed_response["total"]
+      assert_equal ['Bravo desc'], parsed_response["results"].map {|r| r["short_description"].strip }.sort
     end
 
     it "should only return published business support editions when queried with facets" do
