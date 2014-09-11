@@ -417,7 +417,8 @@ class GovUkContentApi < Sinatra::Application
       artefact = Artefact.find(ed.panopticon_id)
       artefact.edition = ed
       artefact
-    end.select(&:live?)
+    end
+    @results.select!(&:live?)
 
     presenter = ResultSetPresenter.new(
       FakePaginatedResultSet.new(@results),
