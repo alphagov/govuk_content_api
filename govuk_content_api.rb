@@ -418,6 +418,7 @@ class GovUkContentApi < Sinatra::Application
       artefact.edition = ed
       artefact
     end
+    @results.select!(&:live?)
 
     presenter = ResultSetPresenter.new(
       FakePaginatedResultSet.new(@results),
