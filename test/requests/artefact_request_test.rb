@@ -1,9 +1,7 @@
 require 'test_helper'
 require 'uri'
-require 'gds_api/test_helpers/fact_cave'
 
 class ArtefactRequestTest < GovUkContentApiTest
-  include GdsApi::TestHelpers::FactCave
 
   def bearer_token_for_user_with_permission
     { 'HTTP_AUTHORIZATION' => 'Bearer xyz_has_permission_xyz' }
@@ -572,61 +570,6 @@ class ArtefactRequestTest < GovUkContentApiTest
         parsed_response = JSON.parse(last_response.body)
         assert_equal 200, last_response.status
         assert_equal "## Header 2", parsed_response["details"]["parts"][0]["body"]
-      end
-
-      describe "interpolating fact values" do
-        it "should interploate fact values from the fact cave into the bodies" do
-          fact_cave_has_a_fact('vat-rate', 20, :type => :numeric, :unit => '%')
-
-          artefact = FactoryGirl.create(:artefact, slug: "vat", state: 'live')
-          FactoryGirl.create(:guide_edition,
-              panopticon_id: artefact.id,
-              parts: [
-                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]", slug: "part-one")
-              ],
-              state: 'published')
-
-          get "/#{artefact.slug}.json"
-
-          parsed_response = JSON.parse(last_response.body)
-          assert_equal 200, last_response.status
-          assert_equal "<h2>The current VAT rate is 20%</h2>", parsed_response["details"]["parts"][0]["body"].strip
-        end
-
-        it "should still interpolate fact values when govspeak requested" do
-          fact_cave_has_a_fact('vat-rate', 20, :type => :numeric, :unit => '%')
-          artefact = FactoryGirl.create(:artefact, slug: "vat", state: 'live')
-          FactoryGirl.create(:guide_edition,
-              panopticon_id: artefact.id,
-              parts: [
-                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]", slug: "part-one")
-              ],
-              state: 'published')
-
-          get "/#{artefact.slug}.json?content_format=govspeak"
-
-          parsed_response = JSON.parse(last_response.body)
-          assert_equal 200, last_response.status
-          assert_equal "##The current VAT rate is 20%", parsed_response["details"]["parts"][0]["body"]
-        end
-
-        it "should use a blank value if the fact cave 404's for a fact" do
-          fact_cave_does_not_have_a_fact('vat-rate')
-
-          artefact = FactoryGirl.create(:artefact, slug: "vat", state: 'live')
-          FactoryGirl.create(:guide_edition,
-              panopticon_id: artefact.id,
-              parts: [
-                Part.new(title: "Part One", body: "##The current VAT rate is [fact:vat-rate]%", slug: "part-one")
-              ],
-              state: 'published')
-
-          get "/#{artefact.slug}.json"
-
-          parsed_response = JSON.parse(last_response.body)
-          assert_equal 200, last_response.status
-          assert_equal "<h2>The current VAT rate is %</h2>", parsed_response["details"]["parts"][0]["body"].strip
-        end
       end
     end
 

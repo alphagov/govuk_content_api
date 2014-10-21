@@ -71,9 +71,9 @@ class GovUkContentApi < Sinatra::Application
 
   def govspeak_formatter(options = {})
     if params[:content_format] == "govspeak"
-      GovspeakFormatter.new(:govspeak, fact_cave_api, options)
+      GovspeakFormatter.new(:govspeak, options)
     else
-      GovspeakFormatter.new(:html, fact_cave_api, options)
+      GovspeakFormatter.new(:html, options)
     end
   end
 
