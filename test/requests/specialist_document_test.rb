@@ -76,7 +76,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
       document_defaults = {
         slug: 'guidance/immigration-rules/family-members',
         title: 'Immigration rules',
-        summary: 'This is the summary',
         section_groups: section_groups,
       }
 
@@ -125,8 +124,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
 
       assert_equal 'manual', parsed_response["format"]
       assert_equal 'Immigration rules', parsed_response["title"]
-      assert_equal 'This is the summary', parsed_response["details"]["summary"]
-      assert_equal section_groups, parsed_response["details"]["section_groups"]
     end
   end
 
@@ -167,7 +164,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
       assert_base_artefact_fields(parsed_response)
       assert_equal 'manual-section', parsed_response["format"]
       assert_equal 'Immigration rules part 8: family members', parsed_response["title"]
-      assert_equal 'This is the summary', parsed_response["details"]["summary"]
     end
 
     it 'should include the body of the rendered document' do
@@ -238,8 +234,9 @@ class SpecialistDocumentTest < GovUkContentApiTest
       build_change_history!
       get "/#{@slug}.json"
 
-      assert_equal @updates, parsed_response["details"]["updates"]
-      assert_equal @manual_slug, parsed_response["details"]["manual_slug"]
+      assert_equal 'manual-change-history', parsed_response["format"]
+      assert_equal 'Immigration rules updates', parsed_response["title"]
     end
+
   end
 end
