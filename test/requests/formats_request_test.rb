@@ -24,7 +24,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
 
-    expected_fields = ['description', 'alternative_title', 'body', 'need_extended_font']
+    expected_fields = ['description', 'body', 'need_extended_font']
 
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Important batman information</p>\n", fields["body"]
@@ -48,9 +48,9 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'description', 'body',
-                        'short_description', 'min_value', 'max_value', 'eligibility', 'evaluation', 'additional_information',
-                        'max_employees', 'organiser', 'continuation_link', 'will_continue_on']
+    expected_fields = ['description', 'body', 'short_description', 'min_value', 'max_value',
+                       'eligibility', 'evaluation', 'additional_information',
+                       'max_employees', 'organiser', 'continuation_link', 'will_continue_on']
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "No policeman is going to give the Batmobile a ticket", fields['short_description'].strip
     assert_equal "No policeman is going to give the Batmobile a ticket", fields['short_description']
@@ -80,7 +80,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'description', 'parts']
+    expected_fields = ['description', 'parts']
 
     assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
@@ -103,7 +103,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'description', 'parts']
+    expected_fields = ['description', 'parts']
 
     assert_has_expected_fields(fields, expected_fields)
     refute fields.has_key?('body')
@@ -130,7 +130,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
       fields = parsed_response["details"]
 
-      expected_fields = %w(alternative_title description video_url video_summary body)
+      expected_fields = %w(description video_url video_summary body)
 
       assert_has_expected_fields(fields, expected_fields)
       assert_equal "I am a video summary", fields["video_summary"]
@@ -205,7 +205,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
+    expected_fields = ['licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
 
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Not just anyone can be Batman</p>", fields["licence_overview"].strip
@@ -230,7 +230,7 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['alternative_title', 'lgsl_code', 'lgil_override', 'introduction', 'more_information',
+    expected_fields = ['lgsl_code', 'lgil_override', 'introduction', 'more_information',
                         'minutes_to_complete', 'expectations']
 
     assert_has_expected_fields(fields, expected_fields)
@@ -333,7 +333,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
       fields = parsed_response["details"]
 
-      expected_fields = ['description', 'alternative_title', 'body']
+      expected_fields = ['description', 'body']
       assert_has_expected_fields(fields, expected_fields)
       assert_equal "<p>Help with batman</p>\n", fields["body"]
     end
@@ -347,7 +347,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
       fields = parsed_response["details"]
 
-      expected_fields = ['description', 'alternative_title', 'body']
+      expected_fields = ['description', 'body']
       assert_has_expected_fields(fields, expected_fields)
       assert_equal "<p>Help with batman</p>\n", fields["body"]
     end
@@ -403,7 +403,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
       fields = parsed_response["details"]
 
-      expected_fields = ['description', 'alternative_title', 'body']
+      expected_fields = ['description', 'body']
       assert_has_expected_fields(fields, expected_fields)
 
       assert_equal "<p>Obtain a government grant to help develop your silly walk.</p>\n", fields["body"]
