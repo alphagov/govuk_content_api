@@ -19,7 +19,6 @@ class ArtefactPresenter
     additional_information
     alert_status
     alternate_methods
-    alternative_title
     body
     change_description
     continuation_link
