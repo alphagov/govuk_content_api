@@ -8,7 +8,6 @@ class SpecialistDocumentTest < GovUkContentApiTest
 
   describe "loading a published specialist document" do
     def build_rendered_specialist_document!(document_attributes = {})
-
       document_defaults = {
         slug: "mhra-drug-alerts/private-healthcare-investigation",
         title: "Private Healthcare Investigation",
@@ -26,7 +25,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
       @artefact = FactoryGirl.create(:artefact,
         slug: "mhra-drug-alerts/private-healthcare-investigation",
         state: "live",
-        kind: "specialist-document",
+        kind: "medical_safety_alert",
         owning_app: "specialist-publisher",
         name: "Private Healthcare Investigation"
       )
@@ -45,7 +44,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
       get '/mhra-drug-alerts/private-healthcare-investigation.json'
 
       assert_base_artefact_fields(parsed_response)
-      assert_equal 'specialist-document', parsed_response["format"]
+      assert_equal 'medical_safety_alert', parsed_response["format"]
       assert_equal 'Private Healthcare Investigation', parsed_response["title"]
       assert_equal 'This is the summary', parsed_response["details"]["summary"]
       assert_equal '2013-03-21', parsed_response["details"]["opened_date"]
@@ -181,7 +180,7 @@ class SpecialistDocumentTest < GovUkContentApiTest
       @artefact = FactoryGirl.create(:artefact,
         slug: "mhra-drug-alerts/private-healthcare-investigation",
         state: "live",
-        kind: "specialist-document",
+        kind: "medical_safety_alert",
         owning_app: "specialist-publisher",
         name: "Private Healthcare Investigation"
       )

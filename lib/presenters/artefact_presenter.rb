@@ -36,6 +36,7 @@ class ArtefactPresenter
     min_value
     minutes_to_complete
     more_information
+    need_to_know
     organiser
     place_type
     reviewed_at
@@ -83,7 +84,6 @@ class ArtefactPresenter
       local_authority,
       local_interaction,
       local_service,
-      expectations,
       assets,
       country,
       organisation,
@@ -216,14 +216,6 @@ private
         "lgsl_code" => @artefact.edition.service.lgsl_code,
         "providing_tier" => @artefact.edition.service.providing_tier
       }
-    }
-  end
-
-  def expectations
-    return {} unless @artefact.edition.respond_to?(:expectations)
-
-    {
-      "expectations" => @artefact.edition.expectations.map(&:text)
     }
   end
 

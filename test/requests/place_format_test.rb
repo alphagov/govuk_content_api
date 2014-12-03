@@ -6,11 +6,10 @@ class PlaceFormatTest < GovUkContentApiTest
 
   def setup
     super
-    expectation = FactoryGirl.create(:expectation)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', state: 'live')
     place_edition = FactoryGirl.create(:place_edition, 
                                 place_type: "batman-place",
-                                slug: artefact.slug, expectation_ids: [expectation.id],
+                                slug: artefact.slug, need_to_know: "- Available only in England",
                                 minutes_to_complete: 3, panopticon_id: artefact.id, state: 'published')
   end
 
@@ -53,7 +52,7 @@ class PlaceFormatTest < GovUkContentApiTest
     assert_base_artefact_fields(parsed_response)
 
     fields = parsed_response["details"]
-    expected_fields = ['introduction', 'more_information', 'place_type', 'expectations']
+    expected_fields = ['introduction', 'more_information', 'place_type', 'need_to_know']
 
     assert_has_expected_fields(fields, expected_fields)
   end
