@@ -34,7 +34,6 @@ class ArtefactPresenter
     max_employees
     max_value
     min_value
-    minutes_to_complete
     more_information
     need_to_know
     organiser

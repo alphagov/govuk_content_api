@@ -219,7 +219,7 @@ class FormatsRequestTest < GovUkContentApiTest
     service = FactoryGirl.create(:local_service, lgsl_code: 42)
     artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     local_transaction_edition = FactoryGirl.create(:local_transaction_edition, slug: artefact.slug, lgsl_code: 42, lgil_override: 3345,
-                                need_to_know: "- Credit card required", minutes_to_complete: 3,
+                                need_to_know: "- Credit card required",
                                 introduction: "batman introduction", more_information: "batman more_information",
                                 panopticon_id: artefact.id, state: 'published')
     get '/batman-transaction.json'
@@ -230,12 +230,11 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
     expected_fields = ['lgsl_code', 'lgil_override', 'introduction', 'more_information',
-                        'minutes_to_complete', 'need_to_know']
+                       'need_to_know']
 
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>batman introduction</p>", fields["introduction"].strip
     assert_equal "<p>batman more_information</p>", fields["more_information"].strip
-    assert_equal "3", fields["minutes_to_complete"]
     assert_equal 42, fields["lgsl_code"]
     assert_equal 3345, fields["lgil_override"]
     assert_equal "<ul>\n  <li>Credit card required</li>\n</ul>\n", fields["need_to_know"]
@@ -244,7 +243,7 @@ class FormatsRequestTest < GovUkContentApiTest
   it "should work with transaction_edition" do
     artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
     transaction_edition = FactoryGirl.create(:transaction_edition, slug: artefact.slug,
-                                need_to_know: "- Credit card required", minutes_to_complete: 3,
+                                need_to_know: "- Credit card required",
                                 introduction: "batman introduction", more_information: "batman more_information",
                                 alternate_methods: "batman alternate_methods",
                                 will_continue_on: "A Site", link: "http://www.example.com/foo",
@@ -264,7 +263,6 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal "<p>batman more_information</p>", fields["more_information"].strip
     assert_equal "<ul>\n  <li>Credit card required</li>\n</ul>\n", fields["need_to_know"]
     assert_equal "<p>batman alternate_methods</p>", fields["alternate_methods"].strip
-    assert_equal "3", fields["minutes_to_complete"]
     assert_equal "A Site", fields["will_continue_on"]
     assert_equal "http://www.example.com/foo", fields["link"]
   end
@@ -301,7 +299,7 @@ class FormatsRequestTest < GovUkContentApiTest
     place_edition = FactoryGirl.create(:place_edition, slug: artefact.slug, need_to_know: "- Available only in England",
                                 introduction: "batman introduction", more_information: "batman more_information",
                                 place_type: "batman-locations",
-                                minutes_to_complete: 3, panopticon_id: artefact.id, state: 'published')
+                                panopticon_id: artefact.id, state: 'published')
     get '/batman-place.json'
     parsed_response = JSON.parse(last_response.body)
 
