@@ -7,10 +7,10 @@ class PlaceFormatTest < GovUkContentApiTest
   def setup
     super
     artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', state: 'live')
-    place_edition = FactoryGirl.create(:place_edition, 
+    place_edition = FactoryGirl.create(:place_edition,
                                 place_type: "batman-place",
                                 slug: artefact.slug, need_to_know: "- Available only in England",
-                                minutes_to_complete: 3, panopticon_id: artefact.id, state: 'published')
+                                panopticon_id: artefact.id, state: 'published')
   end
 
   def stub_imminence
