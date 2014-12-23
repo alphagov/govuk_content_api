@@ -86,6 +86,7 @@ class ArtefactPresenter
       assets,
       country,
       organisation,
+      downtime,
     ].inject(&:merge)
 
     presented["related_external_links"] = @artefact.external_links.map do |l|
@@ -227,6 +228,17 @@ private
         "url" => @artefact.edition.organisation_url,
         "brand_colour" => @artefact.edition.organisation_brand_colour,
         "crest" => @artefact.edition.organisation_crest,
+      }
+    }
+  end
+
+  def downtime
+    downtime = Downtime.for(@artefact)
+    return {} if downtime.nil? || !downtime.publicise?
+
+    {
+      "downtime" => {
+        "message" => downtime.message,
       }
     }
   end
