@@ -111,7 +111,7 @@ private
     Hash[fields.map do |field|
       field_value = @artefact.edition.send(field)
 
-      if @artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
+      if @artefact.edition.class.const_defined?(:GOVSPEAK_FIELDS) && @artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
         [field, @govspeak_formatter.format(field_value)]
       else
         [field, field_value]
