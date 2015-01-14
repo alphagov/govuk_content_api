@@ -40,6 +40,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
                                 :locations => ['wales'],
                                 :sectors => ['manufacturing'],
                                 :support_types => ['award','loan'],
+                                :review_requested_at => Time.zone.now,
                                 :state => 'in_review')
       @ed5 = FactoryGirl.create(:business_support_edition,
                                 :panopticon_id => @artefact._id,

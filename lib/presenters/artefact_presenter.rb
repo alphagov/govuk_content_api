@@ -86,6 +86,7 @@ class ArtefactPresenter
       assets,
       country,
       organisation,
+      downtime,
     ].inject(&:merge)
 
     presented["related_external_links"] = @artefact.external_links.map do |l|
@@ -110,7 +111,7 @@ private
     Hash[fields.map do |field|
       field_value = @artefact.edition.send(field)
 
-      if @artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
+      if @artefact.edition.class.const_defined?(:GOVSPEAK_FIELDS) && @artefact.edition.class::GOVSPEAK_FIELDS.include?(field)
         [field, @govspeak_formatter.format(field_value)]
       else
         [field, field_value]
@@ -227,6 +228,17 @@ private
         "url" => @artefact.edition.organisation_url,
         "brand_colour" => @artefact.edition.organisation_brand_colour,
         "crest" => @artefact.edition.organisation_crest,
+      }
+    }
+  end
+
+  def downtime
+    downtime = Downtime.for(@artefact)
+    return {} if downtime.nil? || !downtime.publicise?
+
+    {
+      "downtime" => {
+        "message" => downtime.message,
       }
     }
   end

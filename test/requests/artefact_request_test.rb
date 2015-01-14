@@ -142,6 +142,24 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
   end
 
+  it 'should return a downtime message if downtime is scheduled' do
+    downtime = FactoryGirl.create(:downtime, artefact: FactoryGirl.create(:live_artefact_with_edition))
+
+    get "/#{downtime.artefact.slug}.json"
+
+    assert_equal 200, last_response.status
+    assert_equal downtime.message, JSON.parse(last_response.body)['details']['downtime']['message']
+  end
+
+  it 'should not return downtime details if downtime is not supposed to be publicised' do
+    faraway_downtime = FactoryGirl.create(:downtime, start_time: Date.today + 3, end_time: Date.today + 4, artefact: FactoryGirl.create(:live_artefact_with_edition))
+
+    get "/#{faraway_downtime.artefact.slug}.json"
+
+    assert_equal 200, last_response.status
+    assert_nil JSON.parse(last_response.body)['details']['downtime']
+  end
+
   it "should not look for edition if publisher not owner" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
 
