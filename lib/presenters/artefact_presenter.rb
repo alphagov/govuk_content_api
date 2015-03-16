@@ -38,6 +38,7 @@ class ArtefactPresenter
     need_to_know
     organiser
     place_type
+    presentation_toggles
     reviewed_at
     short_description
     summary
