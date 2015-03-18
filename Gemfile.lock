@@ -1,15 +1,3 @@
-PATH
-  remote: ../govuk_content_models
-  specs:
-    govuk_content_models (28.5.0)
-      bson_ext
-      gds-api-adapters (>= 10.9.0)
-      gds-sso (>= 10.0.0)
-      govspeak (~> 3.1.0)
-      mongoid (~> 2.5)
-      plek
-      state_machine
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -83,6 +71,14 @@ GEM
       kramdown (~> 1.4.1)
       nokogiri (~> 1.5.10)
       sanitize (~> 2.1.0)
+    govuk_content_models (28.6.0)
+      bson_ext
+      gds-api-adapters (>= 10.9.0)
+      gds-sso (>= 10.0.0)
+      govspeak (~> 3.1.0)
+      mongoid (~> 2.5)
+      plek
+      state_machine
     hashie (3.2.0)
     hike (1.2.3)
     htmlentities (4.3.2)
@@ -239,7 +235,7 @@ DEPENDENCIES
   gds-api-adapters (= 10.14.0)
   gds-sso (= 10.0.0)
   govspeak (~> 3.1)
-  govuk_content_models!
+  govuk_content_models (= 28.6.0)
   kaminari (= 0.14.1)
   link_header (= 0.0.5)
   minitest (= 3.4.0)
