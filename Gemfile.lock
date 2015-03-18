@@ -71,7 +71,6 @@ GEM
       kramdown (~> 1.4.1)
       nokogiri (~> 1.5.10)
       sanitize (~> 2.1.0)
-    hashie (3.2.0)
     govuk_content_models (28.1.0)
       bson_ext
       gds-api-adapters (>= 10.9.0)
@@ -80,6 +79,7 @@ GEM
       mongoid (~> 2.5)
       plek
       state_machine
+    hashie (3.2.0)
     hike (1.2.3)
     htmlentities (4.3.2)
     i18n (0.6.11)
