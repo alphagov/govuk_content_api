@@ -20,6 +20,8 @@ in_development = ENV['RACK_ENV'] == 'development'
 
 if in_development
   set :logging, Logger::DEBUG
+  # Lets the JS work with different hostnames in development
+  set :protection, :except => :json_csrf
 else
   enable :logging
 
