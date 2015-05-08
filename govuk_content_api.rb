@@ -727,14 +727,6 @@ class GovUkContentApi < Sinatra::Application
     custom_404 unless @artefact.edition
   end
 
-  def attach_manual_edition(artefact)
-    artefact.edition = RenderedManual.find_by_slug(artefact.slug)
-  end
-
-  def attach_manual_history(artefact)
-    artefact.edition = ManualChangeHistory.find_by_slug(artefact.slug)
-  end
-
   def load_travel_advice_countries
     editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
     @countries = Country.all.map do |country|
