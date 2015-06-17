@@ -4,6 +4,13 @@ gem 'unicorn', '4.6.2'
 gem 'rake', '0.9.2.2'
 gem 'sinatra', '1.3.2'
 
+# Pulled in by gds-sso, pinned in order to maintain
+# security fixes.
+#
+# gds-sso should be modified to not require the full
+# version of Rails in client applications.
+gem 'rails', '3.2.22'
+
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
