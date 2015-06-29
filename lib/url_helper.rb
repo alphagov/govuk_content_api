@@ -80,7 +80,7 @@ class URLHelper
     when "section"
       public_web_url("/browse/#{tag.tag_id}")
     when "specialist_sector"
-      public_web_url("/#{tag.tag_id}")
+      public_web_url("/topic/#{tag.tag_id}")
     when "organisation"
       public_web_url("/government/organisations/#{tag.tag_id}")
     end

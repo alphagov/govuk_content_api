@@ -77,10 +77,10 @@ describe URLHelper do
       assert_equal "http://example.com/browse/crime", @url_helper.tag_web_url(tag)
     end
 
-    it "returns a root URL for a specialist_sector tag" do
+    it "returns a /topic URL for a specialist_sector tag" do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
 
-      assert_equal "http://example.com/oil-and-gas", @url_helper.tag_web_url(tag)
+      assert_equal "http://example.com/topic/oil-and-gas", @url_helper.tag_web_url(tag)
     end
 
     it "returns a /government/organisations URL for an organisation tag" do
@@ -150,7 +150,7 @@ describe URLHelper do
     it "returns a root URL for a specialist_sector tag" do
       tag = DummyTag.new("oil-and-gas", "specialist_sector")
 
-      assert_equal "http://example.com/oil-and-gas", @url_helper.tagged_content_web_url(tag)
+      assert_equal "http://example.com/topic/oil-and-gas", @url_helper.tagged_content_web_url(tag)
     end
 
     # There isn't a good URL to see all content tagged to an organisation (yet)
