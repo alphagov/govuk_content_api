@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'unicorn', '4.6.2'
-gem 'rake', '0.9.2.2'
-gem 'sinatra', '1.3.2'
+gem 'unicorn', '4.9.0'
+gem 'rake', '10.4.2'
+gem 'sinatra', '1.4.6'
 
 # Pulled in by gds-sso, pinned in order to maintain
 # security fixes.
@@ -31,30 +31,30 @@ else
 end
 
 gem 'govspeak', '~> 3.1'
-gem 'plek', '1.7.0'
+gem 'plek', '1.10.0'
 gem 'yajl-ruby'
 gem 'kaminari', '0.14.1'
-gem 'link_header', '0.0.5'
+gem 'link_header', '0.0.8'
 gem 'rack-cache', '1.2'
-gem 'dalli', '2.6.4'
+gem 'dalli', '2.7.4'
 
 gem 'rack-logstasher', '0.0.3'
-gem 'airbrake', '4.0.0'
+gem 'airbrake', '4.3.0'
 
 group :test do
-  gem 'database_cleaner', '0.7.2'
-  gem 'factory_girl', '3.6.1'
+  gem 'database_cleaner', '1.4.1'
+  gem 'factory_girl', '4.5.0'
   gem 'mocha', '0.12.4', require: false
-  gem 'simplecov', '0.6.4'
+  gem 'simplecov', '0.10.0'
   gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '3.4.0'
   gem 'turn', require: false
   gem 'ci_reporter', '1.7.0'
-  gem 'webmock', '~> 1.8', require: false
-  gem 'timecop', '0.5.9.2'
+  gem 'webmock', '~> 1.21', require: false
+  gem 'timecop', '0.7.4'
 end
 
 group :development do
   # (Intelligent) reloading server in development
-  gem "mr-sparkle", "0.2.0"
+  gem "mr-sparkle", "0.3.0"
 end
