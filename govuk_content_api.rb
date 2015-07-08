@@ -53,6 +53,7 @@ class GovUkContentApi < Sinatra::Application
 
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
+  set :protection, :except => :path_traversal
 
   def url_helper
     parameters = [self, Plek.current.website_root, env['HTTP_API_PREFIX']]
