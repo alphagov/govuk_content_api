@@ -22,6 +22,7 @@ class ArtefactPresenter
     body
     change_description
     continuation_link
+    department_analytics_profile
     eligibility
     evaluation
     introduction
