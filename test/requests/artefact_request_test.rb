@@ -518,7 +518,7 @@ class ArtefactRequestTest < GovUkContentApiTest
     end
 
     it "should return publication data if published" do
-      artefact = FactoryGirl.create(:artefact, business_proposition: true, need_ids: ['123412'], state: 'live')
+      artefact = FactoryGirl.create(:artefact, need_ids: ['123412'], state: 'live')
       edition = FactoryGirl.create(:edition, panopticon_id: artefact.id, body: '# Important information', state: 'published')
 
       get "/#{artefact.slug}.json"
@@ -532,8 +532,6 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal "<h1>Important information</h1>\n", parsed_response["details"]["body"]
       assert_equal ["123412"], parsed_response["details"]["need_ids"]
       assert_equal edition.updated_at.iso8601, parsed_response["updated_at"]
-      # Temporarily included for legacy GA support. Will be replaced with "proposition" Tags
-      assert_equal true, parsed_response["details"]["business_proposition"]
     end
 
     it "should set the format from the edition, not the artefact in case the Artefact is out of date" do
