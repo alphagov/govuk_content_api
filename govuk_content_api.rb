@@ -3,7 +3,6 @@ require 'mongoid'
 require 'govspeak'
 require 'plek'
 require 'gds_api/helpers'
-require 'gds_api/rummager'
 require_relative "config"
 require 'config/gds_sso_middleware'
 require 'pagination'
@@ -13,7 +12,6 @@ require 'ostruct'
 require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/single_result_presenter"
-require "presenters/search_result_presenter"
 require "presenters/local_authority_presenter"
 require "presenters/tag_presenter"
 require "presenters/tag_type_presenter"
@@ -129,36 +127,6 @@ class GovUkContentApi < Sinatra::Application
       SingleResultPresenter.new(authority_presenter).present.to_json
     else
       custom_404
-    end
-  end
-
-  get "/search.json" do
-    begin
-      search_index = params[:index] || 'mainstream'
-
-      unless ['mainstream', 'detailed', 'government'].include?(search_index)
-        custom_404
-      end
-
-      if params[:q].nil? || params[:q].strip.empty?
-        custom_error(422, "Non-empty querystring is required in the 'q' parameter")
-      end
-
-      search_uri = Plek.current.find('search') + "/#{search_index}"
-      client = GdsApi::Rummager.new(search_uri)
-      @results = client.search(params[:q])["results"]
-
-      presenter = ResultSetPresenter.new(
-        FakePaginatedResultSet.new(@results),
-        url_helper,
-        SearchResultPresenter
-      )
-
-      set_expiry
-
-      presenter.present.to_json
-    rescue GdsApi::HTTPErrorResponse, GdsApi::TimedOutException
-      custom_503
     end
   end
 
