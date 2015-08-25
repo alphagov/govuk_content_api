@@ -465,6 +465,21 @@ class GovUkContentApi < Sinatra::Application
     presenter.present.to_json
   end
 
+  # This endpoint is used by Whitehall to efficiently find out which mainstream
+  # browse pages an artefact is tagged to. Whitehall needs to send this
+  # information to rummager when indexing. This endpoint will be removed by the
+  # Finding Things team once a new tagging infrastructure is in place.
+  get '/whitehall-artefacts-tagged-to-mainstream-browse-pages.json' do
+    artefacts = Artefact.live.where(owning_app: 'whitehall', tags: { '$elemMatch' => { tag_type: 'section' } })
+
+    artefacts.map do |artefact|
+      {
+        artefact_slug: artefact.slug,
+        mainstream_browse_page_slugs: artefact.tags.select { |tag| tag.tag_type == 'section' }.map(&:tag_id)
+      }
+    end.to_json
+  end
+
   get "/*.json" do |id|
     # The edition param is for accessing unpublished editions in order for
     # editors to preview them. These can change frequently and so shouldn't be
