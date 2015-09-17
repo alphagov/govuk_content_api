@@ -192,4 +192,21 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
     assert_equal "http_error", parsed_response["details"]["licence"]["error"]
   end
 
+  it "should return an error message if the api request returns an error" do
+    stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
+    stub_licence = FactoryGirl.build(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+
+    GdsApi::LicenceApplication.any_instance.stubs(:details_for_licence).raises(SocketError)
+
+    Artefact.stubs(:where).with(slug: 'licence-artefact').returns([stub_artefact])
+    Edition.stubs(:where).with(panopticon_id: stub_artefact.id, state: 'published').returns([stub_licence])
+
+    get '/licence-artefact.json'
+    parsed_response = JSON.parse(last_response.body)
+
+    assert last_response.ok?
+    assert parsed_response["details"]["licence"].present?
+    assert_equal "http_error", parsed_response["details"]["licence"]["error"]
+  end
+
 end
