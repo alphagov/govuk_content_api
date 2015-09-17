@@ -683,6 +683,9 @@ class GovUkContentApi < Sinatra::Application
     artefact.licence = { "error" => "timed_out" }
   rescue GdsApi::HTTPErrorResponse
     artefact.licence = { "error" => "http_error" }
+  rescue => e
+    Airbrake.notify_or_ignore(e)
+    artefact.licence = { "error" => "http_error" }
   end
 
   def attach_travel_advice_country_and_edition(artefact, version_number = nil)
