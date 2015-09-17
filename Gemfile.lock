@@ -54,7 +54,7 @@ GEM
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.10)
-    gds-api-adapters (23.2.1)
+    gds-api-adapters (24.4.0)
       link_header
       lrucache (~> 0.1.1)
       null_logger
@@ -243,7 +243,7 @@ DEPENDENCIES
   dalli (= 2.7.4)
   database_cleaner (= 1.4.1)
   factory_girl (= 4.5.0)
-  gds-api-adapters (= 23.2.1)
+  gds-api-adapters (= 24.4.0)
   gds-sso (= 10.0.0)
   govspeak (~> 3.1)
   govuk_content_models (= 28.9.0)
