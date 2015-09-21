@@ -254,6 +254,15 @@ class ArtefactRequestTest < GovUkContentApiTest
     assert_equal 'smart-answer', response["format"]
   end
 
+  it "should set the content_id field at the top-level from the artefact" do
+    artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live', :content_id => SecureRandom.uuid)
+    get "/#{artefact.slug}.json"
+
+    assert_equal 200, last_response.status
+    response = JSON.parse(last_response.body)
+    assert_equal artefact.content_id, response["content_id"]
+  end
+
   it "should set the language field in the details node of the artefact" do
     artefact = FactoryGirl.create(:non_publisher_artefact, state: 'live')
     get "/#{artefact.slug}.json"

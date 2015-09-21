@@ -46,7 +46,7 @@ class ArtefactsRequestTest < GovUkContentApiTest
   end
 
   it "should only include minimal information for each artefact" do
-    FactoryGirl.create(:artefact, :slug => "bravo", :name => "Bravo", :state => 'live', :kind => "guide", :owning_app => "calendars")
+    artefact = FactoryGirl.create(:artefact, :slug => "bravo", :content_id => SecureRandom.uuid, :name => "Bravo", :state => 'live', :kind => "guide", :owning_app => "calendars")
 
     get "/artefacts.json"
 
@@ -59,11 +59,12 @@ class ArtefactsRequestTest < GovUkContentApiTest
 
     result = parsed_response["results"].first
 
-    assert_equal %w(id web_url title format owning_app).sort, result.keys.sort
+    assert_equal %w(id content_id web_url title format owning_app).sort, result.keys.sort
     assert_equal "Bravo", result["title"]
     assert_equal "guide", result["format"]
     assert_equal "#{public_web_url}/bravo", result["web_url"]
     assert_equal "http://example.org/bravo.json", result["id"]
+    assert_equal artefact.content_id, result["content_id"]
     assert_equal "calendars", result["owning_app"]
   end
 
