@@ -181,13 +181,14 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   it "should list section information" do
+    crime = FactoryGirl.create(:live_tag, tag_id: "crime", content_id: SecureRandom.uuid, title: "Crime", tag_type: "section")
+    batman = FactoryGirl.create(:live_tag, tag_id: "crime/batman", content_id: SecureRandom.uuid, title: "Batman", tag_type: "section", parent_id: crime.tag_id)
+
     sections = [
-      { tag_id: 'crime', parent_id: nil, title: 'Crime' },
-      { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman' },
+      { tag_id: 'crime', parent_id: nil, title: 'Crime', content_id: crime.content_id },
+      { tag_id: 'crime/batman', parent_id: 'crime', title: 'Batman', content_id: batman.content_id },
     ]
 
-    parent = FactoryGirl.create(:live_tag, tag_id: "crime", title: "Crime", tag_type: "section")
-    FactoryGirl.create(:live_tag, tag_id: "crime/batman", title: "Batman", tag_type: "section", parent_id: parent.tag_id)
 
     artefact = FactoryGirl.create(:non_publisher_artefact,
         sections: sections.map { |section| section[:tag_id] },
@@ -205,6 +206,7 @@ class ArtefactRequestTest < GovUkContentApiTest
       assert_equal section[:title], tag_info["title"]
       tag_path = "/tags/section/#{CGI.escape(section[:tag_id])}.json"
       assert_equal tag_path, URI.parse(tag_info["id"]).path
+      assert_equal section[:content_id], tag_info["content_id"]
       assert_equal "section", tag_info["details"]["type"]
       # Temporary hack until the browse pages are rebuilt
       expected_section_slug = section[:tag_id]
