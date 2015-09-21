@@ -23,7 +23,6 @@ require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
 require "presenters/grouped_result_set_presenter"
-require "presenters/specialist_document_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -518,10 +517,6 @@ class GovUkContentApi < Sinatra::Application
       attach_publisher_edition(@artefact, params[:edition])
     elsif @artefact.kind == 'travel-advice'
       attach_travel_advice_country_and_edition(@artefact, params[:edition])
-    elsif @artefact.owning_app == 'specialist-publisher' && !['manual', 'manual-change-history'].include?(@artefact.kind)
-      attach_specialist_publisher_edition(@artefact)
-      presenters.unshift(SpecialistDocumentPresenter)
-      formatter_options.merge!(auto_ids: true)
     end
 
     base_presented_artefact = ArtefactPresenter.new(
@@ -707,11 +702,6 @@ class GovUkContentApi < Sinatra::Application
       artefact.extra_related_artefacts = travel_index.live_tagged_related_artefacts
       artefact.extra_tags = travel_index.tags
     end
-  end
-
-  def attach_specialist_publisher_edition(artefact)
-    artefact.edition = RenderedSpecialistDocument.find_by_slug(artefact.slug)
-    custom_404 unless @artefact.edition
   end
 
   def load_travel_advice_countries
