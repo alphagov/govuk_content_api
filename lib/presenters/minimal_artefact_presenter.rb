@@ -4,7 +4,7 @@
 # in the artefact list where we don't want to look up any extra information
 # across collections.
 class MinimalArtefactPresenter
-  REQUIRED_FIELDS = [:name, :kind, :slug, :owning_app]
+  REQUIRED_FIELDS = [:content_id, :name, :kind, :slug, :owning_app]
 
   def initialize(artefact, url_helper)
     @artefact = artefact
@@ -14,6 +14,7 @@ class MinimalArtefactPresenter
   def present
     {
       "id" => @url_helper.artefact_url(@artefact),
+      "content_id" => @artefact.content_id,
       "web_url" => @url_helper.artefact_web_url(@artefact),
       "title" => edition_or_artefact_title,
       "format" => edition_or_artefact_format,

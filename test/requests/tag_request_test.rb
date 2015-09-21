@@ -4,9 +4,10 @@ class TagRequestTest < GovUkContentApiTest
 
   describe "/tags/:tag_type/:tag_id.json" do
     it "should load a specific tag" do
-      FactoryGirl.create(:live_tag,
+      tag = FactoryGirl.create(:live_tag,
         tag_id: "good-tag",
         tag_type: "section",
+        content_id: SecureRandom.uuid,
         description: "Lots to say for myself"
       )
 
@@ -16,6 +17,7 @@ class TagRequestTest < GovUkContentApiTest
       response = JSON.parse(last_response.body)
       assert_equal "Lots to say for myself", response["details"]["description"]
       assert_equal "http://example.org/tags/section/good-tag.json", response["id"]
+      assert_equal tag.content_id, response["content_id"]
       assert_equal(
         "#{public_web_url}/browse/good-tag",
         response["web_url"]
@@ -123,15 +125,16 @@ class TagRequestTest < GovUkContentApiTest
 
     describe "has a parent tag" do
       before do
-        @parent = FactoryGirl.create(:live_tag, tag_id: 'crime-and-prison')
+        @parent = FactoryGirl.create(:live_tag, tag_id: 'crime-and-prison', content_id: SecureRandom.uuid)
       end
 
       it "should include the parent tag" do
-        tag = FactoryGirl.create(:live_tag, tag_id: 'crime', parent_id: @parent.tag_id)
+        tag = FactoryGirl.create(:live_tag, tag_id: 'crime', content_id: SecureRandom.uuid, parent_id: @parent.tag_id)
         get "/tags/section/crime.json"
         response = JSON.parse(last_response.body)
         expected = {
           "id" => "http://example.org/tags/section/crime-and-prison.json",
+          "content_id" => @parent.content_id,
           "slug" => "crime-and-prison",
           "web_url" => "#{public_web_url}/browse/crime-and-prison",
           "details"=>{
