@@ -18,6 +18,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
           'devon-county-council',
           'wycombe-district-council',
         ],
+        :area_gss_codes => ['E10000032', 'E10000008', 'E07000007'],
         :business_sizes => ['up-to-249'],
         :locations => ['scotland','england'],
         :sectors => ['manufacturing','utilities'],
@@ -33,6 +34,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
           'london',
           'devon-county-council',
         ],
+        :area_gss_codes => ['E07000006', 'E15000007', 'E10000008'],
         :business_sizes => ['up-to-249'],
         :locations => ['scotland', 'wales'],
         :state => 'published',
@@ -47,6 +49,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
           'scotland',
           'hackney-borough-council',
         ],
+        :area_gss_codes => ['E10000032', 'S15000001', 'E09000012'],
         :business_sizes => ['up-to-1000'],
         :purposes => ['world-domination'],
         :state => 'published',
@@ -71,6 +74,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
           'camden-borough-council',
           'devon-county-council',
         ],
+        :area_gss_codes => ['E09000007', 'E10000008'],
         :business_sizes => ['up-to-249'],
         :locations => ['england'],
         :support_types => ['grant','loan'],
@@ -92,6 +96,17 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
       parsed_response = JSON.parse(last_response.body)
       assert_equal 3, parsed_response["total"]
       assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
+    end
+
+    describe "querying by GSS code" do
+      it "should return all matching business support editions" do
+        get "/business_support_schemes.json?area_gss_codes=E10000008"
+        assert_status_field "ok", last_response
+
+        parsed_response = JSON.parse(last_response.body)
+        assert_equal 3, parsed_response["total"]
+        assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
+      end
     end
 
     it "should return basic artefact details for each result when queried by facets" do

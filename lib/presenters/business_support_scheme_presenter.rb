@@ -12,6 +12,7 @@ class BusinessSupportSchemePresenter
     base_presenter.present.merge({
       "short_description" => @artefact.edition.short_description,
       "areas" => @artefact.edition.areas,
+      "area_gss_codes" => @artefact.edition.area_gss_codes,
       "business_sizes" => @artefact.edition.business_sizes,
       "locations" => @artefact.edition.locations,
       "purposes" => @artefact.edition.purposes,
