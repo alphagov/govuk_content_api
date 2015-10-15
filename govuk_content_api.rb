@@ -367,7 +367,7 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     facets = {}
-      [:areas, :business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
+    [:areas, :business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
       facets[key] = params[key] if params[key].present?
     end
 

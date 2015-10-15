@@ -8,54 +8,66 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
   describe "finding business support editions" do
     before do
       @artefact = FactoryGirl.create(:artefact, :live)
-      @ed1 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Alpha desc",
-                                :areas => ['1','666','999'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['scotland','england'],
-                                :sectors => ['manufacturing','utilities'],
-                                :state => 'published')
-      @ed2 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 2,
-                                :short_description => "Bravo desc",
-                                :areas => ['45','444','666'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['scotland', 'wales'],
-                                :state => 'published')
-      @ed3 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Charlie desc",
-                                :areas => ['1','2','3'],
-                                :business_sizes => ['up-to-1000'],
-                                :purposes => ['world-domination'],
-                                :state => 'published')
-      @ed4 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Delta desc",
-                                :locations => ['wales'],
-                                :sectors => ['manufacturing'],
-                                :support_types => ['award','loan'],
-                                :review_requested_at => Time.zone.now,
-                                :state => 'in_review')
-      @ed5 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Echo desc",
-                                :areas => ['9','666'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['england'],
-                                :support_types => ['grant','loan'],
-                                :state => 'published')
-      @ed6 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :short_description => "Fox-trot desc",
-                                :locations => ['scotland', 'wales'],
-                                :state => 'archived')
+      @ed1 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Alpha desc",
+        :areas => ['1','666','999'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['scotland','england'],
+        :sectors => ['manufacturing','utilities'],
+        :state => 'published',
+      )
+      @ed2 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 2,
+        :short_description => "Bravo desc",
+        :areas => ['45','444','666'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['scotland', 'wales'],
+        :state => 'published',
+      )
+      @ed3 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Charlie desc",
+        :areas => ['1','2','3'],
+        :business_sizes => ['up-to-1000'],
+        :purposes => ['world-domination'],
+        :state => 'published',
+      )
+      @ed4 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Delta desc",
+        :locations => ['wales'],
+        :sectors => ['manufacturing'],
+        :support_types => ['award','loan'],
+        :review_requested_at => Time.zone.now,
+        :state => 'in_review',
+      )
+      @ed5 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Echo desc",
+        :areas => ['9','666'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['england'],
+        :support_types => ['grant','loan'],
+        :state => 'published',
+      )
+      @ed6 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :short_description => "Fox-trot desc",
+        :locations => ['scotland', 'wales'],
+        :state => 'archived',
+      )
     end
 
     it "should return all matching business support editions" do
