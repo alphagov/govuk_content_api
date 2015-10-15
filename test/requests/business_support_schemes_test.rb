@@ -13,7 +13,11 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
         :panopticon_id => @artefact._id,
         :priority => 1,
         :short_description => "Alpha desc",
-        :areas => ['1','666','999'],
+        :areas => [
+          'west-sussex-county-council',
+          'devon-county-council',
+          'wycombe-district-council',
+        ],
         :business_sizes => ['up-to-249'],
         :locations => ['scotland','england'],
         :sectors => ['manufacturing','utilities'],
@@ -24,7 +28,11 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
         :panopticon_id => @artefact._id,
         :priority => 2,
         :short_description => "Bravo desc",
-        :areas => ['45','444','666'],
+        :areas => [
+          'south-bucks-district-council',
+          'london',
+          'devon-county-council',
+        ],
         :business_sizes => ['up-to-249'],
         :locations => ['scotland', 'wales'],
         :state => 'published',
@@ -34,7 +42,11 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
         :panopticon_id => @artefact._id,
         :priority => 1,
         :short_description => "Charlie desc",
-        :areas => ['1','2','3'],
+        :areas => [
+          'west-sussex-county-council',
+          'scotland',
+          'hackney-borough-council',
+        ],
         :business_sizes => ['up-to-1000'],
         :purposes => ['world-domination'],
         :state => 'published',
@@ -55,7 +67,10 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
         :panopticon_id => @artefact._id,
         :priority => 1,
         :short_description => "Echo desc",
-        :areas => ['9','666'],
+        :areas => [
+          'camden-borough-council',
+          'devon-county-council',
+        ],
         :business_sizes => ['up-to-249'],
         :locations => ['england'],
         :support_types => ['grant','loan'],
@@ -71,7 +86,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
     end
 
     it "should return all matching business support editions" do
-      get "/business_support_schemes.json?areas=666&business_sizes=up-to-249&locations=england,wales"
+      get "/business_support_schemes.json?areas=devon-county-council&business_sizes=up-to-249&locations=england,wales"
       assert_status_field "ok", last_response
 
       parsed_response = JSON.parse(last_response.body)
