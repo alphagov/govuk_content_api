@@ -8,63 +8,105 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
   describe "finding business support editions" do
     before do
       @artefact = FactoryGirl.create(:artefact, :live)
-      @ed1 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Alpha desc",
-                                :areas => ['1','666','999'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['scotland','england'],
-                                :sectors => ['manufacturing','utilities'],
-                                :state => 'published')
-      @ed2 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 2,
-                                :short_description => "Bravo desc",
-                                :areas => ['45','444','666'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['scotland', 'wales'],
-                                :state => 'published')
-      @ed3 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Charlie desc",
-                                :areas => ['1','2','3'],
-                                :business_sizes => ['up-to-1000'],
-                                :purposes => ['world-domination'],
-                                :state => 'published')
-      @ed4 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Delta desc",
-                                :locations => ['wales'],
-                                :sectors => ['manufacturing'],
-                                :support_types => ['award','loan'],
-                                :review_requested_at => Time.zone.now,
-                                :state => 'in_review')
-      @ed5 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :priority => 1,
-                                :short_description => "Echo desc",
-                                :areas => ['9','666'],
-                                :business_sizes => ['up-to-249'],
-                                :locations => ['england'],
-                                :support_types => ['grant','loan'],
-                                :state => 'published')
-      @ed6 = FactoryGirl.create(:business_support_edition,
-                                :panopticon_id => @artefact._id,
-                                :short_description => "Fox-trot desc",
-                                :locations => ['scotland', 'wales'],
-                                :state => 'archived')
+      @ed1 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Alpha desc",
+        :areas => [
+          'west-sussex-county-council',
+          'devon-county-council',
+          'wycombe-district-council',
+        ],
+        :area_gss_codes => ['E10000032', 'E10000008', 'E07000007'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['scotland','england'],
+        :sectors => ['manufacturing','utilities'],
+        :state => 'published',
+      )
+      @ed2 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 2,
+        :short_description => "Bravo desc",
+        :areas => [
+          'south-bucks-district-council',
+          'london',
+          'devon-county-council',
+        ],
+        :area_gss_codes => ['E07000006', 'E15000007', 'E10000008'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['scotland', 'wales'],
+        :state => 'published',
+      )
+      @ed3 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Charlie desc",
+        :areas => [
+          'west-sussex-county-council',
+          'scotland',
+          'hackney-borough-council',
+        ],
+        :area_gss_codes => ['E10000032', 'S15000001', 'E09000012'],
+        :business_sizes => ['up-to-1000'],
+        :purposes => ['world-domination'],
+        :state => 'published',
+      )
+      @ed4 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Delta desc",
+        :locations => ['wales'],
+        :sectors => ['manufacturing'],
+        :support_types => ['award','loan'],
+        :review_requested_at => Time.zone.now,
+        :state => 'in_review',
+      )
+      @ed5 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :priority => 1,
+        :short_description => "Echo desc",
+        :areas => [
+          'camden-borough-council',
+          'devon-county-council',
+        ],
+        :area_gss_codes => ['E09000007', 'E10000008'],
+        :business_sizes => ['up-to-249'],
+        :locations => ['england'],
+        :support_types => ['grant','loan'],
+        :state => 'published',
+      )
+      @ed6 = FactoryGirl.create(
+        :business_support_edition,
+        :panopticon_id => @artefact._id,
+        :short_description => "Fox-trot desc",
+        :locations => ['scotland', 'wales'],
+        :state => 'archived',
+      )
     end
 
     it "should return all matching business support editions" do
-      get "/business_support_schemes.json?areas=666&business_sizes=up-to-249&locations=england,wales"
+      get "/business_support_schemes.json?areas=devon-county-council&business_sizes=up-to-249&locations=england,wales"
       assert_status_field "ok", last_response
 
       parsed_response = JSON.parse(last_response.body)
       assert_equal 3, parsed_response["total"]
       assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
+    end
+
+    describe "querying by GSS code" do
+      it "should return all matching business support editions" do
+        get "/business_support_schemes.json?area_gss_codes=E10000008"
+        assert_status_field "ok", last_response
+
+        parsed_response = JSON.parse(last_response.body)
+        assert_equal 3, parsed_response["total"]
+        assert_equal ['Alpha desc', 'Bravo desc', 'Echo desc'], parsed_response["results"].map {|r| r["short_description"] }.sort
+      end
     end
 
     it "should return basic artefact details for each result when queried by facets" do
