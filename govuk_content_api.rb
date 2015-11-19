@@ -24,6 +24,7 @@ require "presenters/licence_presenter"
 require "presenters/tagged_artefact_presenter"
 require "presenters/grouped_result_set_presenter"
 require "govspeak_formatter"
+require "taggings_per_app"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
 # otherwise it doesn't work. I haven't quite got to the bottom of why that is.
@@ -477,6 +478,10 @@ class GovUkContentApi < Sinatra::Application
         mainstream_browse_page_slugs: artefact.tags.select { |tag| tag.tag_type == 'section' }.map(&:tag_id)
       }
     end.to_json
+  end
+
+  get '/debug/taggings-per-app.json' do
+    TaggingsPerApp.new(params.fetch('app')).taggings.to_json
   end
 
   get "/*.json" do |id|
