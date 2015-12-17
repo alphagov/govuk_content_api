@@ -14,7 +14,7 @@ gem 'rails', '3.2.22'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem "govuk_content_models", '31.2.0'
+  gem "govuk_content_models", '~> 32.1'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2
@@ -22,7 +22,7 @@ end
 # as a dependency of govuk_content_models
 gem 'mongo', '>= 1.7.1'
 
-gem 'gds-sso', '10.0.0'
+gem 'gds-sso', '~> 11.2'
 
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
