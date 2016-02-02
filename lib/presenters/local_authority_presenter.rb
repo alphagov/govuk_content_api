@@ -2,6 +2,7 @@ class LocalAuthorityPresenter
 
   FIELDS = %w(
     name snac tier contact_address contact_url contact_phone contact_email
+    homepage_url
   )
 
   def initialize(result, url_helper)
