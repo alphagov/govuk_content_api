@@ -355,9 +355,16 @@ class ArtefactRequestTest < GovUkContentApiTest
         end
 
         it "should return local service, local authority and local interaction details" do
-          authority = FactoryGirl.create(:local_authority)
-          interaction = FactoryGirl.create(:local_interaction, lgsl_code: @service.lgsl_code,
-            local_authority: authority)
+          authority = FactoryGirl.create(
+            :local_authority,
+            homepage_url: 'http://council.example.gov/',
+            contact_url: 'http://council.example.gov/get-in-touch',
+          )
+          interaction = FactoryGirl.create(
+            :local_interaction,
+            lgsl_code: @service.lgsl_code,
+            local_authority: authority
+          )
 
           get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
           assert last_response.ok?
@@ -366,6 +373,8 @@ class ArtefactRequestTest < GovUkContentApiTest
           assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
           assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
           assert_equal authority.name, response['details']['local_authority']['name']
+          assert_equal 'http://council.example.gov/', response['details']['local_authority']['homepage_url']
+          assert_equal 'http://council.example.gov/get-in-touch', response['details']['local_authority']['contact_url']
           assert_equal interaction.url, response['details']['local_interaction']['url']
         end
 

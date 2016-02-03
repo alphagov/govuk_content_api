@@ -14,7 +14,7 @@ gem 'rails', '3.2.22'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem "govuk_content_models", '~> 32.1'
+  gem "govuk_content_models", '~> 32.2'
 end
 
 # TODO: This was previously pinned due to a replica set bug in >1.6.2
