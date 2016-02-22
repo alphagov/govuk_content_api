@@ -27,7 +27,7 @@ gem 'gds-sso', '~> 11.2'
 if ENV['API_DEV']
   gem 'gds-api-adapters', :path => '../gds-api-adapters'
 else
-  gem 'gds-api-adapters', '26.7.0'
+  gem 'gds-api-adapters', '28.2.1'
 end
 
 gem 'govspeak', '~> 3.1'
