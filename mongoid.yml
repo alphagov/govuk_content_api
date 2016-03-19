@@ -1,11 +1,30 @@
 development:
-  host: localhost
-  database: govuk_content_development
-  logger: true
-  use_activesupport_time_zone: true
+  clients:
+    default:
+      hosts:
+        - localhost
+      database: govuk_content_development
+  options:
+    use_activesupport_time_zone: true
+
 test:
-  host: localhost
-  database: govuk_content_shared_test
-  logger: false
-  use_activesupport_time_zone: true
-  autocreate_indexes: true
+  clients:
+    default:
+      hosts:
+        - localhost
+      # Don't want this interfering with a concurrent Panopticon test run
+      database: govuk_content_shared_test
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
+  options:
+    use_activesupport_time_zone: true
+
+# set these environment variables on your prod server
+production:
+  clients:
+    default:
+      uri: <%= ENV['MONGODB_URI'] %>
+  options:
+    use_activesupport_time_zone: true

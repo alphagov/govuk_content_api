@@ -1,1 +1,1 @@
-SECRET_TOKEN = "overwritten on deploy"
+SECRET_TOKEN = ENV['SECRET_KEY_BASE']
