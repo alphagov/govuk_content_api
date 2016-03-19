@@ -74,7 +74,7 @@ class ArtefactsRequestTest < GovUkContentApiTest
       artefacts = 505.times.map do |n|
         FactoryGirl.attributes_for(:artefact, :state => "live")
       end
-      Artefact.collection.insert(artefacts)
+      Artefact.collection.insert_many(artefacts)
 
       get "/artefacts.json"
 

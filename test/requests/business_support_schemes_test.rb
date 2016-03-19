@@ -119,7 +119,7 @@ class BusinessSupportSchemesTest < GovUkContentApiTest
 
     it "should only return business support editions with live artefacts" do
       archived_artefact = FactoryGirl.create(:artefact, :archived)
-      @ed1.set(:panopticon_id, archived_artefact._id)
+      @ed1.set(panopticon_id: archived_artefact._id)
       get "/business_support_schemes.json?business_sizes=up-to-249&locations=scotland&wibble=echo"
       assert_status_field "ok", last_response
       parsed_response = JSON.parse(last_response.body)

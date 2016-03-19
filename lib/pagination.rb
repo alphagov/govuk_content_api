@@ -34,7 +34,7 @@ module Pagination
 
     # Raise an exception if we've shot off the end of the results
     # (unless, of course, we're on the first page and there are no results)
-    if page_number > 1 && paginated_scope.offset >= paginated_scope.count
+    if page_number > 1 && paginated_scope.options.skip >= paginated_scope.count
       raise InvalidPage, "Page number #{page_number} too high"
     end
 
@@ -72,7 +72,7 @@ module Pagination
     end
 
     def start_index
-      @scope.offset + 1
+      @scope.options.skip + 1
     end
 
     def links

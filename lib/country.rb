@@ -9,7 +9,7 @@ class Country
   end
 
   def editions
-    TravelAdviceEdition.where(:country_slug => self.slug).order_by([:version_number, :desc])
+    TravelAdviceEdition.where(:country_slug => self.slug).order_by({version_number: :desc})
   end
 
   def self.all

@@ -160,7 +160,7 @@ class GovUkContentApi < Sinatra::Application
     end
 
     if params[:sort] and params[:sort] == "alphabetical"
-      tags = tags.order_by([:title, :asc])
+      tags = tags.order_by({title: :asc})
     end
 
     if settings.pagination
@@ -378,7 +378,7 @@ class GovUkContentApi < Sinatra::Application
       editions = BusinessSupportEdition.for_facets(facets).published
     end
 
-    editions = editions.order_by([:priority, :desc], [:title, :asc])
+    editions = editions.order_by({priority: :desc}, {title: :asc})
 
     @results = editions.map do |ed|
       artefact = Artefact.find(ed.panopticon_id)

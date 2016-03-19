@@ -116,7 +116,7 @@ class TravelAdviceTest < GovUkContentApiTest
 
       details = parsed_response["details"]
       assert_equal 'This is the travel advice for people planning a visit to Aruba.', details['description']
-      assert_equal edition.reviewed_at, details["reviewed_at"]
+      assert_equal edition.reviewed_at.as_json, details["reviewed_at"]
       assert_equal 'Some stuff changed', details['change_description']
       assert_equal '<h2>This is the summary</h2>', details['summary'].strip
       assert_equal ["avoid_all_but_essential_travel_to_parts","avoid_all_travel_to_parts"], details['alert_status']

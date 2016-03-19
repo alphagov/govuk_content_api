@@ -17,7 +17,7 @@ module ContentApiArtefactExtensions
       :local_authority,
       :local_interaction
     )
-    scope :live, where(state: 'live')
+    scope :live, ->{ where(state: 'live') }
   end
 
   def live_tagged_related_artefacts
