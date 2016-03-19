@@ -12,17 +12,21 @@ $LOAD_PATH << File.expand_path('../../', __FILE__)
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
 require 'minitest/autorun'
-require 'turn/autorun'
 require 'rack/test'
 
 require 'database_cleaner'
-require 'mocha'
+require 'mocha/mini_test'
 require 'factory_girl'
 require 'webmock/minitest'
 require 'timecop'
 require 'govuk_content_api'
 require 'govuk_content_models/test_helpers/factories'
 require 'gds_api/test_helpers/json_client_helper'
+
+require 'minitest/reporters'
+Minitest::Reporters.use!(
+  Minitest::Reporters::SpecReporter.new(color: true),
+)
 
 DatabaseCleaner.strategy = :truncation
 # initial clean
