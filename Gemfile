@@ -9,18 +9,13 @@ gem 'sinatra', '1.4.6'
 #
 # gds-sso should be modified to not require the full
 # version of Rails in client applications.
-gem 'rails', '3.2.22'
+gem 'rails', '4.2.6'
 
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem "govuk_content_models", '~> 34.0.0'
+  gem "govuk_content_models", :github => 'alphagov/govuk_content_models', :branch => 'rails-mongoid-upgrade'
 end
-
-# TODO: This was previously pinned due to a replica set bug in >1.6.2
-# Consider whether this still needs to be pinned when it is provided
-# as a dependency of govuk_content_models
-gem 'mongo', '>= 1.7.1'
 
 gem 'gds-sso', '~> 11.2'
 
@@ -42,14 +37,14 @@ gem 'rack-logstasher', '0.0.3'
 gem 'airbrake', '4.3.0'
 
 group :test do
-  gem 'database_cleaner', '1.4.1'
+  gem 'database_cleaner', '1.5.1'
   gem 'factory_girl', '4.5.0'
-  gem 'mocha', '0.12.4', require: false
+  gem 'mocha', '1.1.0'
   gem 'simplecov', '0.10.0'
   gem 'simplecov-rcov', '0.2.3'
-  gem 'minitest', '3.4.0'
-  gem 'turn', require: false
-  gem 'ci_reporter', '1.7.0'
+  gem 'minitest', '~> 5.0'
+  gem 'minitest-reporters'
+  gem 'ci_reporter_minitest', '1.0.0'
   gem 'webmock', '~> 1.21', require: false
   gem 'timecop', '0.7.4'
 end
