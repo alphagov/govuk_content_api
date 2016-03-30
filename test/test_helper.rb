@@ -45,7 +45,7 @@ module ResponseTestMethods
 
   def assert_base_artefact_fields(parsed_response)
     assert_equal 'ok', parsed_response["_response_info"]["status"]
-    assert_has_expected_fields(parsed_response, ['title', 'id', 'tags'])
+    assert_has_expected_fields(parsed_response, %w(title id tags))
   end
 
   def assert_has_expected_fields(parsed_response, fields)
@@ -63,9 +63,9 @@ module ResponseTestMethods
   # Check for a page with the given relationship in the Link header
   def assert_link(rel, href, response = last_response)
     link_header = LinkHeader.parse(response.headers["Link"])
-    link = link_header.find_link(["rel", rel])
-    assert link, "No link with rel '#{rel}' found"
-    assert_equal href, link.href
+    found_link = link_header.find_link(["rel", rel])
+    assert found_link, "No link with rel '#{rel}' found"
+    assert_equal href, found_link.href
 
     # Also check in _response_info
     parsed_response = JSON.parse(response.body)
@@ -78,8 +78,8 @@ module ResponseTestMethods
   # Ensure there is no link with the given relationship in the Link header
   def refute_link(rel, response = last_response)
     link_header = LinkHeader.parse(response.headers["Link"])
-    link = link_header.find_link(["rel", rel])
-    refute link, "Unexpected link with rel '#{rel} found"
+    found_link = link_header.find_link(["rel", rel])
+    refute found_link, "Unexpected link with rel '#{rel} found"
 
     # Also check in _response_info
     parsed_response = JSON.parse(response.body)

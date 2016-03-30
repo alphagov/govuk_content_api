@@ -6,7 +6,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should return full licence details for an edition with a licence identifier" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
 
     authorities = [{
       "authorityName" => "Authority",
@@ -34,7 +34,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
         }]
       }
     }]
-    licence_exists('123-2-1', {"isLocationSpecific" => false, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => authorities})
+    licence_exists('123-2-1', "isLocationSpecific" => false, "geographicalAvailability" => %w(England Wales), "issuingAuthorities" => authorities)
 
     get '/licence-artefact.json'
     parsed_response = JSON.parse(last_response.body)
@@ -43,18 +43,18 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
     assert parsed_response["details"]["licence"].present?
 
     assert_equal false, parsed_response["details"]["licence"]["location_specific"]
-    assert_equal ["England","Wales"], parsed_response["details"]["licence"]["availability"]
+    assert_equal %w(England Wales), parsed_response["details"]["licence"]["availability"]
 
     assert_equal '020 8303 7777', parsed_response['details']['licence']['authorities'].first['contact']['phone']
 
-    assert_equal ['Authority'], parsed_response["details"]["licence"]["authorities"].map {|r| r['name']}
-    assert_equal ['authority-slug'], parsed_response["details"]["licence"]["authorities"].map {|r| r['slug']}
-    assert_equal ['Apply for all the things', 'Renew all the things'], parsed_response["details"]["licence"]["authorities"].first["actions"].map {|k,v| v.first["description"] }
+    assert_equal ['Authority'], parsed_response["details"]["licence"]["authorities"].map { |r| r['name'] }
+    assert_equal ['authority-slug'], parsed_response["details"]["licence"]["authorities"].map { |r| r['slug'] }
+    assert_equal ['Apply for all the things', 'Renew all the things'], parsed_response["details"]["licence"]["authorities"].first["actions"].map { |_k, v| v.first["description"] }
   end
 
   it "should return location-specific licence details for an edition with a licence identifier and snac code" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
 
     authorities = [{
       "authorityName" => "South Ribble Borough Council",
@@ -69,7 +69,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
         }]
       }
     }]
-    licence_exists('123-2-1/41UH', {"isLocationSpecific" => true, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => authorities})
+    licence_exists('123-2-1/41UH', "isLocationSpecific" => true, "geographicalAvailability" => %w(England Wales), "issuingAuthorities" => authorities)
 
     get '/licence-artefact.json?snac=41UH'
 
@@ -87,10 +87,10 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should return local service details for a location specific licence without a snac code" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
-    stub_local_service = FactoryGirl.create(:local_service, description: "Local Service description", lgsl_code: 123, providing_tier: %w{ county unitary })
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: '123-2-1', state: 'published')
+    FactoryGirl.create(:local_service, description: "Local Service description", lgsl_code: 123, providing_tier: %w{ county unitary })
 
-    licence_exists('123-2-1', {"isLocationSpecific" => true, "geographicalAvailability" => ["England","Wales"], "issuingAuthorities" => []})
+    licence_exists('123-2-1', "isLocationSpecific" => true, "geographicalAvailability" => %w(England Wales), "issuingAuthorities" => [])
 
     get '/licence-artefact.json'
 
@@ -100,7 +100,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
     assert last_response.ok?
 
     assert_equal "Local Service description", local_service["description"]
-    assert_equal ['county','unitary'], local_service["providing_tier"]
+    assert_equal %w(county unitary), local_service["providing_tier"]
     assert_equal 123, local_service["lgsl_code"]
   end
 
@@ -117,7 +117,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should not return any licence details if the licence does not exist in the licence application tool" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_does_not_exist('blaaargh')
 
@@ -130,7 +130,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should not return any licence details if the licence does not exist in the licence application tool when provided with a snac code" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_does_not_exist('blaaargh/43UG')
 
@@ -143,7 +143,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should return an error message if the api request times out" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_times_out('blaaargh/43UG')
 
@@ -157,7 +157,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should return an error message if the api request returns an error" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     licence_returns_error('blaaargh')
 
@@ -171,7 +171,7 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
 
   it "should return an error message if the api request returns an error" do
     stub_artefact = FactoryGirl.create(:artefact, slug: 'licence-artefact', state: 'live')
-    stub_licence = FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
+    FactoryGirl.create(:licence_edition, panopticon_id: stub_artefact.id, licence_identifier: 'blaaargh', state: 'published')
 
     GdsApi::LicenceApplication.any_instance.stubs(:details_for_licence).raises(SocketError)
 
@@ -182,5 +182,4 @@ class LicenceApplicationRequestTest < GovUkContentApiTest
     assert parsed_response["details"]["licence"].present?
     assert_equal "http_error", parsed_response["details"]["licence"]["error"]
   end
-
 end

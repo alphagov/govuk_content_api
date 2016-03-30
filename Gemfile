@@ -14,13 +14,13 @@ gem 'rails', '4.2.6'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem "govuk_content_models", :github => 'alphagov/govuk_content_models', :branch => 'rails-mongoid-upgrade'
+  gem "govuk_content_models", github: 'alphagov/govuk_content_models', branch: 'rails-mongoid-upgrade'
 end
 
 gem 'gds-sso', '~> 11.2'
 
 if ENV['API_DEV']
-  gem 'gds-api-adapters', :path => '../gds-api-adapters'
+  gem 'gds-api-adapters', path: '../gds-api-adapters'
 else
   gem 'gds-api-adapters', '28.2.1'
 end

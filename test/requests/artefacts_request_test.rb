@@ -1,7 +1,6 @@
 require_relative '../test_helper'
 
 class ArtefactsRequestTest < GovUkContentApiTest
-
   it "should return empty array with no artefacts" do
     get "/artefacts.json"
 
@@ -14,9 +13,9 @@ class ArtefactsRequestTest < GovUkContentApiTest
   end
 
   it "should return all artefacts" do
-    FactoryGirl.create(:artefact, :name => "Alpha", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Bravo", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Charlie", :state => 'live')
+    FactoryGirl.create(:artefact, name: "Alpha", state: 'live')
+    FactoryGirl.create(:artefact, name: "Bravo", state: 'live')
+    FactoryGirl.create(:artefact, name: "Charlie", state: 'live')
 
     get "/artefacts.json"
 
@@ -26,13 +25,13 @@ class ArtefactsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert_equal 3, parsed_response["total"]
-    assert_equal %w(Alpha Bravo Charlie), parsed_response["results"].map {|a| a["title"]}.sort
+    assert_equal %w(Alpha Bravo Charlie), parsed_response["results"].map { |a| a["title"] }.sort
   end
 
   it "should only include live artefacts" do
-    FactoryGirl.create(:artefact, :name => "Alpha", :state => 'draft')
-    FactoryGirl.create(:artefact, :name => "Bravo", :state => 'live')
-    FactoryGirl.create(:artefact, :name => "Charlie", :state => 'archived')
+    FactoryGirl.create(:artefact, name: "Alpha", state: 'draft')
+    FactoryGirl.create(:artefact, name: "Bravo", state: 'live')
+    FactoryGirl.create(:artefact, name: "Charlie", state: 'archived')
 
     get "/artefacts.json"
 
@@ -42,11 +41,11 @@ class ArtefactsRequestTest < GovUkContentApiTest
     parsed_response = JSON.parse(last_response.body)
 
     assert_equal 1, parsed_response["total"]
-    assert_equal %w(Bravo), parsed_response["results"].map {|a| a["title"]}.sort
+    assert_equal %w(Bravo), parsed_response["results"].map { |a| a["title"] }.sort
   end
 
   it "should only include minimal information for each artefact" do
-    artefact = FactoryGirl.create(:artefact, :slug => "bravo", :content_id => SecureRandom.uuid, :name => "Bravo", :state => 'live', :kind => "guide", :owning_app => "calendars")
+    artefact = FactoryGirl.create(:artefact, slug: "bravo", content_id: SecureRandom.uuid, name: "Bravo", state: 'live', kind: "guide", owning_app: "calendars")
 
     get "/artefacts.json"
 
@@ -71,8 +70,8 @@ class ArtefactsRequestTest < GovUkContentApiTest
   describe "pagination" do
     it "should paginate 500 per page when there are enough artefacts" do
       # Use a batch insert for performance (without this, it takes c. 20 seconds to create 505 items)
-      artefacts = 505.times.map do |n|
-        FactoryGirl.attributes_for(:artefact, :state => "live")
+      artefacts = 505.times.map do |_n|
+        FactoryGirl.attributes_for(:artefact, state: "live")
       end
       Artefact.collection.insert_many(artefacts)
 
@@ -84,7 +83,7 @@ class ArtefactsRequestTest < GovUkContentApiTest
       assert_has_values parsed_response, "total" => 505, "current_page" => 1,
                                          "pages" => 2
 
-      assert_link "next",  "http://example.org/artefacts.json?page=2"
+      assert_link "next", "http://example.org/artefacts.json?page=2"
       refute_link "previous"
 
       get "/artefacts.json?page=2"
@@ -95,7 +94,7 @@ class ArtefactsRequestTest < GovUkContentApiTest
       assert_has_values parsed_response, "total" => 505, "current_page" => 2,
                                          "pages" => 2
 
-      assert_link "previous",  "http://example.org/artefacts.json?page=1"
+      assert_link "previous", "http://example.org/artefacts.json?page=1"
       refute_link "next"
     end
   end
