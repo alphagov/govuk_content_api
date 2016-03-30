@@ -53,3 +53,7 @@ group :development do
   # (Intelligent) reloading server in development
   gem "mr-sparkle", "0.3.0"
 end
+
+group :development, :test do
+  gem 'govuk-lint'
+end

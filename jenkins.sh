@@ -9,5 +9,13 @@ export GOVUK_ASSET_HOST=http://static.dev.gov.uk
 export USE_SIMPLECOV=true
 export RACK_ENV=test
 
+if [[ ${GIT_BRANCH} != "origin/master" ]]; then
+  bundle exec govuk-lint-ruby \
+    --diff \
+    --format html --out rubocop-${GIT_COMMIT}.html \
+    --format clang \
+    config lib test
+fi
+
 bundle exec rake db:drop
 bundle exec rake ci:setup:minitest test --trace
