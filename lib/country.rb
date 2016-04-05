@@ -1,5 +1,4 @@
 class Country
-
   attr_reader :name, :slug
   attr_accessor :edition
 
@@ -9,7 +8,7 @@ class Country
   end
 
   def editions
-    TravelAdviceEdition.where(:country_slug => self.slug).order_by([:version_number, :desc])
+    TravelAdviceEdition.where(country_slug: self.slug).order_by(version_number: :desc)
   end
 
   def self.all
@@ -17,7 +16,7 @@ class Country
   end
 
   def self.find_by_slug(slug)
-    all.select {|c| c.slug == slug }.first
+    all.find { |c| c.slug == slug }
   end
 
   def self.data

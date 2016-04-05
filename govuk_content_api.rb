@@ -51,7 +51,7 @@ class GovUkContentApi < Sinatra::Application
 
   set :views, File.expand_path('views', File.dirname(__FILE__))
   set :show_exceptions, false
-  set :protection, :except => :path_traversal
+  set :protection, except: :path_traversal
 
   def url_helper
     parameters = [self, Plek.current.website_root, env['HTTP_API_PREFIX']]
@@ -89,8 +89,6 @@ class GovUkContentApi < Sinatra::Application
 
   get "/local_authorities.json" do
     set_expiry LONG_CACHE_TIME
-
-    search_param = params[:snac] || params[:name]
 
     if params[:name]
       name = Regexp.escape(params[:name])
@@ -150,17 +148,17 @@ class GovUkContentApi < Sinatra::Application
     allowed_params = params.slice('type', 'parent_id', 'root_sections', 'sort', 'draft')
 
     tags = if options.length > 0
-      Tag.where(options)
-    else
-      Tag
-    end
+             Tag.where(options)
+           else
+             Tag
+           end
 
     unless params[:draft]
       tags = tags.where(:state.ne => 'draft')
     end
 
-    if params[:sort] and params[:sort] == "alphabetical"
-      tags = tags.order_by([:title, :asc])
+    if params[:sort] && params[:sort] == "alphabetical"
+      tags = tags.order_by(title: :asc)
     end
 
     if settings.pagination
@@ -219,7 +217,7 @@ class GovUkContentApi < Sinatra::Application
     set_expiry
 
     tag_type = known_tag_types.from_plural(params[:tag_type_or_id]) ||
-                  known_tag_types.from_singular(params[:tag_type_or_id])
+      known_tag_types.from_singular(params[:tag_type_or_id])
 
     unless tag_type
       # Tags used to be accessed through /tags/tag_id.json, so we check here
@@ -305,13 +303,13 @@ class GovUkContentApi < Sinatra::Application
     end
 
     # If any of the tags weren't found, that's enough to 404
-    custom_404 if requested_tags.any? &:nil?
+    custom_404 if requested_tags.any?(&:nil?)
 
     # For now, we only support retrieving by a single tag
     custom_404 unless requested_tags.size == 1
 
     if params[:sort]
-      custom_404 unless ["curated", "alphabetical"].include?(params[:sort])
+      custom_404 unless %w(curated alphabetical).include?(params[:sort])
     end
 
     tag_id = requested_tags.first.tag_id
@@ -348,7 +346,7 @@ class GovUkContentApi < Sinatra::Application
 
     licence_ids = (params[:ids] || '').split(',')
     if licence_ids.any?
-      licences = LicenceEdition.published.in(:licence_identifier => licence_ids)
+      licences = LicenceEdition.published.in(licence_identifier: licence_ids)
       @results = map_editions_with_artefacts(licences)
     else
       @results = []
@@ -378,7 +376,7 @@ class GovUkContentApi < Sinatra::Application
       editions = BusinessSupportEdition.for_facets(facets).published
     end
 
-    editions = editions.order_by([:priority, :desc], [:title, :asc])
+    editions = editions.order_by({ priority: :desc }, title: :asc)
 
     @results = editions.map do |ed|
       artefact = Artefact.find(ed.panopticon_id)
@@ -401,7 +399,7 @@ class GovUkContentApi < Sinatra::Application
     artefacts = Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
 
     begin
-      paginated_artefacts = paginated(artefacts, params[:page], :page_size => 500)
+      paginated_artefacts = paginated(artefacts, params[:page], page_size: 500)
     rescue InvalidPage
       custom_404
     end
@@ -474,7 +472,7 @@ class GovUkContentApi < Sinatra::Application
     # editors to preview them. These can change frequently and so shouldn't be
     # cached.
     if params[:edition]
-      set_expiry(0, :private => true)
+      set_expiry(0, private: true)
     else
       set_expiry
     end
@@ -524,7 +522,7 @@ class GovUkContentApi < Sinatra::Application
     presented_artefact.present.to_json
   end
 
-  protected
+protected
 
   def map_editions_with_artefacts(editions)
     artefact_ids = editions.collect(&:panopticon_id)
@@ -585,7 +583,7 @@ class GovUkContentApi < Sinatra::Application
       first_ids = []
     end
 
-    return artefacts.to_a.sort_by { |artefact|
+    artefacts.to_a.sort_by { |artefact|
       [
         first_ids.find_index(artefact._id) || first_ids.length,
         artefact.name.downcase
@@ -607,8 +605,6 @@ class GovUkContentApi < Sinatra::Application
     artefact.edition = editions_by_slug[artefact.slug]
     if artefact.edition
       artefact
-    else
-      nil
     end
   end
 
@@ -622,11 +618,11 @@ class GovUkContentApi < Sinatra::Application
 
   def attach_publisher_edition(artefact, version_number = nil)
     artefact.edition = if version_number
-      Edition.where(panopticon_id: artefact.id, version_number: version_number).first
-    else
-      Edition.where(panopticon_id: artefact.id, state: 'published').first ||
-        Edition.where(panopticon_id: artefact.id).first
-    end
+                         Edition.where(panopticon_id: artefact.id, version_number: version_number).first
+                       else
+                         Edition.where(panopticon_id: artefact.id, state: 'published').first ||
+                           Edition.where(panopticon_id: artefact.id).first
+                       end
 
     if version_number && artefact.edition.nil?
       custom_404
@@ -660,9 +656,9 @@ class GovUkContentApi < Sinatra::Application
     licence_api_response = licence_application_api.details_for_licence(artefact.edition.licence_identifier, params[:snac])
     artefact.licence = licence_api_response.nil? ? nil : licence_api_response.to_hash
 
-    if artefact.licence and artefact.edition.licence_identifier
+    if artefact.licence && artefact.edition.licence_identifier
       licence_lgsl_code = @artefact.edition.licence_identifier.split('-').first
-      artefact.licence['local_service'] = LocalService.where(:lgsl_code => licence_lgsl_code).first
+      artefact.licence['local_service'] = LocalService.where(lgsl_code: licence_lgsl_code).first
     end
   rescue GdsApi::TimedOutException
     artefact.licence = { "error" => "timed_out" }
@@ -680,10 +676,10 @@ class GovUkContentApi < Sinatra::Application
     custom_404 unless artefact.country
 
     artefact.edition = if version_number
-      artefact.country.editions.where(:version_number => version_number).first
-    else
-      artefact.country.editions.published.first
-    end
+                         artefact.country.editions.where(version_number: version_number).first
+                       else
+                         artefact.country.editions.published.first
+                       end
     custom_404 unless artefact.edition
     attach_assets(artefact, :image, :document)
 
@@ -695,10 +691,11 @@ class GovUkContentApi < Sinatra::Application
   end
 
   def load_travel_advice_countries
-    editions = Hash[TravelAdviceEdition.published.all.map {|e| [e.country_slug, e] }]
+    editions = Hash[TravelAdviceEdition.published.all.map { |e| [e.country_slug, e] }]
     @countries = Country.all.map do |country|
-      country.tap {|c| c.edition = editions[c.slug] }
-    end.reject do |country|
+      country.tap { |c| c.edition = editions[c.slug] }
+    end
+    @countries = @countries.reject do |country|
       country.edition.nil?
     end
   end
@@ -706,10 +703,11 @@ class GovUkContentApi < Sinatra::Application
   def attach_assets(artefact, *fields)
     artefact.assets ||= {}
     fields.each do |key|
-      if asset_id = artefact.edition.send("#{key}_id")
+      asset_id = artefact.edition.send("#{key}_id")
+      if asset_id
         begin
           asset = asset_manager_api.asset(asset_id)
-          artefact.assets[key] = asset if asset and asset["state"] == "clean"
+          artefact.assets[key] = asset if asset && asset["state"] == "clean"
         rescue GdsApi::BaseError => e
           logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
         end
@@ -765,7 +763,7 @@ class GovUkContentApi < Sinatra::Application
   def check_unpublished_permission
     warden = request.env['warden']
     return true if bypass_permission_check?
-    return warden.authenticate? && warden.user.has_permission?("access_unpublished")
+    warden.authenticate? && warden.user.has_permission?("access_unpublished")
   end
 
   # Generate error response when user doesn't have permission to see unpublished items

@@ -34,11 +34,11 @@ module Pagination
 
     # Raise an exception if we've shot off the end of the results
     # (unless, of course, we're on the first page and there are no results)
-    if page_number > 1 && paginated_scope.offset >= paginated_scope.count
+    if page_number > 1 && paginated_scope.options.skip >= paginated_scope.count
       raise InvalidPage, "Page number #{page_number} too high"
     end
 
-    return paginated_scope
+    paginated_scope
   end
 
   # Wrapper class to access information from a paginated result set.
@@ -51,7 +51,6 @@ module Pagination
   #   p.results       # [#<Tag ...>, ...]
   #
   class PaginatedResultSet
-
     extend Forwardable
 
     # Delegate, delegate method, [local alias]
@@ -72,7 +71,7 @@ module Pagination
     end
 
     def start_index
-      @scope.offset + 1
+      @scope.options.skip + 1
     end
 
     def links
@@ -88,13 +87,13 @@ module Pagination
       unless last_page?
         links.push LinkHeader::Link.new(
           generate_link.call(current_page + 1),
-          [["rel", "next"]]
+          [%w(rel next)]
         )
       end
       unless first_page?
         links.push LinkHeader::Link.new(
           generate_link.call(current_page - 1),
-          [["rel", "previous"]]
+          [%w(rel previous)]
         )
       end
 
@@ -107,7 +106,6 @@ module Pagination
   # The `scope` parameter can be any object that can be converted to an array
   # (one that responds to the `to_a` method).
   class FakePaginatedResultSet
-
     def initialize(scope)
       @scope = scope
     end
