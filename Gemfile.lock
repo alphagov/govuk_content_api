@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/alphagov/govuk_content_models.git
-  revision: abc8edec36967cc3cd52a6196c2d54afda3d8777
+  revision: 0be8426054613ad7fdd278091c3313f9e93c9936
   branch: rails-mongoid-upgrade
   specs:
-    govuk_content_models (33.0.0)
+    govuk_content_models (34.0.0)
       bson_ext
       gds-api-adapters (>= 10.9.0)
       gds-sso (~> 11.2)
@@ -148,7 +148,7 @@ GEM
       metaclass (~> 0.0.1)
     mongo (2.2.4)
       bson (~> 4.0)
-    mongoid (5.1.1)
+    mongoid (5.1.2)
       activemodel (~> 4.0)
       mongo (~> 2.1)
       origin (~> 2.2)
