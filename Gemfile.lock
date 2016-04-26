@@ -1,18 +1,3 @@
-GIT
-  remote: git://github.com/alphagov/govuk_content_models.git
-  revision: 0be8426054613ad7fdd278091c3313f9e93c9936
-  branch: rails-mongoid-upgrade
-  specs:
-    govuk_content_models (34.0.0)
-      bson_ext
-      gds-api-adapters (>= 10.9.0)
-      gds-sso (~> 11.2)
-      govspeak (~> 3.1)
-      mongoid (~> 5.1)
-      plek
-      state_machines (~> 0.4)
-      state_machines-mongoid (~> 0.1)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -61,7 +46,7 @@ GEM
     ast (2.2.0)
     astrolabe (1.3.1)
       parser (~> 2.2)
-    bson (4.0.4)
+    bson (4.1.0)
     bson_ext (1.5.1)
     builder (3.2.2)
     ci_reporter (2.0.0)
@@ -110,6 +95,15 @@ GEM
     govuk-lint (0.8.1)
       rubocop (~> 0.35.0)
       scss_lint (~> 0.44.0)
+    govuk_content_models (35.0.0)
+      bson_ext
+      gds-api-adapters (>= 10.9.0)
+      gds-sso (~> 11.2)
+      govspeak (~> 3.1)
+      mongoid (~> 5.1)
+      plek
+      state_machines (~> 0.4)
+      state_machines-mongoid (~> 0.1)
     hashdiff (0.3.0)
     hashie (3.4.3)
     htmlentities (4.3.4)
@@ -148,7 +142,7 @@ GEM
       metaclass (~> 0.0.1)
     mongo (2.2.4)
       bson (~> 4.0)
-    mongoid (5.1.2)
+    mongoid (5.1.3)
       activemodel (~> 4.0)
       mongo (~> 2.1)
       origin (~> 2.2)
@@ -310,7 +304,7 @@ DEPENDENCIES
   gds-sso (~> 11.2)
   govspeak (~> 3.1)
   govuk-lint
-  govuk_content_models!
+  govuk_content_models (= 35.0.0)
   kaminari (= 0.14.1)
   link_header (= 0.0.8)
   minitest (~> 5.0)
