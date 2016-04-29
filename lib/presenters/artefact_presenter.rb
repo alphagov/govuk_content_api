@@ -19,6 +19,7 @@ class ArtefactPresenter
     alert_status
     alternate_methods
     body
+    start_button_text
     change_description
     continuation_link
     department_analytics_profile
