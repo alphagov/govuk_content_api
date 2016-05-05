@@ -444,7 +444,9 @@ class FormatsRequestTest < GovUkContentApiTest
     n.options.build(:label => "Sir Robin of Camelot", :next_node => 'what-is-the-capital-of-assyria', :order => 2)
 
     n = smart_answer.nodes.build(:kind => 'question', :slug => 'what-is-your-favorite-colour', :title => "What is your favorite colour?", :order => 3)
-    n.options.build(:label => "Blue", :next_node => 'right-off-you-go')
+    blue_condition_lancelot = { slug: 'what-is-your-name', label: "Sir Lancelot of Camelot", next_node: 'right-off-you-go'}
+    blue_condition_galahad = { slug: 'what-is-your-name', label: "Sir Galahad of Camelot", next_node: 'go-defend-the-realm'}
+    n.options.build(:label => "Blue", :conditions => [blue_condition_lancelot, blue_condition_galahad])
     n.options.build(:label => "Blue... NO! YELLOOOOOOOOOOOOOOOOWWW!!!!", :next_node => 'arrrrrghhhh')
 
     n = smart_answer.nodes.build(:kind => 'question', :slug => 'what-is-the-capital-of-assyria', :title => "What is the capital of Assyria?", :order => 2)
@@ -452,6 +454,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     n = smart_answer.nodes.build(:kind => 'outcome', :slug => 'right-off-you-go', :title => "Right, off you go.", :body => "Oh! Well, thank you.  Thank you very much", :order => 4)
     n = smart_answer.nodes.build(:kind => 'outcome', :slug => 'arrrrrghhhh', :title => "AAAAARRRRRRRRRRRRRRRRGGGGGHHH!!!!!!!", :order => 5)
+    n = smart_answer.nodes.build(:kind => 'outcome', :slug => 'go-defend-the-realm', :title => "Go and defend the realm", :order => 6)
     smart_answer.save!
 
     get '/the-bridge-of-death.json'
@@ -466,7 +469,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     nodes = details["nodes"]
 
-    assert_equal ["What is your name?", "What is the capital of Assyria?", "What is your favorite colour?", "Right, off you go.", "AAAAARRRRRRRRRRRRRRRRGGGGGHHH!!!!!!!" ], nodes.map {|n| n["title"]}
+    assert_equal ["What is your name?", "What is the capital of Assyria?", "What is your favorite colour?", "Right, off you go.", "AAAAARRRRRRRRRRRRRRRRGGGGGHHH!!!!!!!", "Go and defend the realm"], nodes.map {|n| n["title"]}
 
     question1 = nodes[0]
     assert_equal "question", question1["kind"]
@@ -474,6 +477,25 @@ class FormatsRequestTest < GovUkContentApiTest
     assert_equal ["Sir Lancelot of Camelot", "Sir Robin of Camelot", "Sir Galahad of Camelot"], question1["options"].map {|o| o["label"]}
     assert_equal ["sir-lancelot-of-camelot", "sir-robin-of-camelot", "sir-galahad-of-camelot"], question1["options"].map {|o| o["slug"]}
     assert_equal ["what-is-your-favorite-colour", "what-is-the-capital-of-assyria", "what-is-your-favorite-colour"], question1["options"].map {|o| o["next_node"]}
+
+    question2 = nodes[2]
+    assert_equal "question", question2["kind"]
+    assert_equal "what-is-your-favorite-colour", question2["slug"]
+
+    q2_conditions_slugs = question2["options"].map do |option|
+      option["conditions"].collect {|condition| condition["slug"]}
+    end
+    assert_equal ["what-is-your-name", "what-is-your-name"], q2_conditions_slugs.flatten(1)
+
+    q2_conditions_labels = question2["options"].map do |option|
+      option["conditions"].collect {|condition| condition["label"]}
+    end
+    assert_equal ["Sir Lancelot of Camelot", "Sir Galahad of Camelot"], q2_conditions_labels.flatten(1)
+
+    q2_conditions_next_nodes = question2["options"].map do |option|
+      option["conditions"].collect {|condition| condition["next_node"]}
+    end
+    assert_equal ["right-off-you-go", "go-defend-the-realm"], q2_conditions_next_nodes.flatten(1)
 
     outcome1 = nodes[3]
     assert_equal "outcome", outcome1["kind"]
