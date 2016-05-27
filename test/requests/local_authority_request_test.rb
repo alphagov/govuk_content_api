@@ -1,11 +1,6 @@
 require "test_helper"
 
 class LocalAuthorityRequestTest < GovUkContentApiTest
-  it "should return 404 if no snac code is provided" do
-    get "/local_authorities/"
-    assert last_response.not_found?
-  end
-
   it "should return 404 if no name or snac code is provided" do
     get "/local_authorities.json"
     assert last_response.not_found?
