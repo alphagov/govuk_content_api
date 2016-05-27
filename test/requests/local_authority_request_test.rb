@@ -99,10 +99,6 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
                   "snac" => "00CT",
                   "id" => "http://example.org/local_authorities/00CT.json",
                   "tier" => "unitary",
-                  "contact_address" => ["123 Fake Street"],
-                  "contact_url" => "http://council.gov.uk/get-in-touch",
-                  "contact_phone" => "01234 567890",
-                  "contact_email" => "cousin.sven@council.gov.uk",
                   "homepage_url" => 'http://council.gov.uk',
                 },
                 {
@@ -110,10 +106,6 @@ class LocalAuthorityRequestTest < GovUkContentApiTest
                   "snac" => "00VT",
                   "id" => "http://example.org/local_authorities/00VT.json",
                   "tier" => "unitary",
-                  "contact_address" => ["123 Fake Street"],
-                  "contact_url" => "http://council.gov.uk/get-in-touch",
-                  "contact_phone" => "01234 567890",
-                  "contact_email" => "cousin.sven@council.gov.uk",
                   "homepage_url" => 'http://council.gov.uk',
                 }]
 
