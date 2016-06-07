@@ -190,10 +190,7 @@ private
   def local_authority
     return {} unless @artefact.local_authority
 
-    presenter = LocalAuthorityPresenter.new(
-      @artefact.local_authority,
-      @url_helper
-    )
+    presenter = LocalAuthorityPresenter.new(@artefact.local_authority)
     { "local_authority" => presenter.present }
   end
 

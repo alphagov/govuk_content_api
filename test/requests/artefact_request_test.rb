@@ -374,7 +374,6 @@ class ArtefactRequestTest < GovUkContentApiTest
           assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
           assert_equal authority.name, response['details']['local_authority']['name']
           assert_equal 'http://council.example.gov/', response['details']['local_authority']['homepage_url']
-          assert_equal 'http://council.example.gov/get-in-touch', response['details']['local_authority']['contact_url']
           assert_equal interaction.url, response['details']['local_interaction']['url']
         end
 

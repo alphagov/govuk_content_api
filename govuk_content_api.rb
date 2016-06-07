@@ -89,43 +89,11 @@ class GovUkContentApi < Sinatra::Application
 
   get "/local_authorities.json" do
     set_expiry LONG_CACHE_TIME
-
-    if params[:name]
-      name = Regexp.escape(params[:name])
-      @local_authorities = LocalAuthority.where(name: /^#{name}/i).to_a
-    elsif params[:snac]
-      snac = Regexp.escape(params[:snac])
-      @local_authorities = LocalAuthority.where(snac: /^#{snac}/i).to_a
-    else
-      custom_404
-    end
-
-    presenter = ResultSetPresenter.new(
-      FakePaginatedResultSet.new(@local_authorities),
-      url_helper,
-      LocalAuthorityPresenter,
-      description: "Local Authorities"
-    )
-
-    presenter.present.to_json
+    custom_410
   end
 
   get "/local_authorities/:snac.json" do
-    set_expiry LONG_CACHE_TIME
-
-    if params[:snac]
-      @local_authority = LocalAuthority.find_by_snac(params[:snac])
-    end
-
-    if @local_authority
-      authority_presenter = LocalAuthorityPresenter.new(
-        @local_authority,
-        url_helper
-      )
-      SingleResultPresenter.new(authority_presenter).present.to_json
-    else
-      custom_404
-    end
+    custom_410
   end
 
   get "/tags.json" do
