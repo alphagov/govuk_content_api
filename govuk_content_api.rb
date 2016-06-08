@@ -93,6 +93,7 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/local_authorities/:snac.json" do
+    set_expiry LONG_CACHE_TIME
     custom_410
   end
 
