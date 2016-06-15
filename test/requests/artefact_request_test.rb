@@ -358,7 +358,6 @@ class ArtefactRequestTest < GovUkContentApiTest
           authority = FactoryGirl.create(
             :local_authority,
             homepage_url: 'http://council.example.gov/',
-            contact_url: 'http://council.example.gov/get-in-touch',
           )
           interaction = FactoryGirl.create(
             :local_interaction,
