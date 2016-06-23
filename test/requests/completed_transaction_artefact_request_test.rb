@@ -9,16 +9,16 @@ class CompletedTransactionArtefactRequestTest < GovUkContentApiTest
     get "/#{artefact.slug}.json"
     assert_equal 200, last_response.status
     response = JSON.parse(last_response.body)
-    refute response["details"]["presentation_toggles"]["organ_donor_registration"]["promote_organ_donor_registration"]
+    refute response["details"]["presentation_toggles"]["promotion_choice"]["choice"] == "organ_donor"
 
-    edition.promote_organ_donor_registration = true
-    edition.organ_donor_registration_url = organ_donor_registration_url
+    edition.promotion_choice = "organ_donor"
+    edition.promotion_choice_url = organ_donor_registration_url
     edition.save(validate: false)
 
     get "/#{artefact.slug}.json"
     assert_equal 200, last_response.status
     response = JSON.parse(last_response.body)
-    assert response["details"]["presentation_toggles"]["organ_donor_registration"]["promote_organ_donor_registration"]
-    assert_equal organ_donor_registration_url, response["details"]["presentation_toggles"]["organ_donor_registration"]["organ_donor_registration_url"]
+    assert response["details"]["presentation_toggles"]["promotion_choice"]["choice"] == "organ_donor"
+    assert_equal organ_donor_registration_url, response["details"]["presentation_toggles"]["promotion_choice"]["url"]
   end
 end
