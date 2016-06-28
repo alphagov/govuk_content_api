@@ -14,7 +14,7 @@ gem 'rails', '4.2.6'
 if ENV['CONTENT_MODELS_DEV']
   gem 'govuk_content_models', path: '../govuk_content_models'
 else
-  gem "govuk_content_models", '36.0.0'
+  gem "govuk_content_models", '37.0.0'
 end
 
 gem 'gds-sso', '~> 11.2'
