@@ -15,7 +15,6 @@ module ContentApiArtefactExtensions
       :extra_tags,
       :group,
       :local_authority,
-      :local_interaction
     )
     scope :live, -> { where(state: 'live') }
   end

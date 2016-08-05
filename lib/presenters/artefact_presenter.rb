@@ -83,7 +83,6 @@ class ArtefactPresenter
       places,
       licence,
       local_authority,
-      local_interaction,
       local_service,
       assets,
       country,
@@ -192,18 +191,6 @@ private
 
     presenter = LocalAuthorityPresenter.new(@artefact.local_authority)
     { "local_authority" => presenter.present }
-  end
-
-  def local_interaction
-    return {} unless @artefact.local_interaction
-
-    {
-      "local_interaction" => {
-        "lgsl_code" => @artefact.local_interaction.lgsl_code,
-        "lgil_code" => @artefact.local_interaction.lgil_code,
-        "url" => @artefact.local_interaction.url
-      }
-    }
   end
 
   def local_service

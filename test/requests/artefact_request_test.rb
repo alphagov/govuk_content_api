@@ -354,15 +354,10 @@ class ArtefactRequestTest < GovUkContentApiTest
           @local_transaction_edition.artefact.update_attribute(:state, 'live')
         end
 
-        it "should return local service, local authority and local interaction details" do
+        it "should return local service and local authority details" do
           authority = FactoryGirl.create(
             :local_authority,
             homepage_url: 'http://council.example.gov/',
-          )
-          interaction = FactoryGirl.create(
-            :local_interaction,
-            lgsl_code: @service.lgsl_code,
-            local_authority: authority
           )
 
           get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
@@ -373,22 +368,9 @@ class ArtefactRequestTest < GovUkContentApiTest
           assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
           assert_equal authority.name, response['details']['local_authority']['name']
           assert_equal 'http://council.example.gov/', response['details']['local_authority']['homepage_url']
-          assert_equal interaction.url, response['details']['local_interaction']['url']
         end
 
-        it "should return nil local_interaction when no interaction available" do
-          authority = FactoryGirl.create(:local_authority)
-
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
-          assert last_response.ok?
-          response = JSON.parse(last_response.body)
-
-          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
-          assert_equal authority.name, response['details']['local_authority']['name']
-          assert_nil response['details']['local_interaction']
-        end
-
-        it "should return nil local_interaction and local_authority when no authority available" do
+        it "should return nil local_authority when no authority available" do
 
           get "/#{@local_transaction_edition.artefact.slug}.json?snac=00PT"
           assert last_response.ok?
@@ -396,9 +378,7 @@ class ArtefactRequestTest < GovUkContentApiTest
 
           assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
           assert_nil response['details']['local_authority']
-          assert_nil response['details']['local_interaction']
         end
-
       end
 
       it "should return local_service details for local transactions without snac code" do

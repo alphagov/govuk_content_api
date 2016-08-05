@@ -682,12 +682,6 @@ protected
   def attach_local_information(artefact, snac)
     provider = artefact.edition.service.preferred_provider(snac)
     artefact.local_authority = provider
-    if provider
-      artefact.local_interaction = provider.preferred_interaction_for(
-        artefact.edition.lgsl_code,
-        artefact.edition.lgil_override
-      )
-    end
   end
 
   def asset_manager_api
