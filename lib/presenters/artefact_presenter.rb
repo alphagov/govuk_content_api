@@ -2,7 +2,6 @@ require "presenters/basic_artefact_presenter"
 require "presenters/tag_presenter"
 require "presenters/artefact_part_presenter"
 require "presenters/artefact_licence_presenter"
-require "presenters/local_authority_presenter"
 
 # Full presenter for artefacts.
 #
@@ -82,7 +81,6 @@ class ArtefactPresenter
       nodes,
       places,
       licence,
-      local_authority,
       local_service,
       assets,
       country,
@@ -184,13 +182,6 @@ private
     end
 
     { "places" => place_list }
-  end
-
-  def local_authority
-    return {} unless @artefact.local_authority
-
-    presenter = LocalAuthorityPresenter.new(@artefact.local_authority)
-    { "local_authority" => presenter.present }
   end
 
   def local_service
