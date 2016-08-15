@@ -12,7 +12,6 @@ require 'ostruct'
 require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/single_result_presenter"
-require "presenters/local_authority_presenter"
 require "presenters/tag_presenter"
 require "presenters/tag_type_presenter"
 require "presenters/basic_artefact_presenter"
@@ -603,9 +602,6 @@ protected
     attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
     attach_assets(@artefact, :caption_file) if @artefact.edition.is_a?(VideoEdition)
     attach_assets(@artefact, :small_image, :medium_image, :large_image) if @artefact.edition.is_a?(CampaignEdition)
-    if @artefact.edition.is_a?(LocalTransactionEdition) && params[:snac]
-      attach_local_information(@artefact, params[:snac])
-    end
   end
 
   def attach_place_data(artefact)
@@ -677,11 +673,6 @@ protected
         end
       end
     end
-  end
-
-  def attach_local_information(artefact, snac)
-    provider = artefact.edition.service.preferred_provider(snac)
-    artefact.local_authority = provider
   end
 
   def asset_manager_api

@@ -354,30 +354,21 @@ class ArtefactRequestTest < GovUkContentApiTest
           @local_transaction_edition.artefact.update_attribute(:state, 'live')
         end
 
-        it "should return local service and local authority details" do
-          authority = FactoryGirl.create(
-            :local_authority,
-            homepage_url: 'http://council.example.gov/',
-          )
-
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac=#{authority.snac}"
+        it "should return local service details" do
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac=OOAP"
           assert last_response.ok?
           response = JSON.parse(last_response.body)
 
           assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
           assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
-          assert_equal authority.name, response['details']['local_authority']['name']
-          assert_equal 'http://council.example.gov/', response['details']['local_authority']['homepage_url']
         end
 
-        it "should return nil local_authority when no authority available" do
-
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac=00PT"
+        it 'no longer includes local_authority details' do
+          get "/#{@local_transaction_edition.artefact.slug}.json?snac=00AP"
           assert last_response.ok?
           response = JSON.parse(last_response.body)
 
-          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
-          assert_nil response['details']['local_authority']
+          refute response['details'].key? 'local_authority'
         end
       end
 
