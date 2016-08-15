@@ -24,7 +24,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
     fields = parsed_response["details"]
 
-    expected_fields = ['description', 'body', 'need_extended_font']
+    expected_fields = %w(description body)
 
     assert_has_expected_fields(fields, expected_fields)
     assert_equal "<p>Important batman information</p>\n", fields["body"]
