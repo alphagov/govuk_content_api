@@ -11,7 +11,7 @@ require "presenters/artefact_licence_presenter"
 class ArtefactPresenter
 
   BASE_FIELDS = %w(
-    need_ids description language need_extended_font
+    need_ids description language
   ).map(&:to_sym)
 
   OPTIONAL_FIELDS = %w(
