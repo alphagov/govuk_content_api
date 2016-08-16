@@ -362,27 +362,7 @@ class GovUkContentApi < Sinatra::Application
 
   get "/artefacts.json" do
     set_expiry
-
-    artefacts = Artefact.live.only(MinimalArtefactPresenter::REQUIRED_FIELDS)
-
-    begin
-      paginated_artefacts = paginated(artefacts, params[:page], page_size: 500)
-    rescue InvalidPage
-      custom_404
-    end
-
-    @result_set = PaginatedResultSet.new(paginated_artefacts)
-    @result_set.populate_page_links { |page_number|
-      url_helper.artefacts_url(page_number)
-    }
-    headers "Link" => LinkHeader.new(@result_set.links).to_s
-
-    presenter = ResultSetPresenter.new(
-      @result_set,
-      url_helper,
-      MinimalArtefactPresenter
-    )
-    presenter.present.to_json
+    custom_410
   end
 
   # Show the artefacts for a given need ID
