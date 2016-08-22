@@ -602,8 +602,6 @@ protected
     end
   rescue GdsApi::TimedOutException
     artefact.licence = { "error" => "timed_out" }
-  rescue GdsApi::HTTPErrorResponse
-    artefact.licence = { "error" => "http_error" }
   rescue => e
     Airbrake.notify_or_ignore(e)
     artefact.licence = { "error" => "http_error" }
