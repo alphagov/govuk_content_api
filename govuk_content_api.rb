@@ -13,7 +13,6 @@ require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/single_result_presenter"
 require "presenters/tag_presenter"
-require "presenters/tag_type_presenter"
 require "presenters/basic_artefact_presenter"
 require "presenters/minimal_artefact_presenter"
 require "presenters/artefact_presenter"
@@ -159,14 +158,7 @@ class GovUkContentApi < Sinatra::Application
 
   get "/tag_types.json" do
     set_expiry LONG_CACHE_TIME
-
-    presenter = ResultSetPresenter.new(
-      FakePaginatedResultSet.new(known_tag_types),
-      url_helper,
-      TagTypePresenter,
-      description: "All tag types"
-    )
-    presenter.present.to_json
+    custom_410
   end
 
   # This endpoint is deprecated. It had multiple purposes during its life:
