@@ -148,6 +148,13 @@ private
             "label" => o.label,
             "slug" => o.slug,
             "next_node" => o.next_node,
+            "conditions" => o.conditions.map { |c|
+              {
+                "label" => c.label,
+                "slug" => c.slug,
+                "next_node" => c.next_node
+              }
+            }
           }
         }
       }
