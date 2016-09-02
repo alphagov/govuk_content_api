@@ -161,36 +161,9 @@ class GovUkContentApi < Sinatra::Application
     custom_410
   end
 
-  # This endpoint is deprecated. It had multiple purposes during its life:
-  #
-  # For requests looking for a tag type (eg /tags/sections.json), this returns a
-  # redirect to /tags.json?type=section, including optional parent_id or
-  # root_sections parameters.
-  #
-  # For requests looking for a section tag (eg /tags/crime.json), this returns
-  # a redirect to /tags/section/crime.json
-  #
   get "/tags/:tag_type_or_id.json" do
     set_expiry
-
-    tag_type = known_tag_types.from_plural(params[:tag_type_or_id]) ||
-      known_tag_types.from_singular(params[:tag_type_or_id])
-
-    unless tag_type
-      # Tags used to be accessed through /tags/tag_id.json, so we check here
-      # whether one exists to avoid breaking the Web. We only check for section
-      # tags, as at the time of change sections were the only tag type in use
-      # in production
-      section = Tag.by_tag_id(params[:tag_type_or_id], "section")
-      redirect(url_helper.tag_url(section)) if section
-
-      # We respond with a 404 to unknown tag types, because the resource of "all
-      # tags of type <x>" does not exist when we don't recognise x
-      custom_404
-    end
-
-    included_params = params.slice("parent_id", "root_sections")
-    redirect(url_helper.tag_type_url(tag_type, included_params))
+    custom_410
   end
 
   get "/tags/:tag_type/*.json" do |tag_type, tag_id|

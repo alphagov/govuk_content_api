@@ -154,48 +154,4 @@ class TagRequestTest < GovUkContentApiTest
       end
     end
   end
-
-  # The deprecated endpoint
-  describe "/tags/:tag_type_or_id.json" do
-    describe "for a tag id without a slash" do
-      before do
-        FactoryGirl.create(:live_tag, tag_id: "crime", tag_type: "section")
-      end
-
-      it "redirects to the non-deprecated endpoint with the default type" do
-        get "/tags/crime.json"
-
-        assert last_response.redirect?
-        assert_equal "http://example.org/tags/section/crime.json", last_response.location
-      end
-    end
-
-    describe "for a tag id with a slash" do
-      before do
-        crime = FactoryGirl.create(:live_tag,
-                                   tag_id: "crime",
-                                   tag_type: "section")
-
-        FactoryGirl.create(:live_tag,
-                           tag_id: "crime/batman",
-                           tag_type: "section",
-                           parent_id: crime.tag_id)
-
-      end
-
-      it "redirects a lower-cased path to the non-deprecated endpoint with the default type" do
-        get "/tags/crime%2fbatman.json"
-
-        assert last_response.redirect?, "was not a redirect"
-        assert_equal "http://example.org/tags/section/crime%2Fbatman.json", last_response.location
-      end
-
-      it "redirects an upper-cased path to the non-deprecated endpoint with the default type" do
-        get "/tags/crime%2Fbatman.json"
-
-        assert last_response.redirect?, "was not a redirect"
-        assert_equal "http://example.org/tags/section/crime%2Fbatman.json", last_response.location
-      end
-    end
-  end
 end
