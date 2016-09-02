@@ -20,8 +20,6 @@ require "presenters/artefact_presenter"
 require "presenters/travel_advice_index_presenter"
 require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
-require "presenters/tagged_artefact_presenter"
-require "presenters/grouped_result_set_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -227,85 +225,9 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
-  # Show the artefacts with a given tag
-  #
-  # Examples:
-  #
-  #   /with_tag.json?section=crime
-  #    - all artefacts in the Crime section
-  #   /with_tag.json?section=crime&sort=curated
-  #    - all artefacts in the Crime section, with any curated ones first
   get "/with_tag.json" do
-    set_expiry
-
-    unless params[:tag].blank?
-      # Old-style tag URLs without types specified
-
-      # If comma-separated tags given, we've stopped supporting that for now
-      if params[:tag].include? ","
-        custom_404
-      end
-
-      # If we can unambiguously determine the tag, redirect to its correct URL
-      possible_tags = Tag.where(tag_id: params[:tag])
-
-      if params[:draft]
-        possible_tags = possible_tags.to_a
-      else
-        possible_tags = possible_tags.where(:state.ne => 'draft').to_a
-      end
-
-      if possible_tags.count == 1
-        modifier_params = params.slice('sort')
-        redirect url_helper.tagged_content_url(possible_tags, modifier_params)
-      else
-        custom_404
-      end
-    end
-
-    requested_tags = known_tag_types.each_with_object([]) do |tag_type, req|
-      unless params[tag_type.singular].blank?
-        req << Tag.by_tag_id(params[tag_type.singular], type: tag_type.singular, draft: params[:draft])
-      end
-    end
-
-    # If any of the tags weren't found, that's enough to 404
-    custom_404 if requested_tags.any?(&:nil?)
-
-    # For now, we only support retrieving by a single tag
-    custom_404 unless requested_tags.size == 1
-
-    if params[:sort]
-      custom_404 unless %w(curated alphabetical).include?(params[:sort])
-    end
-
-    tag_id = requested_tags.first.tag_id
-    tag_type = requested_tags.first.tag_type
-    @description = "All content with the '#{tag_id}' #{tag_type}"
-
-    artefacts = sorted_artefacts_for_tag_id(
-      tag_id,
-      params[:sort]
-    )
-    results = map_artefacts_and_add_editions(artefacts)
-    @result_set = FakePaginatedResultSet.new(results)
-
-    if params[:group_by].present?
-      # We only group by the format for now
-      custom_404 unless params[:group_by] == "format"
-
-      result_set_presenter_class = GroupedResultSetPresenter
-    else
-      result_set_presenter_class = ResultSetPresenter
-    end
-
-    presenter = result_set_presenter_class.new(
-      @result_set,
-      url_helper,
-      TaggedArtefactPresenter,
-      description: @description
-    )
-    presenter.present.to_json
+    set_expiry LONG_CACHE_TIME
+    custom_410
   end
 
   get "/licences.json" do
