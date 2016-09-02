@@ -90,46 +90,6 @@ describe URLHelper do
     end
   end
 
-  describe "tagged_content URLs" do
-    before do
-      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
-    end
-
-    it "works for a single tag" do
-      tag = DummyTag.new("crime", "section")
-      assert_equal "/with_tag.json?section=crime", @url_helper.tagged_content_url(tag)
-    end
-
-    it "works for tags of multiple types" do
-      tags = [
-        DummyTag.new("crime", "section"),
-        DummyTag.new("onions", "keyword"),
-      ]
-      assert_equal(
-        "/with_tag.json?keyword=onions&section=crime",
-        @url_helper.tagged_content_url(tags)
-      )
-    end
-
-    it "doesn't support multiple tags of the same type" do
-      # Well, not yet, at least
-      tags = [
-        DummyTag.new("crime", "section"),
-        DummyTag.new("batman", "section"),
-      ]
-      assert_raises ArgumentError do @url_helper.tagged_content_url(tags) end
-    end
-
-    it "accepts parameters" do
-      tag = DummyTag.new("crime", "section")
-      params = { sort: "curated", include_children: 1 }
-      assert_equal(
-        "/with_tag.json?section=crime&include_children=1&sort=curated",
-        @url_helper.tagged_content_url(tag, params)
-      )
-    end
-  end
-
   describe "tagged_content_web_url URLs" do
     before do
       @url_helper = URLHelper.new(MockApp, "http://example.com", nil)

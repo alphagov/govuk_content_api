@@ -58,23 +58,6 @@ class URLHelper
     api_url("/tags/#{CGI.escape(tag_type)}/#{CGI.escape(tag_id)}.json")
   end
 
-  def tagged_content_url(tag_or_tags, params = {})
-    tags = tag_or_tags.is_a?(Array) ? tag_or_tags : [tag_or_tags]
-    tags_by_type = tags.group_by &:tag_type
-    if tags_by_type.values.any? { |t| t.count > 1 }
-      raise ArgumentError, "Cannot search by multiple tags of one type"
-    end
-
-    # e.g. {"section" => "crime", "keyword" => "robbery"}
-    tag_query = Hash[tags_by_type.map { |tag_type, tags_of_type|
-      [tag_type, tags_of_type.first.tag_id]
-    }]
-
-    tag_query = Hash[tag_query.sort].merge(Hash[params.sort])
-
-    api_url("/with_tag.json?#{URI.encode_www_form(tag_query)}")
-  end
-
   def tag_web_url(tag)
     case tag.tag_type
     when "section"

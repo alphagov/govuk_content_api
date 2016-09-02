@@ -18,7 +18,6 @@ class TagPresenter
         "type" => @tag.tag_type
       },
       "content_with_tag" => {
-        "id" => @url_helper.tagged_content_url(@tag),
         "web_url" => @url_helper.tagged_content_web_url(@tag)
       },
       "state" => @tag.state,

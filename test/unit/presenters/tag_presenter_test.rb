@@ -45,18 +45,15 @@ describe TagPresenter do
 
   it "should link to the view for content with the tag" do
     mock_tag = mock_tag_without_parent
-    tag_url = stub
     tag_web_url = stub
 
     mock_url_helper = stub_everything do
-      stubs(:tagged_content_url).with(mock_tag).returns(tag_url)
       stubs(:tagged_content_web_url).with(mock_tag).returns(tag_web_url)
     end
 
     presented = TagPresenter.new(mock_tag, mock_url_helper).present
     assert_equal(
       {
-        "id" => tag_url,
         "web_url" => tag_web_url
       },
       presented["content_with_tag"]
