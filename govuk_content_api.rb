@@ -6,7 +6,6 @@ require 'gds_api/helpers'
 require_relative "config"
 require 'config/gds_sso_middleware'
 require 'pagination'
-require 'tag_types'
 require 'ostruct'
 
 require "url_helper"
@@ -69,10 +68,6 @@ class GovUkContentApi < Sinatra::Application
     end
   end
 
-  def known_tag_types
-    @known_tag_types ||= TagTypes.new(Artefact.tag_types)
-  end
-
   def set_expiry(duration = DEFAULT_CACHE_TIME, options = {})
     visibility = options[:private] ? :private : :public
     expires(duration, visibility)
@@ -93,67 +88,8 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags.json" do
-    set_expiry
-
-    options = {}
-
-    if params[:type]
-      options["tag_type"] = params[:type]
-    end
-
-    if params[:parent_id]
-      options["parent_id"] = params[:parent_id]
-    end
-
-    if params[:root_sections]
-      options["parent_id"] = nil
-    end
-
-    allowed_params = params.slice('type', 'parent_id', 'root_sections', 'sort', 'draft')
-
-    tags = if options.length > 0
-             Tag.where(options)
-           else
-             Tag
-           end
-
-    unless params[:draft]
-      tags = tags.where(:state.ne => 'draft')
-    end
-
-    if params[:sort] && params[:sort] == "alphabetical"
-      tags = tags.order_by(title: :asc)
-    end
-
-    if settings.pagination
-      begin
-        paginated_tags = paginated(tags, params[:page])
-      rescue InvalidPage
-        custom_404
-      end
-
-      @result_set = PaginatedResultSet.new(paginated_tags)
-      @result_set.populate_page_links { |page_number|
-        url_helper.tags_url(allowed_params, page_number)
-      }
-
-      headers "Link" => LinkHeader.new(@result_set.links).to_s
-    else
-      # If the scope is Tag, we need to use Tag.all instead, because the class
-      # itself is not a Mongo Criteria object
-      tags_scope = tags.is_a?(Class) ? tags.all : tags
-      @result_set = FakePaginatedResultSet.new(tags_scope)
-    end
-
-    presenter = ResultSetPresenter.new(
-      @result_set,
-      url_helper,
-      TagPresenter,
-      # This is replicating the existing behaviour from the old implementation
-      # TODO: make this actually describe the results
-      description: "All tags"
-    )
-    presenter.present.to_json
+    set_expiry LONG_CACHE_TIME
+    custom_410
   end
 
   get "/tag_types.json" do
@@ -162,32 +98,13 @@ class GovUkContentApi < Sinatra::Application
   end
 
   get "/tags/:tag_type_or_id.json" do
-    set_expiry
+    set_expiry LONG_CACHE_TIME
     custom_410
   end
 
   get "/tags/:tag_type/*.json" do |tag_type, tag_id|
-    set_expiry
-
-    tag_type_from_singular_form = known_tag_types.from_singular(tag_type)
-
-    unless tag_type_from_singular_form
-      tag_type_from_plural_form = known_tag_types.from_plural(tag_type)
-
-      if tag_type_from_plural_form
-        redirect(url_helper.tag_url(tag_type_from_plural_form.singular, tag_id))
-      else
-        custom_404
-      end
-    end
-
-    @tag = Tag.by_tag_id(tag_id, type: tag_type_from_singular_form.singular, draft: params[:draft])
-    if @tag
-      tag_presenter = TagPresenter.new(@tag, url_helper)
-      SingleResultPresenter.new(tag_presenter).present.to_json
-    else
-      custom_404
-    end
+    set_expiry LONG_CACHE_TIME
+    custom_410
   end
 
   get "/with_tag.json" do
@@ -364,80 +281,6 @@ protected
     end
   end
 
-  def map_artefacts_and_add_editions(artefacts)
-    # Preload to avoid hundreds of individual queries
-    editions_by_slug = published_editions_for_artefacts(artefacts)
-
-    results = artefacts.map do |artefact|
-      if artefact.owning_app == 'publisher'
-        artefact_with_edition(artefact, editions_by_slug)
-      else
-        artefact
-      end
-    end
-
-    results.compact
-  end
-
-  def sorted_artefacts_for_tag_id(tag_id, sort)
-    artefacts = Artefact.live.where(tag_ids: tag_id)
-
-    # Load in the curated list and use it as an ordering for the top items in
-    # the list. Any artefacts not present in the list go on the end, in
-    # alphabetical name order.
-    #
-    # For example, if the curated list is
-    #
-    #     [3, 1, 2]
-    #
-    # and the items have ids
-    #
-    #     [1, 2, 3, 4, 5]
-    #
-    # the sorted list will be one of the following:
-    #
-    #     [3, 1, 2, 4, 5]
-    #     [3, 1, 2, 5, 4]
-    #
-    # depending on the names of artefacts 4 and 5.
-    #
-    # If the sort order is alphabetical rather than curated, this is
-    # equivalent to the special case of curated ordering where the curated
-    # list is empty
-
-    if sort == "curated"
-      curated_list = CuratedList.where(tag_ids: [tag_id]).first
-      first_ids = curated_list ? curated_list.artefact_ids : []
-    else
-      # Just fall back on alphabetical order
-      first_ids = []
-    end
-
-    artefacts.to_a.sort_by { |artefact|
-      [
-        first_ids.find_index(artefact._id) || first_ids.length,
-        artefact.name.downcase
-      ]
-    }
-  end
-
-  def published_editions_for_artefacts(artefacts)
-    return [] if artefacts.empty?
-
-    slugs = artefacts.map(&:slug)
-    published_editions_for_artefacts = Edition.published.any_in(slug: slugs)
-    published_editions_for_artefacts.each_with_object({}) do |edition, result_hash|
-      result_hash[edition.slug] = edition
-    end
-  end
-
-  def artefact_with_edition(artefact, editions_by_slug)
-    artefact.edition = editions_by_slug[artefact.slug]
-    if artefact.edition
-      artefact
-    end
-  end
-
   def handle_unpublished_artefact(artefact)
     if artefact.state == 'archived'
       custom_410
@@ -553,10 +396,6 @@ protected
 
   def custom_410
     custom_error 410, "This item is no longer available"
-  end
-
-  def custom_503
-    custom_error 503, "A necessary backend process was unavailable. Please try again soon."
   end
 
   def custom_error(code, message)
