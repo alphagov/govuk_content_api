@@ -250,8 +250,6 @@ class GovUkContentApi < Sinatra::Application
 
     if @artefact.owning_app == 'publisher'
       attach_publisher_edition(@artefact, params[:edition])
-    elsif @artefact.kind == 'travel-advice'
-      attach_travel_advice_country_and_edition(@artefact, params[:edition])
     end
 
     base_presented_artefact = ArtefactPresenter.new(
@@ -335,27 +333,6 @@ protected
   rescue => e
     Airbrake.notify_or_ignore(e)
     artefact.licence = { "error" => "http_error" }
-  end
-
-  def attach_travel_advice_country_and_edition(artefact, version_number = nil)
-    if artefact.slug =~ %r{\Aforeign-travel-advice/(.*)\z}
-      artefact.country = Country.find_by_slug($1)
-    end
-    custom_404 unless artefact.country
-
-    artefact.edition = if version_number
-                         artefact.country.editions.where(version_number: version_number).first
-                       else
-                         artefact.country.editions.published.first
-                       end
-    custom_404 unless artefact.edition
-    attach_assets(artefact, :image, :document)
-
-    travel_index = Artefact.find_by_slug("foreign-travel-advice")
-    unless travel_index.nil?
-      artefact.extra_related_artefacts = travel_index.live_tagged_related_artefacts
-      artefact.extra_tags = travel_index.tags
-    end
   end
 
   def load_travel_advice_countries
