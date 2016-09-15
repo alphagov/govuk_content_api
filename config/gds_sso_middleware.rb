@@ -2,10 +2,9 @@ require 'gds-sso'
 require 'gds-sso/config'
 require 'read_only_user'
 require_relative 'gds_sso_config'
-require_relative 'secret_token'
 
 # have to provide a session for OmniAuth, but API clients probably won't support that
-use Rack::Session::Cookie, secret: SECRET_TOKEN
+use Rack::Session::Cookie, secret: ENV['SECRET_KEY_BASE']
 
 use ::OmniAuth::Builder do
   provider :gds, ::GDS::SSO::Config.oauth_id, ::GDS::SSO::Config.oauth_secret,
