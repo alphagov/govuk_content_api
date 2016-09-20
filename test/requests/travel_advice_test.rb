@@ -371,7 +371,10 @@ class TravelAdviceTest < GovUkContentApiTest
       end
 
       it "should authenticate with asset-manager if configured" do
+        # rubocop:disable MutableConstant
         ::ASSET_MANAGER_API_CREDENTIALS = { bearer_token: "foobar" }
+        # rubocop:enable MutableConstant
+
         GovUkContentApi.instance_variable_set('@asset_manager_api', nil)
 
         FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
