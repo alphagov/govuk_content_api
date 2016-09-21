@@ -11,6 +11,8 @@ module ContentApiArtefactExtensions
       :places,
       :assets,
       :country,
+      :extra_related_artefacts,
+      :extra_tags,
       :group,
     )
     scope :live, -> { where(state: 'live') }
@@ -22,12 +24,16 @@ module ContentApiArtefactExtensions
     related_artefacts = groups.map do |key, artefacts|
       artefacts.each { |a| a.group = key }
     end
+    related_artefacts.flatten!
 
-    related_artefacts.flatten.uniq(&:slug)
+    related_artefacts += @extra_related_artefacts.to_a if @extra_related_artefacts
+    related_artefacts.uniq(&:slug)
   end
 
   def combined_tags(options = {})
-    tags(options[:draft]).uniq(&:id)
+    combined_tags = tags(options[:draft])
+    combined_tags += @extra_tags.to_a if @extra_tags
+    combined_tags.uniq(&:id)
   end
 end
 
