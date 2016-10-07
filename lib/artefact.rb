@@ -8,7 +8,6 @@ module ContentApiArtefactExtensions
     attr_accessor(
       :edition,
       :licence,
-      :places,
       :assets,
       :country,
       :extra_related_artefacts,
