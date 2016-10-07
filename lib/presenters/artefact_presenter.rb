@@ -80,7 +80,6 @@ class ArtefactPresenter
       optional_fields,
       parts,
       nodes,
-      places,
       licence,
       local_service,
       assets,
@@ -162,27 +161,6 @@ private
     {
       "licence" => ArtefactLicencePresenter.new(@artefact.licence).present
     }
-  end
-
-  def places
-    return {} unless @artefact.places
-
-    place_list = if @artefact.places.first && @artefact.places.first["error"]
-      [
-        { "error" => @artefact.places.first["error"] }
-      ]
-    else
-      @artefact.places.map do |place|
-        [:name, :address1, :address2, :town, :postcode,
-            :email, :phone, :text_phone, :fax,
-            :access_notes, :general_notes, :url,
-            :location].each_with_object({}) do |field_name, hash|
-          hash[field_name.to_s] = place[field_name.to_s]
-        end
-      end
-    end
-
-    { "places" => place_list }
   end
 
   def local_service
