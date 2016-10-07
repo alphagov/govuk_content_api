@@ -308,18 +308,9 @@ protected
       end
     end
 
-    attach_place_data(@artefact) if @artefact.edition.format == "Place" && params[:latitude] && params[:longitude]
     attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
     attach_assets(@artefact, :caption_file) if @artefact.edition.is_a?(VideoEdition)
     attach_assets(@artefact, :small_image, :medium_image, :large_image) if @artefact.edition.is_a?(CampaignEdition)
-  end
-
-  def attach_place_data(artefact)
-    artefact.places = imminence_api.places(artefact.edition.place_type, params[:latitude], params[:longitude])
-  rescue GdsApi::TimedOutException
-    artefact.places = [{ "error" => "timed_out" }]
-  rescue GdsApi::HTTPErrorResponse
-    artefact.places = [{ "error" => "http_error" }]
   end
 
   def attach_license_data(artefact)
