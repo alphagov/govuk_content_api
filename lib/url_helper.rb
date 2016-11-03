@@ -22,60 +22,6 @@ class URLHelper
     @website_root + path
   end
 
-  def tags_url(params = {}, page = nil)
-    sorted_params = Hash[params.sort]
-    url_params = page ? sorted_params.merge(page: page) : sorted_options
-    # Not using activesupport's to_query here, because we want to control the
-    # order of parameters, specifically so that page comes last.
-    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
-  end
-
-  def tag_type_url(tag_type, params={})
-    url_params = { type: tag_type.singular }.merge(params)
-    api_url("/tags.json?#{URI.encode_www_form(url_params)}")
-  end
-
-  # This method returns a URL for a tag.
-  #
-  # The method can be called with an object responding to tag_id and tag_type
-  # methods (such as an instance of Tag).
-  #
-  #   eg. tag = Tag.new(tag_id: "crime", tag_type: "section")
-  #             tag_url(tag)  -> "/tags/section/crime.json"
-  #
-  # It can also be called with the tag_type and tag_id provided as strings.
-  #
-  #   eg. tag_url("section", "crime")  -> "/tags/section/crime.json"
-  #
-  def tag_url(tag_or_tag_type, tag_id=nil)
-    tag_type = tag_or_tag_type
-
-    if tag_or_tag_type.respond_to?(:tag_type) && tag_or_tag_type.respond_to?(:tag_id)
-      tag_type = tag_or_tag_type.tag_type
-      tag_id = tag_or_tag_type.tag_id
-    end
-
-    api_url("/tags/#{CGI.escape(tag_type)}/#{CGI.escape(tag_id)}.json")
-  end
-
-  def tag_web_url(tag)
-    case tag.tag_type
-    when "section"
-      public_web_url("/browse/#{tag.tag_id}")
-    when "specialist_sector"
-      public_web_url("/topic/#{tag.tag_id}")
-    when "organisation"
-      public_web_url("/government/organisations/#{tag.tag_id}")
-    end
-  end
-
-  def tagged_content_web_url(tag)
-    case tag.tag_type
-    when "section", "specialist_sector"
-      tag_web_url(tag)
-    end
-  end
-
   def artefacts_by_need_url(need_id, page = nil)
     if page
       api_url("/for_need/#{need_id}.json?" + URI.encode_www_form(page: page))
@@ -93,14 +39,6 @@ class URLHelper
   end
 
 private
-  def plural_tag_type(tag_type)
-    if tag_type.respond_to? :plural
-      plural_tag_type = tag_type.plural
-    else
-      # Fall back on the inflector if we have to
-      plural_tag_type = tag_type.pluralize
-    end
-  end
 
   def base_web_url(artefact)
     if @app_lookup

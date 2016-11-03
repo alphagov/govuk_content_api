@@ -2,7 +2,6 @@ require "test_helper"
 require "url_helper"
 
 describe URLHelper do
-  DummyTag = Struct.new(:tag_id, :tag_type)
   class MockApp
     def self.url(u)
       u
@@ -39,85 +38,5 @@ describe URLHelper do
     end
     helper = URLHelper.new(mock_app, "http://example.com", nil)
     assert_equal "http://example.com/foobang", helper.public_web_url("/foobang")
-  end
-
-  describe "tag URLs" do
-    before do
-      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
-    end
-
-    it "builds a url from a tag object" do
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
-      tag = DummyTag.new("crime", "section")
-
-      assert_equal "/tags/section/crime.json", helper.tag_url(tag)
-    end
-
-    it "builds a url from a tag id and tag type" do
-      helper = URLHelper.new(MockApp, "http://example.com", nil)
-
-      assert_equal "/tags/section/crime.json", helper.tag_url("section", "crime")
-    end
-  end
-
-  describe "tag_web_url URLs" do
-    before do
-      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
-    end
-
-    it "returns nil if the type isn't in the list" do
-      tag = DummyTag.new("rock", "genre")
-
-      assert_equal nil, @url_helper.tag_web_url(tag)
-    end
-
-    it "returns a /browse URL for a section tag" do
-      tag = DummyTag.new("crime", "section")
-
-      assert_equal "http://example.com/browse/crime", @url_helper.tag_web_url(tag)
-    end
-
-    it "returns a /topic URL for a specialist_sector tag" do
-      tag = DummyTag.new("oil-and-gas", "specialist_sector")
-
-      assert_equal "http://example.com/topic/oil-and-gas", @url_helper.tag_web_url(tag)
-    end
-
-    it "returns a /government/organisations URL for an organisation tag" do
-      tag = DummyTag.new("cabinet-office", "organisation")
-
-      assert_equal "http://example.com/government/organisations/cabinet-office", @url_helper.tag_web_url(tag)
-    end
-  end
-
-  describe "tagged_content_web_url URLs" do
-    before do
-      @url_helper = URLHelper.new(MockApp, "http://example.com", nil)
-    end
-
-    it "returns nil if the type isn't in the list" do
-      tag = DummyTag.new("rock", "genre")
-
-      assert_equal nil, @url_helper.tagged_content_web_url(tag)
-    end
-
-    it "returns a /browse URL for a section tag" do
-      tag = DummyTag.new("crime", "section")
-
-      assert_equal "http://example.com/browse/crime", @url_helper.tagged_content_web_url(tag)
-    end
-
-    it "returns a root URL for a specialist_sector tag" do
-      tag = DummyTag.new("oil-and-gas", "specialist_sector")
-
-      assert_equal "http://example.com/topic/oil-and-gas", @url_helper.tagged_content_web_url(tag)
-    end
-
-    # There isn't a good URL to see all content tagged to an organisation (yet)
-    it "returns nil for an organisation tag" do
-      tag = DummyTag.new("cabinet-office", "organisation")
-
-      assert_equal nil, @url_helper.tagged_content_web_url(tag)
-    end
   end
 end

@@ -1,5 +1,4 @@
 require "presenters/basic_artefact_presenter"
-require "presenters/tag_presenter"
 require "presenters/artefact_part_presenter"
 require "presenters/artefact_licence_presenter"
 
@@ -68,12 +67,6 @@ class ArtefactPresenter
   def present
     presented = BasicArtefactPresenter.new(@artefact, @url_helper).present
 
-    presented["tags"] = present_with(@artefact.combined_tags(draft: @options[:draft_tags]), TagPresenter)
-    presented["related"] = present_with(
-      @artefact.live_tagged_related_artefacts,
-      BasicArtefactPresenter
-    )
-
     # MERGE ALL THE THINGS!
     presented["details"] = [
       base_fields,
@@ -87,13 +80,6 @@ class ArtefactPresenter
       organisation,
       downtime,
     ].inject(&:merge)
-
-    presented["related_external_links"] = @artefact.external_links.map do |l|
-      {
-        "title" => l.title,
-        "url" => l.url
-      }
-    end
 
     presented
   end
