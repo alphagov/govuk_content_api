@@ -19,7 +19,7 @@ end
 #
 # See also: <http://stackoverflow.com/questions/12747690/>
 
-paginated_models = [Tag, Artefact]
+paginated_models = [Artefact]
 
 paginated_models.each do |model|
   model.send :include, Kaminari::MongoidExtension::Criteria

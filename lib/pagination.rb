@@ -45,10 +45,10 @@ module Pagination
   #
   # Example use:
   #
-  #   p = PaginatedResultSet.new(Tag.page(3))
+  #   p = PaginatedResultSet.new(Artefact.page(3))
   #
   #   p.current_page  # 3
-  #   p.results       # [#<Tag ...>, ...]
+  #   p.results       # [#<Artefact ...>, ...]
   #
   class PaginatedResultSet
     extend Forwardable

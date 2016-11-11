@@ -8,12 +8,10 @@ class FormatsRequestTest < GovUkContentApiTest
 
   def setup
     super
-    @tag1 = FactoryGirl.create(:live_tag, tag_id: 'crime')
-    @tag2 = FactoryGirl.create(:live_tag, tag_id: 'crime/batman', parent_id: @tag1.tag_id)
   end
 
   it "should work with answer_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', state: 'live')
     answer = FactoryGirl.create(:edition, slug: artefact.slug, body: 'Important batman information', panopticon_id: artefact.id, state: 'published')
 
     get '/batman.json'
@@ -31,7 +29,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with business_support_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', state: 'live')
     business_support = FactoryGirl.create(:business_support_edition, slug: artefact.slug,
                                 short_description: "No policeman is going to give the Batmobile a ticket",
                                 body: "batman body", eligibility: "batman eligibility", evaluation: "batman evaluation",
@@ -68,7 +66,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with guide_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', state: 'live')
     guide_edition = FactoryGirl.create(:guide_edition_with_two_govspeak_parts, slug: artefact.slug,
                                 panopticon_id: artefact.id, state: 'published')
     guide_edition.save!
@@ -91,7 +89,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with programme_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman', owning_app: 'publisher', state: 'live')
     programme_edition = FactoryGirl.create(:programme_edition, slug: artefact.slug,
                                 panopticon_id: artefact.id, state: 'published')
     programme_edition.save!
@@ -114,7 +112,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
   describe "video editions" do
     before :each do
-      @artefact = FactoryGirl.create(:artefact, slug: 'batman', kind: 'video', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+      @artefact = FactoryGirl.create(:artefact, slug: 'batman', kind: 'video', owning_app: 'publisher', state: 'live')
     end
 
     it "should work with basic video_edition" do
@@ -192,7 +190,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with licence_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', state: 'live')
     licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence',
                                 licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published',
                                 will_continue_on: 'The Batman', continuation_link: 'http://www.batman.com', licence_identifier: "123-4-5")
@@ -217,7 +215,7 @@ class FormatsRequestTest < GovUkContentApiTest
 
   it "should work with local_transaction_edition" do
     service = FactoryGirl.create(:local_service, lgsl_code: 42)
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', state: 'live')
     local_transaction_edition = FactoryGirl.create(:local_transaction_edition, slug: artefact.slug, lgsl_code: 42, lgil_override: 3345,
                                 need_to_know: "- Credit card required",
                                 introduction: "batman introduction", more_information: "batman more_information",
@@ -241,7 +239,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with transaction_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman-transaction', owning_app: 'publisher', state: 'live')
     transaction_edition = FactoryGirl.create(:transaction_edition, slug: artefact.slug,
                                 need_to_know: "- Credit card required",
                                 introduction: "batman introduction", more_information: "batman more_information",
@@ -295,7 +293,7 @@ class FormatsRequestTest < GovUkContentApiTest
   end
 
   it "should work with place_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', sections: [@tag1.tag_id], state: 'live')
+    artefact = FactoryGirl.create(:artefact, slug: 'batman-place', owning_app: 'publisher', state: 'live')
     place_edition = FactoryGirl.create(:place_edition, slug: artefact.slug, need_to_know: "- Available only in England",
                                 introduction: "batman introduction", more_information: "batman more_information",
                                 place_type: "batman-locations",
