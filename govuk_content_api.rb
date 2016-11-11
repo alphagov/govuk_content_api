@@ -11,7 +11,6 @@ require 'ostruct'
 require "url_helper"
 require "presenters/result_set_presenter"
 require "presenters/single_result_presenter"
-require "presenters/tag_presenter"
 require "presenters/basic_artefact_presenter"
 require "presenters/minimal_artefact_presenter"
 require "presenters/artefact_presenter"
@@ -258,7 +257,6 @@ class GovUkContentApi < Sinatra::Application
       @artefact,
       url_helper,
       govspeak_formatter(formatter_options),
-      draft_tags: params[:draft_tags]
     )
 
     presented_artefact = presenters
@@ -341,12 +339,6 @@ protected
                        end
     custom_404 unless artefact.edition
     attach_assets(artefact, :image, :document)
-
-    travel_index = Artefact.find_by_slug("foreign-travel-advice")
-    unless travel_index.nil?
-      artefact.extra_related_artefacts = travel_index.live_tagged_related_artefacts
-      artefact.extra_tags = travel_index.tags
-    end
   end
 
   def load_travel_advice_countries
