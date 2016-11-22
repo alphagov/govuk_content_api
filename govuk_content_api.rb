@@ -24,6 +24,7 @@ require "govspeak_formatter"
 require 'artefact'
 require 'config/kaminari'
 require 'country'
+require 'services'
 
 class GovUkContentApi < Sinatra::Application
   helpers GdsApi::Helpers
@@ -357,20 +358,13 @@ protected
       asset_id = artefact.edition.send("#{key}_id")
       if asset_id
         begin
-          asset = asset_manager_api.asset(asset_id)
+          asset = Services.asset_manager.asset(asset_id)
           artefact.assets[key] = asset if asset && asset["state"] == "clean"
         rescue GdsApi::BaseError => e
           logger.warn "Requesting asset #{asset_id} returned error: #{e.inspect}"
         end
       end
     end
-  end
-
-  def asset_manager_api
-    options = Object::const_defined?(:ASSET_MANAGER_API_CREDENTIALS) ? ASSET_MANAGER_API_CREDENTIALS : {
-      bearer_token: ENV['CONTENTAPI_ASSET_MANAGER_BEARER_TOKEN']
-    }
-    super(options)
   end
 
   def custom_404
