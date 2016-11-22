@@ -39,14 +39,16 @@ end
 enable :dump_errors, :raise_errors
 
 if ! in_development || ENV["API_CACHE"]
-  cache_config_file_path = File.expand_path(
-    "rack-cache.yml",
-    File.dirname(__FILE__)
-  )
-  if File.exists? cache_config_file_path
-    use Rack::Cache, YAML.load_file(cache_config_file_path).symbolize_keys
+  metastore_conf = ENV["MEMCACHED_METASTORE"]
+  entitystore_conf = ENV["MEMCACHED_ENTITYSTORE"]
+
+  if metastore_conf && entitystore_conf
+    use Rack::Cache,
+      verbose: true,
+      metastore: metastore_conf,
+      entitystore: entitystore_conf
   else
-    warn "Cache config file does not exist: #{cache_config_file_path}"
+    warn "Cache config MEMCACHED_METASTORE, MEMCACHED_ENTITYSTORE not set in env."
   end
 end
 
