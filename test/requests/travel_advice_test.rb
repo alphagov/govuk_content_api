@@ -244,30 +244,6 @@ class TravelAdviceTest < GovUkContentApiTest
         refute parsed_response["details"].has_key?("document")
       end
 
-      it "should authenticate with asset-manager if configured" do
-        # rubocop:disable MutableConstant
-        ::ASSET_MANAGER_API_CREDENTIALS = { bearer_token: "foobar" }
-        # rubocop:enable MutableConstant
-
-        GovUkContentApi.instance_variable_set('@asset_manager_api', nil)
-
-        FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
-                                      kind: 'travel-advice', owning_app: 'travel-advice-publisher')
-        FactoryGirl.create(:published_travel_advice_edition, country_slug: 'aruba',
-                                     image_id: "512c9019686c82191d000003")
-
-        asset_manager_has_an_asset("512c9019686c82191d000003", "id" => "https://asset-manager.production.alphagov.co.uk/assets/512c9019686c82191d000003",
-          "name" => "darth-on-a-cat.jpg",
-          "content_type" => "image/jpeg",
-          "file_url" => "https://assets.digital.cabinet-office.gov.uk/media/512c9019686c82191d000003/darth-on-a-cat.jpg",
-          "state" => "clean",)
-
-        get '/foreign-travel-advice/aruba.json'
-        assert last_response.ok?
-
-        assert_requested(:get, %r{\A#{ASSET_MANAGER_ENDPOINT}}, headers: { "Authorization" => "Bearer foobar" })
-      end
-
       it "should not include details if asset manager is unavailable or returns an error" do
         FactoryGirl.create(:artefact, slug: 'foreign-travel-advice/aruba', state: 'live',
                                       kind: 'travel-advice', owning_app: 'travel-advice-publisher')
