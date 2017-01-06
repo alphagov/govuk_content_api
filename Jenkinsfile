@@ -2,7 +2,7 @@
 
 REPOSITORY = 'govuk_content_api'
 
-node {
+node('mongodb-2.4') {
   def govuk = load '/var/lib/jenkins/groovy_scripts/govuk_jenkinslib.groovy'
 
   properties([
