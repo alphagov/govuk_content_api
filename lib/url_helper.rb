@@ -22,14 +22,6 @@ class URLHelper
     @website_root + path
   end
 
-  def artefacts_by_need_url(need_id, page = nil)
-    if page
-      api_url("/for_need/#{need_id}.json?" + URI.encode_www_form(page: page))
-    else
-      api_url("/for_need/#{need_id}.json")
-    end
-  end
-
   def artefact_url(artefact)
     api_url("/#{CGI.escape(artefact.slug)}.json")
   end
