@@ -41,66 +41,6 @@ module Pagination
     paginated_scope
   end
 
-  # Wrapper class to access information from a paginated result set.
-  #
-  # Example use:
-  #
-  #   p = PaginatedResultSet.new(Artefact.page(3))
-  #
-  #   p.current_page  # 3
-  #   p.results       # [#<Artefact ...>, ...]
-  #
-  class PaginatedResultSet
-    extend Forwardable
-
-    # Delegate, delegate method, [local alias]
-    def_delegator :@scope, :total_count, :total
-    def_delegator :@scope, :total_pages, :pages
-    def_delegator :@scope, :limit_value, :page_size
-    def_delegator :@scope, :current_page
-
-    def_delegator :@scope, :last_page?
-    def_delegator :@scope, :first_page?
-
-    def initialize(scope)
-      @scope = scope
-    end
-
-    def results
-      @results ||= @scope.to_a
-    end
-
-    def start_index
-      @scope.options.skip + 1
-    end
-
-    def links
-      @links || [].freeze
-    end
-
-    # Populate the inter-page links on this result set.
-    #
-    # The `generate_link` block should take a page number and return a URL.
-    def populate_page_links(&generate_link)
-      @links = []
-
-      unless last_page?
-        links.push LinkHeader::Link.new(
-          generate_link.call(current_page + 1),
-          [%w(rel next)]
-        )
-      end
-      unless first_page?
-        links.push LinkHeader::Link.new(
-          generate_link.call(current_page - 1),
-          [%w(rel previous)]
-        )
-      end
-
-      @links.freeze
-    end
-  end
-
   # Wrapper class to mimic a PaginatedResultSet for non-paginated results.
   #
   # The `scope` parameter can be any object that can be converted to an array
