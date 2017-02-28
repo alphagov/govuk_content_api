@@ -262,24 +262,8 @@ protected
       end
     end
 
-    attach_license_data(@artefact) if @artefact.edition.format == 'Licence'
     attach_assets(@artefact, :caption_file) if @artefact.edition.is_a?(VideoEdition)
     attach_assets(@artefact, :small_image, :medium_image, :large_image) if @artefact.edition.is_a?(CampaignEdition)
-  end
-
-  def attach_license_data(artefact)
-    licence_api_response = licence_application_api.details_for_licence(artefact.edition.licence_identifier, params[:snac])
-    artefact.licence = licence_api_response.nil? ? nil : licence_api_response.to_hash
-
-    if artefact.licence && artefact.edition.licence_identifier
-      licence_lgsl_code = @artefact.edition.licence_identifier.split('-').first
-      artefact.licence['local_service'] = LocalService.where(lgsl_code: licence_lgsl_code).first
-    end
-  rescue GdsApi::TimedOutException
-    artefact.licence = { "error" => "timed_out" }
-  rescue => e
-    Airbrake.notify_or_ignore(e)
-    artefact.licence = { "error" => "http_error" }
   end
 
   def attach_travel_advice_country_and_edition(artefact, version_number = nil)

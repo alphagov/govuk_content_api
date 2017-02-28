@@ -1,6 +1,5 @@
 require "presenters/basic_artefact_presenter"
 require "presenters/artefact_part_presenter"
-require "presenters/artefact_licence_presenter"
 
 # Full presenter for artefacts.
 #
@@ -73,8 +72,6 @@ class ArtefactPresenter
       optional_fields,
       parts,
       nodes,
-      licence,
-      local_service,
       assets,
       country,
       organisation,
@@ -139,26 +136,6 @@ private
     end
 
     {"nodes" => presented_nodes}
-  end
-
-  def licence
-    return {} unless @artefact.licence
-
-    {
-      "licence" => ArtefactLicencePresenter.new(@artefact.licence).present
-    }
-  end
-
-  def local_service
-    return {} unless @artefact.edition.respond_to?(:service)
-
-    {
-      "local_service" => {
-        "description" => @artefact.edition.service.description,
-        "lgsl_code" => @artefact.edition.service.lgsl_code,
-        "providing_tier" => @artefact.edition.service.providing_tier
-      }
-    }
   end
 
   def organisation

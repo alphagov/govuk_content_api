@@ -153,54 +153,6 @@ class ArtefactRequestTest < GovUkContentApiTest
   end
 
   describe "publisher artefacts" do
-
-    describe "with local transactions" do
-
-      describe "with snac code provided" do
-
-        before do
-          @service = FactoryGirl.create(:local_service)
-          @local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
-            lgsl_code: @service.lgsl_code, state: 'published')
-
-          @local_transaction_edition.artefact.update_attribute(:state, 'live')
-        end
-
-        it "should return local service details" do
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac=OOAP"
-          assert last_response.ok?
-          response = JSON.parse(last_response.body)
-
-          assert_equal @service.lgsl_code, response['details']['local_service']['lgsl_code']
-          assert_equal @service.providing_tier, response['details']['local_service']['providing_tier']
-        end
-
-        it 'no longer includes local_authority details' do
-          get "/#{@local_transaction_edition.artefact.slug}.json?snac=00AP"
-          assert last_response.ok?
-          response = JSON.parse(last_response.body)
-
-          refute response['details'].key? 'local_authority'
-        end
-      end
-
-      it "should return local_service details for local transactions without snac code" do
-        service = FactoryGirl.create(:local_service)
-        local_transaction_edition = FactoryGirl.create(:local_transaction_edition,
-          lgsl_code: service.lgsl_code, state: 'published')
-
-        local_transaction_edition.artefact.update_attribute(:state, 'live')
-
-        get "/#{local_transaction_edition.artefact.slug}.json"
-        assert last_response.ok?
-        response = JSON.parse(last_response.body)
-
-        assert_equal service.lgsl_code, response['details']['local_service']['lgsl_code']
-        assert_equal service.providing_tier, response['details']['local_service']['providing_tier']
-      end
-
-    end
-
     it "should return 404 if artefact is publication but never published" do
       edition = FactoryGirl.create(:edition)
 
