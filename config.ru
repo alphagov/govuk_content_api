@@ -17,6 +17,8 @@ require "rack/cache"
 use GdsApi::GovukHeaderSniffer, 'HTTP_GOVUK_REQUEST_ID'
 use GdsApi::GovukHeaderSniffer, 'HTTP_GOVUK_ORIGINAL_URL'
 
+require "redis_rack_cache_patch"  # Load in fix to give everything a TTL
+
 in_development = ENV['RACK_ENV'] == 'development'
 
 if in_development
