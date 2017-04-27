@@ -15,7 +15,6 @@ require "presenters/basic_artefact_presenter"
 require "presenters/minimal_artefact_presenter"
 require "presenters/artefact_presenter"
 require "presenters/travel_advice_index_presenter"
-require "presenters/business_support_scheme_presenter"
 require "presenters/licence_presenter"
 require "govspeak_formatter"
 
@@ -129,37 +128,6 @@ class GovUkContentApi < Sinatra::Application
       url_helper,
       LicencePresenter,
       description: "Licences"
-    )
-    presenter.present.to_json
-  end
-
-  get "/business_support_schemes.json" do
-    set_expiry
-
-    facets = {}
-    [:area_gss_codes, :business_sizes, :locations, :purposes, :sectors, :stages, :support_types].each do |key|
-      facets[key] = params[key] if params[key].present?
-    end
-
-    if facets.empty?
-      editions = BusinessSupportEdition.published
-    else
-      editions = BusinessSupportEdition.for_facets(facets).published
-    end
-
-    editions = editions.order_by({ priority: :desc }, title: :asc)
-
-    @results = editions.map do |ed|
-      artefact = Artefact.find(ed.panopticon_id)
-      artefact.edition = ed
-      artefact
-    end
-    @results.select!(&:live?)
-
-    presenter = ResultSetPresenter.new(
-      FakePaginatedResultSet.new(@results),
-      url_helper,
-      BusinessSupportSchemePresenter
     )
     presenter.present.to_json
   end
