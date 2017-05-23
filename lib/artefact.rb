@@ -7,7 +7,6 @@ module ContentApiArtefactExtensions
   included do
     attr_accessor(
       :edition,
-      :licence,
       :assets,
       :country,
       :group,

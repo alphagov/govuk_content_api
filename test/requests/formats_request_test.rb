@@ -1,9 +1,7 @@
 require_relative '../test_helper'
-require "gds_api/test_helpers/licence_application"
 require "gds_api/test_helpers/asset_manager"
 
 class FormatsRequestTest < GovUkContentApiTest
-  include GdsApi::TestHelpers::LicenceApplication
   include GdsApi::TestHelpers::AssetManager
 
   def setup
@@ -187,30 +185,6 @@ class FormatsRequestTest < GovUkContentApiTest
         assert last_response.ok?
       end
     end
-  end
-
-  it "should work with licence_edition" do
-    artefact = FactoryGirl.create(:artefact, slug: 'batman-licence', owning_app: 'publisher', state: 'live')
-    licence_edition = FactoryGirl.create(:licence_edition, slug: artefact.slug, licence_short_description: 'Batman licence',
-                                licence_overview: 'Not just anyone can be Batman', panopticon_id: artefact.id, state: 'published',
-                                will_continue_on: 'The Batman', continuation_link: 'http://www.batman.com', licence_identifier: "123-4-5")
-    licence_exists('123-4-5', { })
-
-    get '/batman-licence.json'
-    parsed_response = JSON.parse(last_response.body)
-
-    assert last_response.ok?
-    assert_base_artefact_fields(parsed_response)
-
-    fields = parsed_response["details"]
-    expected_fields = ['licence_overview', 'licence_short_description', 'licence_identifier', 'will_continue_on', 'continuation_link']
-
-    assert_has_expected_fields(fields, expected_fields)
-    assert_equal "<p>Not just anyone can be Batman</p>", fields["licence_overview"].strip
-    assert_equal "Batman licence", fields["licence_short_description"]
-    assert_equal "123-4-5", fields["licence_identifier"]
-    assert_equal "The Batman", fields["will_continue_on"]
-    assert_equal "http://www.batman.com", fields["continuation_link"]
   end
 
   it "should work with local_transaction_edition" do

@@ -15,7 +15,6 @@ require "presenters/basic_artefact_presenter"
 require "presenters/minimal_artefact_presenter"
 require "presenters/artefact_presenter"
 require "presenters/travel_advice_index_presenter"
-require "presenters/licence_presenter"
 require "govspeak_formatter"
 
 # Note: the artefact patch needs to be included before the Kaminari patch,
@@ -111,27 +110,6 @@ class GovUkContentApi < Sinatra::Application
     custom_410
   end
 
-  get "/licences.json" do
-    set_expiry
-
-    licence_ids = (params[:ids] || '').split(',')
-    if licence_ids.any?
-      licences = LicenceEdition.published.in(licence_identifier: licence_ids)
-      @results = map_editions_with_artefacts(licences)
-    else
-      @results = []
-    end
-
-    @result_set = FakePaginatedResultSet.new(@results)
-    presenter = ResultSetPresenter.new(
-      @result_set,
-      url_helper,
-      LicencePresenter,
-      description: "Licences"
-    )
-    presenter.present.to_json
-  end
-
   get "/artefacts.json" do
     set_expiry
     custom_410
@@ -192,16 +170,6 @@ class GovUkContentApi < Sinatra::Application
   end
 
 protected
-
-  def map_editions_with_artefacts(editions)
-    artefact_ids = editions.collect(&:panopticon_id)
-    matching_artefacts = Artefact.live.any_in(_id: artefact_ids)
-
-    matching_artefacts.map do |artefact|
-      artefact.edition = editions.detect { |e| e.panopticon_id.to_s == artefact.id.to_s }
-      artefact
-    end
-  end
 
   def handle_unpublished_artefact(artefact)
     if artefact.state == 'archived'
