@@ -26,9 +26,6 @@ class ArtefactPresenter
     introduction
     lgil_override
     lgsl_code
-    licence_identifier
-    licence_overview
-    licence_short_description
     link
     max_employees
     max_value
