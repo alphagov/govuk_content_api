@@ -110,11 +110,6 @@ class GovUkContentApi < Sinatra::Application
     custom_410
   end
 
-  get "/artefacts.json" do
-    set_expiry
-    custom_410
-  end
-
   get "/*.json" do |id|
     # The edition param is for accessing unpublished editions in order for
     # editors to preview them. These can change frequently and so shouldn't be
