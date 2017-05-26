@@ -174,8 +174,8 @@ class ArtefactRequestTest < GovUkContentApiTest
 
     it "gets the published edition if a previous archived edition exists" do
       artefact = FactoryGirl.create(:artefact, state: 'live')
-      edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id)
-      FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id)
+      edition = FactoryGirl.create(:edition, state: 'archived', panopticon_id: artefact.id, version_number: 1)
+      FactoryGirl.create(:edition, state: 'published', panopticon_id: artefact.id, version_number: 2)
 
       get "/#{edition.artefact.slug}.json"
 
