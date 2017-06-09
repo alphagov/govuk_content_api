@@ -20,7 +20,6 @@ require 'factory_girl'
 require 'webmock/minitest'
 require 'timecop'
 require 'govuk_content_api'
-require 'govuk_content_models/test_helpers/factories'
 require 'gds_api/test_helpers/json_client_helper'
 
 require 'minitest/reporters'
@@ -112,5 +111,3 @@ class GovUkContentApiTest < MiniTest::Spec
     ENV['GOVUK_WEBSITE_ROOT']
   end
 end
-
-Country.data_path = File.expand_path("../fixtures/data/countries.yml", __FILE__)

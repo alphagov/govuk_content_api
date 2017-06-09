@@ -25,7 +25,6 @@ else
   gem 'gds-api-adapters', '41.2.0'
 end
 
-gem 'govspeak', '~> 3.1'
 gem 'plek', '1.10.0'
 gem 'yajl-ruby'
 gem 'link_header', '0.0.8'

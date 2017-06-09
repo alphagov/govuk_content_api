@@ -300,7 +300,6 @@ DEPENDENCIES
   factory_girl (= 4.5.0)
   gds-api-adapters (= 41.2.0)
   gds-sso (~> 11.2)
-  govspeak (~> 3.1)
   govuk-lint
   govuk_content_models (~> 42.0.0)
   link_header (= 0.0.8)
@@ -322,4 +321,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.14.5
+   1.15.0
