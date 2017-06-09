@@ -5,7 +5,6 @@ require 'plek'
 require 'gds_api/helpers'
 require_relative "config"
 require 'config/gds_sso_middleware'
-require 'pagination'
 require 'ostruct'
 
 require "url_helper"
@@ -26,8 +25,6 @@ require 'services'
 
 class GovUkContentApi < Sinatra::Application
   helpers GdsApi::Helpers
-
-  include Pagination
 
   DEFAULT_CACHE_TIME = 15.minutes.to_i
   LONG_CACHE_TIME = 1.hour.to_i

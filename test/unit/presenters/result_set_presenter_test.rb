@@ -1,6 +1,5 @@
 require "test_helper"
 require "presenters/result_set_presenter"
-require "pagination"
 
 describe ResultSetPresenter do
 
@@ -24,23 +23,6 @@ describe ResultSetPresenter do
       expects(:current_page).returns(1)
       expects(:results).returns(results)
     end
-  end
-
-  it "should provide pagination data" do
-    results = (1..5)
-    result_set = mock_result_set(results)
-
-    presented = ResultSetPresenter.new(result_set, nil, DummyResultPresenter).present
-
-    assert_equal(
-      { "status" => "ok", "links" => [] },
-      presented["_response_info"]
-    )
-    assert_equal 5, presented["total"]
-    assert_equal 1, presented["start_index"]
-    assert_equal 1, presented["pages"]
-    assert_equal 5, presented["page_size"]
-    assert_equal 1, presented["current_page"]
   end
 
   it "should use a custom presenter class" do

@@ -28,7 +28,6 @@ end
 gem 'govspeak', '~> 3.1'
 gem 'plek', '1.10.0'
 gem 'yajl-ruby'
-gem 'kaminari', '0.14.1'
 gem 'link_header', '0.0.8'
 gem 'rack-cache', '1.2'
 gem 'dalli', '2.7.4'

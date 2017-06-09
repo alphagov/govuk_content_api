@@ -110,9 +110,6 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     jwt (1.5.4)
-    kaminari (0.14.1)
-      actionpack (>= 3.0.0)
-      activesupport (>= 3.0.0)
     kgio (2.10.0)
     kramdown (1.10.0)
     link_header (0.0.8)
@@ -306,7 +303,6 @@ DEPENDENCIES
   govspeak (~> 3.1)
   govuk-lint
   govuk_content_models (~> 42.0.0)
-  kaminari (= 0.14.1)
   link_header (= 0.0.8)
   minitest (~> 5.0)
   minitest-reporters
