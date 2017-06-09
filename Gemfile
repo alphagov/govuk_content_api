@@ -19,18 +19,11 @@ end
 
 gem 'gds-sso', '~> 11.2'
 
-if ENV['API_DEV']
-  gem 'gds-api-adapters', path: '../gds-api-adapters'
-else
-  gem 'gds-api-adapters', '41.2.0'
-end
-
 gem 'plek', '1.10.0'
 gem 'yajl-ruby'
 gem 'link_header', '0.0.8'
 gem 'rack-cache', '1.2'
 gem 'dalli', '2.7.4'
-
 gem 'rack-logstasher', '0.0.3'
 gem 'airbrake', '4.3.0'
 

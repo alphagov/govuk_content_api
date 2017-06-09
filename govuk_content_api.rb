@@ -1,12 +1,10 @@
 require 'sinatra'
 require 'mongoid'
-require 'gds_api/helpers'
+require 'plek'
 require_relative "config"
 require 'config/gds_sso_middleware'
 
 class GovUkContentApi < Sinatra::Application
-  helpers GdsApi::Helpers
-
   DEFAULT_CACHE_TIME = 15.minutes.to_i
   LONG_CACHE_TIME = 1.hour.to_i
 

@@ -298,7 +298,6 @@ DEPENDENCIES
   dalli (= 2.7.4)
   database_cleaner (= 1.5.1)
   factory_girl (= 4.5.0)
-  gds-api-adapters (= 41.2.0)
   gds-sso (~> 11.2)
   govuk-lint
   govuk_content_models (~> 42.0.0)

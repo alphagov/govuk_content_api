@@ -20,7 +20,6 @@ require 'factory_girl'
 require 'webmock/minitest'
 require 'timecop'
 require 'govuk_content_api'
-require 'gds_api/test_helpers/json_client_helper'
 
 require 'minitest/reporters'
 Minitest::Reporters.use!(
