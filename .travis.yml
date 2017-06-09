@@ -3,8 +3,6 @@ rvm:
   - 1.9.3-p484
 env:
   - GOVUK_APP_DOMAIN=dev.gov.uk
-services:
-  - mongodb
 script:
   - bundle exec rake ci:setup:minitest test
 bundler_args: --without=development

@@ -1,5 +1,4 @@
 require 'sinatra'
-require 'mongoid'
 require 'plek'
 require_relative "config"
 require 'config/gds_sso_middleware'

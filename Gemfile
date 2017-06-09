@@ -11,12 +11,6 @@ gem 'sinatra', '1.4.6'
 # version of Rails in client applications.
 gem 'rails', '4.2.6'
 
-if ENV['CONTENT_MODELS_DEV']
-  gem 'govuk_content_models', path: '../govuk_content_models'
-else
-  gem "govuk_content_models", "~> 42.0.0"
-end
-
 gem 'gds-sso', '~> 11.2'
 
 gem 'plek', '1.10.0'
@@ -28,8 +22,6 @@ gem 'rack-logstasher', '0.0.3'
 gem 'airbrake', '4.3.0'
 
 group :test do
-  gem 'database_cleaner', '1.5.1'
-  gem 'factory_girl', '4.5.0'
   gem 'mocha', '1.1.0'
   gem 'simplecov', '0.10.0'
   gem 'simplecov-rcov', '0.2.3'

@@ -14,9 +14,7 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 require 'minitest/autorun'
 require 'rack/test'
 
-require 'database_cleaner'
 require 'mocha/mini_test'
-require 'factory_girl'
 require 'webmock/minitest'
 require 'timecop'
 require 'govuk_content_api'
@@ -25,10 +23,6 @@ require 'minitest/reporters'
 Minitest::Reporters.use!(
   Minitest::Reporters::SpecReporter.new(color: true),
 )
-
-DatabaseCleaner.strategy = :truncation
-# initial clean
-DatabaseCleaner.clean
 
 WebMock.disable_net_connect!
 
@@ -88,12 +82,7 @@ module ResponseTestMethods
 end
 
 class MiniTest::Spec
-  before :each do
-    DatabaseCleaner.start
-  end
-
   after :each do
-    DatabaseCleaner.clean
     Timecop.return
   end
 end

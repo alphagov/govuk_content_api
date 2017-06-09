@@ -18,4 +18,3 @@ if [[ ${GIT_BRANCH} != "origin/master" ]]; then
 fi
 
 bundle exec rake db:drop
-bundle exec rake ci:setup:minitest test --trace
