@@ -1,10 +1,8 @@
 require 'sinatra'
 require 'mongoid'
-require 'plek'
 require 'gds_api/helpers'
 require_relative "config"
 require 'config/gds_sso_middleware'
-require 'services'
 
 class GovUkContentApi < Sinatra::Application
   helpers GdsApi::Helpers
