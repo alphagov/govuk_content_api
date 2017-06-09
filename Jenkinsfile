@@ -51,7 +51,7 @@ node('mongodb-2.4') {
     }
 
     stage("Run tests") {
-      sh("bundle exec rake ci:setup:minitest test --trace")
+      sh("bundle exec rake test --trace")
     }
 
     stage("Push release tag") {

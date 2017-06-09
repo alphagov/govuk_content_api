@@ -4,11 +4,6 @@ gem 'unicorn', '4.9.0'
 gem 'rake', '10.4.2'
 gem 'sinatra', '1.4.6'
 
-# Pulled in by gds-sso, pinned in order to maintain
-# security fixes.
-#
-# gds-sso should be modified to not require the full
-# version of Rails in client applications.
 gem 'rails', '4.2.6'
 
 gem 'gds-sso', '~> 11.2'
@@ -22,14 +17,7 @@ gem 'rack-logstasher', '0.0.3'
 gem 'airbrake', '4.3.0'
 
 group :test do
-  gem 'mocha', '1.1.0'
-  gem 'simplecov', '0.10.0'
-  gem 'simplecov-rcov', '0.2.3'
   gem 'minitest', '~> 5.0'
-  gem 'minitest-reporters'
-  gem 'ci_reporter_minitest', '1.0.0'
-  gem 'webmock', '~> 1.21', require: false
-  gem 'timecop', '0.7.4'
 end
 
 group :development do
