@@ -29,6 +29,11 @@ class GovUkContentApi < Sinatra::Application
     content_type :json
   end
 
+  get '/healthcheck' do
+    status 200
+    body 'OK'
+  end
+
   get "/local_authorities.json" do
     set_expiry LONG_CACHE_TIME
     custom_410
