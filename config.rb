@@ -2,11 +2,6 @@ require_relative 'env'
 require 'airbrake'
 
 configure do
-  mongoid_config_file = File.expand_path("mongoid.yml", File.dirname(__FILE__))
-  if File.exists?(mongoid_config_file)
-    ::Mongoid.load!(mongoid_config_file)
-  end
-
   # Disable pagination until our clients are all ready for it
   disable :pagination
 end

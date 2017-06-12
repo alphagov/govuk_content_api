@@ -17,5 +17,4 @@ if [[ ${GIT_BRANCH} != "origin/master" ]]; then
     config lib test
 fi
 
-bundle exec rake db:drop
-bundle exec rake ci:setup:minitest test --trace
+bundle exec rake test --trace

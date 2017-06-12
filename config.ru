@@ -14,9 +14,6 @@ require "logger"
 require 'dalli'
 require "rack/cache"
 
-use GdsApi::GovukHeaderSniffer, 'HTTP_GOVUK_REQUEST_ID'
-use GdsApi::GovukHeaderSniffer, 'HTTP_GOVUK_ORIGINAL_URL'
-
 in_development = ENV['RACK_ENV'] == 'development'
 
 if in_development
